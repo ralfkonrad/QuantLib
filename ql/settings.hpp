@@ -1,9 +1,9 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
-
 /*
  Copyright (C) 2007, 2011 Ferdinando Ametrano
  Copyright (C) 2007 François du Vignaud
  Copyright (C) 2004, 2005, 2007, 2009 StatPro Italia srl
+ Copyright (C) 2019 Ralf Konrad Eckel
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -107,11 +107,19 @@ namespace QuantLib {
 
         bool& enforcesTodaysHistoricFixings();
         bool enforcesTodaysHistoricFixings() const;
+
+        /*! If set, this flag specifies whether to use indexed coupons 
+            instead of par coupons in floating legs.
+        */
+        bool& useIndexedCoupon();
+        bool useIndexedCoupon() const;
+
       private:
         DateProxy evaluationDate_;
         bool includeReferenceDateEvents_;
         boost::optional<bool> includeTodaysCashFlows_;
         bool enforcesTodaysHistoricFixings_;
+        bool useIndexedCoupon_;
     };
 
 
@@ -125,6 +133,7 @@ namespace QuantLib {
         bool includeReferenceDateEvents_;
         boost::optional<bool> includeTodaysCashFlows_;
         bool enforcesTodaysHistoricFixings_;
+        bool useIndexedCoupon_;
     };
 
 
@@ -174,6 +183,13 @@ namespace QuantLib {
         return enforcesTodaysHistoricFixings_;
     }
 
+    inline bool& Settings::useIndexedCoupon() {
+        return useIndexedCoupon_;
+    }
+
+    inline bool Settings::useIndexedCoupon() const {
+        return useIndexedCoupon_;
+    }
 }
 
 #endif
