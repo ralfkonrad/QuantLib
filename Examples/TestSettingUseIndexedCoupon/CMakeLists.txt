@@ -1,0 +1,2 @@
+add_executable(TestSettingUseIndexedCoupon TestSettingUseIndexedCoupon.cpp)
+target_link_libraries(TestSettingUseIndexedCoupon ${QL_LINK_LIBRARY})
