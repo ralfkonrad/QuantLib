@@ -47,6 +47,7 @@ endif (Boost_FOUND)
 add_subdirectory(ql)
 add_subdirectory(Examples)
 add_subdirectory(test-suite)
+add_subdirectory(Issues)
 
 #
 # Copy across the ANSI config file into the build directory. Users

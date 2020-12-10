@@ -35,6 +35,12 @@ examples:
 check-examples:
 	$(MAKE) -C Examples check-examples
 
+.PHONY: issues check-issues
+examples:
+	$(MAKE) -C Issues issues
+check-examples:
+	$(MAKE) -C Issues check-issues
+
 .PHONY: benchmark
 benchmark:
 	$(MAKE) -C test-suite benchmark
