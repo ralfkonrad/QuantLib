@@ -35,7 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>930__Callable_Bond</ProjectName>
+    <ProjectName>930CallableBond</ProjectName>
     <ProjectGuid>{FFD4BE44-8E66-4C77-9B67-ED82E0D2CB87}</ProjectGuid>
     <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
   </PropertyGroup>
@@ -143,18 +143,18 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|x64'">true</LinkIncremental>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|Win32'">false</EmbedManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|x64'">false</EmbedManifest>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|Win32'">930__Callable_Bond-mt-sgd</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|x64'">930__Callable_Bond-x64-mt-sgd</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">930__Callable_Bond-mt-gd</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">930__Callable_Bond-x64-mt-gd</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|Win32'">930__Callable_Bond-mt-s</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|x64'">930__Callable_Bond-x64-mt-s</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">930__Callable_Bond-mt</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">930__Callable_Bond-x64-mt</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|Win32'">930CallableBond-mt-sgd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|x64'">930CallableBond-x64-mt-sgd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">930CallableBond-mt-gd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">930CallableBond-x64-mt-gd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|Win32'">930CallableBond-mt-s</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|x64'">930CallableBond-x64-mt-s</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">930CallableBond-mt</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">930CallableBond-x64-mt</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
-      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.tlb</TypeLibraryName>
+      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -174,7 +174,7 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <PrecompiledHeaderFile>quantlib.hpp</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</AssemblerListingLocation>
       <ObjectFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ObjectFileName>
       <ProgramDataBaseFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ProgramDataBaseFileName>
@@ -193,7 +193,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -203,7 +203,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
-      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.tlb</TypeLibraryName>
+      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -223,7 +223,7 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <PrecompiledHeaderFile>quantlib.hpp</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</AssemblerListingLocation>
       <ObjectFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ObjectFileName>
       <ProgramDataBaseFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ProgramDataBaseFileName>
@@ -242,7 +242,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -251,7 +251,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|Win32'">
     <Midl>
-      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.tlb</TypeLibraryName>
+      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -271,7 +271,7 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <PrecompiledHeaderFile>quantlib.hpp</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</AssemblerListingLocation>
       <ObjectFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ObjectFileName>
       <ProgramDataBaseFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ProgramDataBaseFileName>
@@ -290,7 +290,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -300,7 +300,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|x64'">
     <Midl>
-      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.tlb</TypeLibraryName>
+      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -320,7 +320,7 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <PrecompiledHeaderFile>quantlib.hpp</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</AssemblerListingLocation>
       <ObjectFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ObjectFileName>
       <ProgramDataBaseFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ProgramDataBaseFileName>
@@ -339,7 +339,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -348,7 +348,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
-      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.tlb</TypeLibraryName>
+      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -365,7 +365,7 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <PrecompiledHeaderFile>quantlib.hpp</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</AssemblerListingLocation>
       <ObjectFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ObjectFileName>
       <ProgramDataBaseFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ProgramDataBaseFileName>
@@ -386,7 +386,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -397,7 +397,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
-      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.tlb</TypeLibraryName>
+      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -414,7 +414,7 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <PrecompiledHeaderFile>quantlib.hpp</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</AssemblerListingLocation>
       <ObjectFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ObjectFileName>
       <ProgramDataBaseFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ProgramDataBaseFileName>
@@ -435,7 +435,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -444,7 +444,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|Win32'">
     <Midl>
-      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.tlb</TypeLibraryName>
+      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -461,7 +461,7 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <PrecompiledHeaderFile>quantlib.hpp</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</AssemblerListingLocation>
       <ObjectFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ObjectFileName>
       <ProgramDataBaseFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ProgramDataBaseFileName>
@@ -482,7 +482,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -493,7 +493,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|x64'">
     <Midl>
-      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.tlb</TypeLibraryName>
+      <TypeLibraryName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -510,7 +510,7 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <PrecompiledHeaderFile>quantlib.hpp</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</AssemblerListingLocation>
       <ObjectFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ObjectFileName>
       <ProgramDataBaseFileName>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\</ProgramDataBaseFileName>
@@ -531,7 +531,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930__Callable_Bond.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\build\$(PlatformToolset)\$(Platform)\$(Configuration)\930CallableBond.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -539,7 +539,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="930__Callable_Bond.cpp" />
+    <ClCompile Include="930CallableBond.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />

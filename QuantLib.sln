@@ -48,7 +48,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{F1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Issues", "Issues", "{FF94E246-B599-4178-9D79-790F6F000C21}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "930__Callable_Bond", "Issues\930__Callable_Bond\930__Callable_Bond.vcxproj", "{FFD4BE44-8E66-4C77-9B67-ED82E0D2CB87}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "930CallableBond", "Issues\930CallableBond\930CallableBond.vcxproj", "{FFD4BE44-8E66-4C77-9B67-ED82E0D2CB87}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

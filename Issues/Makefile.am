@@ -2,7 +2,7 @@
 AM_CPPFLAGS = -I${top_builddir} -I${top_srcdir}
 
 ISSUESS = \
-    930__Callable_Bond/930__Callable_Bond
+    930Callable_Bond/930Callable_Bond
 
 if AUTO_ISSUES
 bin_PROGRAMS = $(ISSUES)
@@ -13,7 +13,7 @@ endif
 
 LDADDS = ../ql/libQuantLib.la ${BOOST_THREAD_LIB}
 
-930CallableBond_930CallableBond_SOURCES = 930__Callable_Bond/930__Callable_Bond.cpp
+930CallableBond_930CallableBond_SOURCES = 930CallableBond/930CallableBond.cpp
 930CallableBond_930CallableBond_LDADD = $(LDADDS)
 
 EXTRA_DIST = CMakeLists.txt

@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="930__Callable_Bond.cpp">
+    <ClCompile Include="930CallableBond.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
