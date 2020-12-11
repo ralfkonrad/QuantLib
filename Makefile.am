@@ -1,5 +1,5 @@
 
-SUBDIRS = ql m4 man Docs Examples test-suite
+SUBDIRS = ql m4 man Docs Examples Issues test-suite
 
 ACLOCAL_AMFLAGS = -I m4
 
