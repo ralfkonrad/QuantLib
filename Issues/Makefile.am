@@ -13,8 +13,8 @@ endif
 
 LDADDS = ../ql/libQuantLib.la ${BOOST_THREAD_LIB}
 
-930__Callable_Bond_930__Callable_Bond_SOURCES = 930__Callable_Bond/930__Callable_Bond.cpp
-930__Callable_Bond_930__Callable_Bond_LDADD = $(LDADDS)
+930CallableBond_930CallableBond_SOURCES = 930__Callable_Bond/930__Callable_Bond.cpp
+930CallableBond_930CallableBond_LDADD = $(LDADDS)
 
 EXTRA_DIST = CMakeLists.txt
 
@@ -29,4 +29,3 @@ dist-hook:
 
 check-issues: $(ISSUES)
 	for i in $(ISSUES); do echo "========" && echo $$i && $$i || break -1 ; done
-

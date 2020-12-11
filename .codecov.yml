@@ -7,6 +7,7 @@ coverage:
 ignore:
   - "test-suite"
   - "Examples"
+  - "Issues"
 
 
 

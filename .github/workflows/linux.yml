@@ -178,6 +178,10 @@ jobs:
       if: ${{ matrix.tests }}
       run: |
         make check-examples
+    - name: Run issues
+      if: ${{ matrix.tests }}
+      run: |
+        make check-issues
     - name: Check global header
       if: ${{ matrix.tests }}
       run: |

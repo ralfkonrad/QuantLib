@@ -32,3 +32,6 @@ jobs:
     - name: Run examples
       run: |
         make -C Examples check-examples
+    - name: Run issues
+      run: |
+        make -C Issues check-issues

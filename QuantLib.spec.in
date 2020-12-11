@@ -93,6 +93,7 @@ cp -p LICENSE.TXT ChangeLog.txt Readme.txt %{buildroot}%{docdir}
 cp -p Contributors.txt %{buildroot}%{docdir}
 cp -p News.txt  %{buildroot}%{docdir}
 cp -pr Examples %{buildroot}%{docdir}
+cp -pr Issues %{buildroot}%{docdir}
 cp -pr Docs/html %{buildroot}%{docdir}
 rm -f %{buildroot}%{docdir}/html/*.dot
 
@@ -115,6 +116,7 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-,root,root)
 %{docdir}/Examples
+%{docdir}/Issues
 %{_includedir}/ql/
 %{_libdir}/*
 %{_datadir}/aclocal/*
