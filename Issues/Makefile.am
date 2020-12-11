@@ -1,7 +1,7 @@
 
 AM_CPPFLAGS = -I${top_builddir} -I${top_srcdir}
 
-ISSUESS = \
+ISSUES = \
     930CallableBond/930CallableBond
 
 if AUTO_ISSUES
