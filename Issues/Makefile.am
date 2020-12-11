@@ -2,7 +2,7 @@
 AM_CPPFLAGS = -I${top_builddir} -I${top_srcdir}
 
 ISSUESS = \
-    930Callable_Bond/930Callable_Bond
+    930CallableBond/930CallableBond
 
 if AUTO_ISSUES
 bin_PROGRAMS = $(ISSUES)
