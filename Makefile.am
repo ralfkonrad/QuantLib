@@ -1,5 +1,5 @@
 
-SUBDIRS = ql m4 man Docs Examples test-suite
+SUBDIRS = ql m4 man Docs Examples Issues test-suite
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -35,6 +35,12 @@ examples:
 check-examples:
 	$(MAKE) -C Examples check-examples
 
+.PHONY: issues check-issues
+issues:
+	$(MAKE) -C Issues issues
+check-issues:
+	$(MAKE) -C Issues check-issues
+
 .PHONY: benchmark
 benchmark:
 	$(MAKE) -C test-suite benchmark
@@ -53,4 +59,3 @@ dist-hook:
 	mkdir -p $(distdir)/build
 	mkdir -p $(distdir)/cmake
 	cp -p $(srcdir)/cmake/quantlib.cmake $(distdir)/cmake
-

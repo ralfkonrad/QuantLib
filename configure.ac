@@ -314,6 +314,18 @@ AC_ARG_ENABLE([examples],
 AM_CONDITIONAL(AUTO_EXAMPLES, test "$ql_install_examples" != "no")
 AC_MSG_RESULT([$ql_install_examples])
 
+AC_MSG_CHECKING([whether to install issues])
+AC_ARG_ENABLE([issues],
+              AC_HELP_STRING([--enable-issues],
+                             [If enabled, issuess are built and installed
+                              when "make" and "make install" are invoked.
+                              If disabled (the default) they are built
+                              but not installed.]),
+              [ql_install_issues=$enableval],
+              [ql_install_issues=no])
+AM_CONDITIONAL(AUTO_ISSUES, test "$ql_install_issues" != "no")
+AC_MSG_RESULT([$ql_install_issues])
+
 AC_MSG_CHECKING([whether to install the benchmark])
 AC_ARG_ENABLE([benchmark],
               AC_HELP_STRING([--enable-benchmark],
@@ -587,9 +599,9 @@ AC_CONFIG_FILES([
     m4/Makefile
     Docs/Makefile
     Examples/Makefile
+    Issues/Makefile
     test-suite/Makefile])
 AC_CONFIG_FILES([quantlib-config],[chmod +x quantlib-config])
 AC_CONFIG_FILES([QuantLib.spec])
 AC_CONFIG_FILES([quantlib.pc])
 AC_OUTPUT
-

@@ -3,10 +3,10 @@ path_classifiers:
     docs:
         - Docs
         - Examples
+        - Issues
     test:
         - test-suite
     library:
         - tools
 queries:
     - exclude: cpp/fixme-comment
-
