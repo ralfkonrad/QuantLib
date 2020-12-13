@@ -51,12 +51,12 @@ Real faceAmount = 100.00;
 Real coupon = 0.06;
 Date issueDate = Date(25, May, 2016);
 Date maturityDate = Date(15, May, 2026);
-Frequency frequency = Frequency::Semiannual;
+Frequency frequency = Semiannual;
 
 Calendar calendar = UnitedStates();
 DayCounter dayCounter = Thirty360();
-BusinessDayConvention businessDayConvention = BusinessDayConvention::Unadjusted;
-DateGeneration::Rule dateGenerationRule = DateGeneration::Rule::Backward;
+BusinessDayConvention businessDayConvention = Unadjusted;
+DateGeneration::Rule dateGenerationRule = DateGeneration::Backward;
 Natural settlementDays = 0;
 bool isEndOfMonth = false;
 
@@ -67,18 +67,14 @@ const Schedule makeSchedule() {
 
 const CallabilitySchedule makeCallabilitySchedule() {
     CallabilitySchedule callabilitySchedule;
-    callabilitySchedule.push_back(
-        ext::make_shared<Callability>(Bond::Price(103.00, Bond::Price::Type::Clean),
-                                      Callability::Type::Call, Date(15, May, 2021)));
-    callabilitySchedule.push_back(
-        ext::make_shared<Callability>(Bond::Price(102.00, Bond::Price::Type::Clean),
-                                      Callability::Type::Call, Date(15, May, 2022)));
-    callabilitySchedule.push_back(
-        ext::make_shared<Callability>(Bond::Price(101.00, Bond::Price::Type::Clean),
-                                      Callability::Type::Call, Date(15, May, 2023)));
-    callabilitySchedule.push_back(
-        ext::make_shared<Callability>(Bond::Price(100.00, Bond::Price::Type::Clean),
-                                      Callability::Type::Call, Date(15, May, 2024)));
+    callabilitySchedule.push_back(ext::make_shared<Callability>(
+        Bond::Price(103.00, Bond::Price::Clean), Callability::Call, Date(15, May, 2021)));
+    callabilitySchedule.push_back(ext::make_shared<Callability>(
+        Bond::Price(102.00, Bond::Price::Clean), Callability::Call, Date(15, May, 2022)));
+    callabilitySchedule.push_back(ext::make_shared<Callability>(
+        Bond::Price(101.00, Bond::Price::Clean), Callability::Call, Date(15, May, 2023)));
+    callabilitySchedule.push_back(ext::make_shared<Callability>(
+        Bond::Price(100.00, Bond::Price::Clean), Callability::Call, Date(15, May, 2024)));
 
     return callabilitySchedule;
 }
@@ -128,8 +124,13 @@ int main(int, char*[]) {
         Real npv = callableBond->NPV();
         Real dirtyPrice = callableBond->dirtyPrice();
         Real cleanPrice = callableBond->cleanPrice();
-        Real oas = callableBond->cleanPriceOAS(1.0 / 10000.0, termStructure, dayCounter,
-                                               Compounding::Compounded, frequency, today);
+        Real oas = callableBond->cleanPriceOAS(1.0 / 10000.0, termStructure, dayCounter, Compounded,
+                                               frequency, today);
+
+        cout << npv << endl;
+        cout << dirtyPrice << endl;
+        cout << cleanPrice << endl;
+        cout << oas << endl;
 
         return 0;
     } catch (std::exception& e) {
