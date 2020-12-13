@@ -1,0 +1,2 @@
+add_executable(Issue930CallableBond Issue930CallableBond.cpp)
+target_link_libraries(Issue930CallableBond ${QL_LINK_LIBRARY})

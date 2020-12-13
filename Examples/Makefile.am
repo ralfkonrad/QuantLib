@@ -15,6 +15,7 @@ EXAMPLES = \
     FRA/FRA \
     Gaussian1dModels/Gaussian1dModels \
     GlobalOptimizer/GlobalOptimizer \
+    Issue930CallableBond/Issue930CallableBond \
     LatentModel/LatentModel \
     MarketModels/MarketModels \
     MultidimIntegral/MultidimIntegral \
@@ -71,6 +72,9 @@ Gaussian1dModels_Gaussian1dModels_LDADD = $(LDADDS)
 GlobalOptimizer_GlobalOptimizer_SOURCES = GlobalOptimizer/GlobalOptimizer.cpp
 GlobalOptimizer_GlobalOptimizer_LDADD = $(LDADDS)
 
+Issue930CallableBond_Issue930CallableBond_SOURCES = Issue930CallableBond/Issue930CallableBond.cpp
+Issue930CallableBond_Issue930CallableBond_LDADD = $(LDADDS)
+
 LatentModel_LatentModel_SOURCES = LatentModel/LatentModel.cpp
 LatentModel_LatentModel_LDADD = $(LDADDS)
 
@@ -102,4 +106,3 @@ dist-hook:
 
 check-examples: $(EXAMPLES)
 	for i in $(EXAMPLES); do echo "========" && echo $$i && $$i || break -1 ; done
-
