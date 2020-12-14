@@ -60,12 +60,12 @@ DateGeneration::Rule dateGenerationRule = DateGeneration::Backward;
 Natural settlementDays = 0;
 bool isEndOfMonth = false;
 
-const Schedule makeSchedule() {
+Schedule makeSchedule() {
     return Schedule(issueDate, maturityDate, Period(frequency), calendar, businessDayConvention,
                     businessDayConvention, dateGenerationRule, isEndOfMonth);
 }
 
-const CallabilitySchedule makeCallabilitySchedule() {
+CallabilitySchedule makeCallabilitySchedule() {
     CallabilitySchedule callabilitySchedule;
     callabilitySchedule.push_back(ext::make_shared<Callability>(
         Bond::Price(103.00, Bond::Price::Clean), Callability::Call, Date(15, May, 2021)));
