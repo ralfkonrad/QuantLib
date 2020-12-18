@@ -17,7 +17,7 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
  */
 
-/* This example sets up...
+/* This example is related to https://github.com/lballabio/QuantLib/issues/930
  */
 
 #include <ql/qldefines.hpp>
@@ -35,7 +35,6 @@
 #include <ql/time/schedule.hpp>
 #include <iostream>
 
-using namespace std;
 using namespace QuantLib;
 
 #if defined(QL_ENABLE_SESSIONS)
@@ -66,6 +65,14 @@ Schedule makeSchedule() {
 }
 
 CallabilitySchedule makeCallabilitySchedule() {
+    Date firstCallDate = Date(15, May, 2021);
+    Date lastCallDate = Date(15, May, 2024);
+
+    Schedule callSchedule =
+        Schedule(firstCallDate, lastCallDate, Period(Annual), calendar, businessDayConvention,
+                 businessDayConvention, dateGenerationRule, isEndOfMonth);
+    std::vector<Date> callDates = callSchedule.dates();
+
     CallabilitySchedule callabilitySchedule;
     callabilitySchedule.push_back(ext::make_shared<Callability>(
         Bond::Price(103.00, Bond::Price::Clean), Callability::Call, Date(15, May, 2021)));
@@ -81,7 +88,7 @@ CallabilitySchedule makeCallabilitySchedule() {
 
 ext::shared_ptr<CallableFixedRateBond> makeCallableBond() {
     Schedule schedule = makeSchedule();
-    vector<Real> coupons = vector<Real>(schedule.size() - 1, coupon);
+    std::vector<Real> coupons = std::vector<Real>(schedule.size() - 1, coupon);
     CallabilitySchedule callabilitySchedule = makeCallabilitySchedule();
 
     ext::shared_ptr<CallableFixedRateBond> callableBond =
@@ -99,8 +106,8 @@ Handle<YieldTermStructure> getTermStructure() {
 
 int main(int, char*[]) {
     try {
-        cout << endl;
-        cout << "Initial project setup..." << endl << endl;
+        std::cout << std::endl;
+        std::cout << "Initial project setup..." << std::endl << std::endl;
 
         Settings::instance().evaluationDate() = today;
 
@@ -109,7 +116,7 @@ int main(int, char*[]) {
         Leg cashflows = callableBond->cashflows();
         for (Size i = 0; i < cashflows.size(); i++) {
             ext::shared_ptr<CashFlow> cf = cashflows[i];
-            cout << io::iso_date(cf->date()) << " " << cf->amount() << endl;
+            std::cout << io::iso_date(cf->date()) << " " << cf->amount() << std::endl;
         }
 
         Handle<YieldTermStructure> termStructure = getTermStructure();
@@ -127,10 +134,10 @@ int main(int, char*[]) {
         Real oas = callableBond->cleanPriceOAS(1.0 / 10000.0, termStructure, dayCounter, Compounded,
                                                frequency, today);
 
-        cout << npv << endl;
-        cout << dirtyPrice << endl;
-        cout << cleanPrice << endl;
-        cout << oas << endl;
+        std::cout << npv << std::endl;
+        std::cout << dirtyPrice << std::endl;
+        std::cout << cleanPrice << std::endl;
+        std::cout << oas << std::endl;
 
         return 0;
     } catch (std::exception& e) {
