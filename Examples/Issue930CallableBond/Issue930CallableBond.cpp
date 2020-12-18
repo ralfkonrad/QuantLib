@@ -71,7 +71,7 @@ CallabilitySchedule makeCallabilitySchedule() {
     Schedule callSchedule =
         Schedule(firstCallDate, lastCallDate, Period(Annual), calendar, businessDayConvention,
                  businessDayConvention, dateGenerationRule, isEndOfMonth);
-    std::vector<Date> callDates = callSchedule.dates();
+    const std::vector<Date>& callDates = callSchedule.dates();
 
     CallabilitySchedule callabilitySchedule;
     callabilitySchedule.push_back(ext::make_shared<Callability>(
