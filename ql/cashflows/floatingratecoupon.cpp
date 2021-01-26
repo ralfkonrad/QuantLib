@@ -99,4 +99,22 @@ namespace QuantLib {
 
     Rate FloatingRateCoupon::indexFixing() const { return index_->fixing(fixingDate()); }
 
+    bool FloatingRateCoupon::isFixed() const {
+        Date fixingDate = this->fixingDate();
+        Date today = Settings::instance().evaluationDate();
+
+        /* We compare serialNumber() here in case QL_HIGH_RESOLUTION_DATE is defined
+         * to avoid comparing dateTimes(). */
+        if (today.serialNumber() != fixingDate.serialNumber()) {
+            return (fixingDate.serialNumber() < today.serialNumber());
+        } else {
+            try {
+                // might have been fixed, see InterestRateIndex::fixing(...)
+                Rate result = index_->pastFixing(fixingDate);
+                return result != Null<Real>();
+            } catch (Error&) {
+                return false;
+            }
+        }
+    }
 }

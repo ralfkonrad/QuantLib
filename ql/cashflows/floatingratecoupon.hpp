@@ -90,6 +90,8 @@ namespace QuantLib {
         virtual Rate adjustedFixing() const;
         //! whether or not the coupon fixes in arrears
         bool isInArrears() const { return isInArrears_; }
+        //! whether or not the coupon is already fixed
+        virtual bool isFixed() const;
         //@}
 
         //! \name Observer interface
