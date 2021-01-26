@@ -30,9 +30,9 @@
 #define quantlib_floating_rate_coupon_hpp
 
 #include <ql/cashflows/coupon.hpp>
+#include <ql/handle.hpp>
 #include <ql/patterns/visitor.hpp>
 #include <ql/time/daycounter.hpp>
-#include <ql/handle.hpp>
 
 namespace QuantLib {
 
@@ -41,8 +41,7 @@ namespace QuantLib {
     class FloatingRateCouponPricer;
 
     //! base floating-rate coupon class
-    class FloatingRateCoupon : public Coupon,
-                               public Observer {
+    class FloatingRateCoupon : public Coupon, public Observer {
       public:
         FloatingRateCoupon(const Date& paymentDate,
                            Real nominal,
@@ -105,6 +104,7 @@ namespace QuantLib {
 
         virtual void setPricer(const ext::shared_ptr<FloatingRateCouponPricer>&);
         ext::shared_ptr<FloatingRateCouponPricer> pricer() const;
+
       protected:
         //! convexity adjustment for the given index fixing
         Rate convexityAdjustmentImpl(Rate fixing) const;
@@ -119,8 +119,7 @@ namespace QuantLib {
 
     // inline definitions
 
-    inline const ext::shared_ptr<InterestRateIndex>&
-    FloatingRateCoupon::index() const {
+    inline const ext::shared_ptr<InterestRateIndex>& FloatingRateCoupon::index() const {
         return index_;
     }
 
@@ -129,22 +128,19 @@ namespace QuantLib {
     }
 
     inline Rate FloatingRateCoupon::adjustedFixing() const {
-        return (rate()-spread())/gearing();
+        return (rate() - spread()) / gearing();
     }
 
-    inline ext::shared_ptr<FloatingRateCouponPricer>
-    FloatingRateCoupon::pricer() const {
+    inline ext::shared_ptr<FloatingRateCouponPricer> FloatingRateCoupon::pricer() const {
         return pricer_;
     }
 
-    inline Rate
-    FloatingRateCoupon::convexityAdjustmentImpl(Rate fixing) const {
-        return (gearing() == 0.0 ? 0.0 : adjustedFixing()-fixing);
+    inline Rate FloatingRateCoupon::convexityAdjustmentImpl(Rate fixing) const {
+        return (gearing() == 0.0 ? 0.0 : adjustedFixing() - fixing);
     }
 
     inline void FloatingRateCoupon::accept(AcyclicVisitor& v) {
-        Visitor<FloatingRateCoupon>* v1 =
-            dynamic_cast<Visitor<FloatingRateCoupon>*>(&v);
+        Visitor<FloatingRateCoupon>* v1 = dynamic_cast<Visitor<FloatingRateCoupon>*>(&v);
         if (v1 != 0)
             v1->visit(*this);
         else

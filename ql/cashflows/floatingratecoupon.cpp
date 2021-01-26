@@ -22,34 +22,31 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
+#include <ql/cashflows/couponpricer.hpp>
 #include <ql/cashflows/floatingratecoupon.hpp>
 #include <ql/indexes/interestrateindex.hpp>
-#include <ql/cashflows/couponpricer.hpp>
 #include <ql/termstructures/yieldtermstructure.hpp>
 
 namespace QuantLib {
 
-    FloatingRateCoupon::FloatingRateCoupon(
-                            const Date& paymentDate,
-                            Real nominal,
-                            const Date& startDate,
-                            const Date& endDate,
-                            Natural fixingDays,
-                            const ext::shared_ptr<InterestRateIndex>& index,
-                            Real gearing,
-                            Spread spread,
-                            const Date& refPeriodStart,
-                            const Date& refPeriodEnd,
-                            const DayCounter& dayCounter,
-                            bool isInArrears,
-                            const Date& exCouponDate)
+    FloatingRateCoupon::FloatingRateCoupon(const Date& paymentDate,
+                                           Real nominal,
+                                           const Date& startDate,
+                                           const Date& endDate,
+                                           Natural fixingDays,
+                                           const ext::shared_ptr<InterestRateIndex>& index,
+                                           Real gearing,
+                                           Spread spread,
+                                           const Date& refPeriodStart,
+                                           const Date& refPeriodEnd,
+                                           const DayCounter& dayCounter,
+                                           bool isInArrears,
+                                           const Date& exCouponDate)
     : Coupon(paymentDate, nominal, startDate, endDate, refPeriodStart, refPeriodEnd, exCouponDate),
       index_(index), dayCounter_(dayCounter),
-      fixingDays_(fixingDays==Null<Natural>() ? index->fixingDays() : fixingDays),
-      gearing_(gearing), spread_(spread),
-      isInArrears_(isInArrears)
-    {
-        QL_REQUIRE(gearing_!=0, "Null gearing not allowed");
+      fixingDays_(fixingDays == Null<Natural>() ? index->fixingDays() : fixingDays),
+      gearing_(gearing), spread_(spread), isInArrears_(isInArrears) {
+        QL_REQUIRE(gearing_ != 0, "Null gearing not allowed");
 
         if (dayCounter_.empty())
             dayCounter_ = index_->dayCounter();
@@ -58,8 +55,7 @@ namespace QuantLib {
         registerWith(Settings::instance().evaluationDate());
     }
 
-    void FloatingRateCoupon::setPricer(
-                const ext::shared_ptr<FloatingRateCouponPricer>& pricer) {
+    void FloatingRateCoupon::setPricer(const ext::shared_ptr<FloatingRateCouponPricer>& pricer) {
         if (pricer_ != 0)
             unregisterWith(pricer_);
         pricer_ = pricer;
@@ -74,23 +70,21 @@ namespace QuantLib {
             return 0.0;
         } else if (tradingExCoupon(d)) {
             return -nominal() * rate() *
-                   dayCounter().yearFraction(d, std::max(d, accrualEndDate_),
-                                             refPeriodStart_, refPeriodEnd_);
+                   dayCounter().yearFraction(d, std::max(d, accrualEndDate_), refPeriodStart_,
+                                             refPeriodEnd_);
         } else {
             // usual case
             return nominal() * rate() *
-                dayCounter().yearFraction(accrualStartDate_,
-                                          std::min(d, accrualEndDate_),
-                                          refPeriodStart_,
-                                          refPeriodEnd_);
+                   dayCounter().yearFraction(accrualStartDate_, std::min(d, accrualEndDate_),
+                                             refPeriodStart_, refPeriodEnd_);
         }
     }
 
     Date FloatingRateCoupon::fixingDate() const {
         // if isInArrears_ fix at the end of period
         Date refDate = isInArrears_ ? accrualEndDate_ : accrualStartDate_;
-        return index_->fixingCalendar().advance(refDate,
-            -static_cast<Integer>(fixingDays_), Days, Preceding);
+        return index_->fixingCalendar().advance(refDate, -static_cast<Integer>(fixingDays_), Days,
+                                                Preceding);
     }
 
     Rate FloatingRateCoupon::rate() const {
@@ -103,8 +97,6 @@ namespace QuantLib {
         return amount() * discountingCurve->discount(date());
     }
 
-    Rate FloatingRateCoupon::indexFixing() const {
-        return index_->fixing(fixingDate());
-    }
+    Rate FloatingRateCoupon::indexFixing() const { return index_->fixing(fixingDate()); }
 
 }
