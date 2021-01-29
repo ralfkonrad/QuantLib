@@ -501,8 +501,8 @@ void CashFlowsTest::testFloatingIsFixed() {
 
     auto euribor3MwithoutFixing = ext::make_shared<Euribor3M>();
 
-    auto euribor3MwithFixing = ext::make_shared<Euribor3M>();
-    euribor3MwithFixing->addFixing(Date(30, November, 2021), 0.00);
+    auto euribor6MwithFixing = ext::make_shared<Euribor6M>();
+    euribor6MwithFixing->addFixing(Date(30, November, 2021), 0.00);
 
     auto startDates = std::vector<Date>{Date(01, December, 2021), Date(02, December, 2021),
                                         Date(03, December, 2021)};
@@ -531,7 +531,7 @@ void CashFlowsTest::testFloatingIsFixed() {
     };
 
     check(euribor3MwithoutFixing, {true, false, false});
-    check(euribor3MwithFixing, {true, true, false});
+    check(euribor6MwithFixing, {true, true, false});
 }
 
 test_suite* CashFlowsTest::suite() {
