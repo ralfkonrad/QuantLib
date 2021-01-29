@@ -108,13 +108,7 @@ namespace QuantLib {
         if (today.serialNumber() != fixingDate.serialNumber()) {
             return (fixingDate.serialNumber() < today.serialNumber());
         } else {
-            try {
-                // might have been fixed, see InterestRateIndex::fixing(...)
-                Rate result = index_->pastFixing(fixingDate);
-                return result != Null<Real>();
-            } catch (Error&) {
-                return false;
-            }
+            return index_->hasPastFixing(fixingDate);
         }
     }
 }

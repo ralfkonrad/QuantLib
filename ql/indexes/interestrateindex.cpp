@@ -74,17 +74,10 @@ namespace QuantLib {
             return result;
         }
 
-        try {
-            // might have been fixed
-            Rate result = pastFixing(fixingDate);
-            if (result != Null<Real>())
-                return result;
-            else
-                ; // fall through and forecast
-        } catch (Error&) {
-            ; // fall through and forecast
-        }
-        return forecastFixing(fixingDate);
+        if (hasPastFixing(fixingDate))
+            return pastFixing(fixingDate);
+        else
+            return forecastFixing(fixingDate);
     }
 
 }

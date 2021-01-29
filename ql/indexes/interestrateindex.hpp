@@ -79,6 +79,7 @@ namespace QuantLib {
         //! It can be overridden to implement particular conventions
         virtual Rate forecastFixing(const Date& fixingDate) const = 0;
         virtual Rate pastFixing(const Date& fixingDate) const;
+        virtual bool hasPastFixing(const Date& fixingDate) const;
         // @}
       protected:
         std::string familyName_;
@@ -119,6 +120,16 @@ namespace QuantLib {
     inline Rate InterestRateIndex::pastFixing(const Date& fixingDate) const {
         QL_REQUIRE(isValidFixingDate(fixingDate), fixingDate << " is not a valid fixing date");
         return timeSeries()[fixingDate];
+    }
+
+    inline bool InterestRateIndex::hasPastFixing(const Date& fixingDate) const {
+        QL_REQUIRE(isValidFixingDate(fixingDate), fixingDate << " is not a valid fixing date");
+        try {
+            return timeSeries()[fixingDate] != Null<Real>();
+        } catch (const Error&) {
+            /* Looking at 'timeseries.hpp' this should never throw. But to be sure... */
+            return false;
+        }
     }
 
 }
