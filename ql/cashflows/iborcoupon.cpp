@@ -129,16 +129,10 @@ namespace QuantLib {
             return result;
         }
 
-        try {
-            Rate result = index_->pastFixing(fixingDate_);
-            if (result != Null<Real>())
-                return result;
-            else
-                ; // fall through and forecast
-        } catch (Error&) {
-            ; // fall through and forecast
-        }
-        return iborIndex_->forecastFixing(fixingValueDate_, fixingEndDate_, spanningTime_);
+        if (iborIndex_->hasPastFixing(fixingDate_))
+            return iborIndex_->pastFixing(fixingDate_);
+        else
+            return iborIndex_->forecastFixing(fixingValueDate_, fixingEndDate_, spanningTime_);
     }
 
     void IborCoupon::accept(AcyclicVisitor& v) {
