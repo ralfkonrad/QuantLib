@@ -525,7 +525,7 @@ void CashFlowsTest::testFloatingIsFixed() {
                 ext::make_shared<FloatingRateCoupon>(endDate, 100.00, startDate, endDate,
                                                      index->fixingDays(), index);
 
-            BOOST_CHECK_EQUAL(expectedfixingDates[i], fixingDate);
+            BOOST_CHECK_EQUAL(expectedfixingDate, fixingDate);
             BOOST_CHECK_EQUAL(expectedIsFixed, floatingRateCoupon->isFixed());
         }
     };
