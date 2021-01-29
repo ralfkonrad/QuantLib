@@ -491,6 +491,49 @@ void CashFlowsTest::testPartialScheduleLegConstruction() {
     BOOST_CHECK_EQUAL(lastCpnF3->referencePeriodEnd(), Date(30, Sep, 2020));
 }
 
+void CashFlowsTest::testFloatingIsFixed() {
+    BOOST_TEST_MESSAGE("Testing if floating cashflow is fixed...");
+
+    SavedSettings backup;
+
+    Date today = Date(30, November, 2021);
+    Settings::instance().evaluationDate() = today;
+
+    auto euribor3MwithoutFixing = ext::make_shared<Euribor3M>();
+
+    auto euribor3MwithFixing = ext::make_shared<Euribor3M>();
+    euribor3MwithFixing->addFixing(Date(30, November, 2021), 0.00);
+
+    auto startDates = std::vector<Date>{Date(01, December, 2021), Date(02, December, 2021),
+                                        Date(03, December, 2021)};
+
+    auto expectedfixingDates = std::vector<Date>{Date(29, November, 2021), Date(30, November, 2021),
+                                                 Date(01, December, 2021)};
+
+    auto check = [startDates, expectedfixingDates](const ext::shared_ptr<InterestRateIndex>& index,
+                                                   const std::vector<bool>& expectedAreFixed) {
+        for (Size i = 0; i < startDates.size(); i++) {
+            auto startDate = startDates[i];
+
+            auto expectedfixingDate = expectedfixingDates[i];
+            auto expectedIsFixed = expectedAreFixed[i];
+
+            auto fixingDate = index->fixingDate(startDate);
+            auto endDate = index->maturityDate(startDate);
+
+            ext::shared_ptr<FloatingRateCoupon> floatingRateCoupon =
+                ext::make_shared<FloatingRateCoupon>(endDate, 100.00, startDate, endDate,
+                                                     index->fixingDays(), index);
+
+            BOOST_CHECK_EQUAL(expectedfixingDates[i], fixingDate);
+            BOOST_CHECK_EQUAL(expectedIsFixed, floatingRateCoupon->isFixed());
+        }
+    };
+
+    check(euribor3MwithoutFixing, {true, false, false});
+    check(euribor3MwithFixing, {true, true, false});
+}
+
 test_suite* CashFlowsTest::suite() {
     test_suite* suite = BOOST_TEST_SUITE("Cash flows tests");
     suite->add(QUANTLIB_TEST_CASE(&CashFlowsTest::testSettings));
@@ -505,5 +548,6 @@ test_suite* CashFlowsTest::suite() {
     suite->add(
         QUANTLIB_TEST_CASE(&CashFlowsTest::testIrregularLastCouponReferenceDatesAtEndOfMonth));
     suite->add(QUANTLIB_TEST_CASE(&CashFlowsTest::testPartialScheduleLegConstruction));
+    suite->add(QUANTLIB_TEST_CASE(&CashFlowsTest::testFloatingIsFixed));
     return suite;
 }
