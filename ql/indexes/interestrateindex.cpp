@@ -21,7 +21,6 @@
 
 #include <ql/indexes/interestrateindex.hpp>
 #include <ql/settings.hpp>
-
 #include <sstream>
 
 namespace QuantLib {
@@ -32,19 +31,18 @@ namespace QuantLib {
                                          const Currency& currency,
                                          const Calendar& fixingCalendar,
                                          const DayCounter& dayCounter)
-    : familyName_(familyName), tenor_(tenor), fixingDays_(fixingDays),
-      currency_(currency), dayCounter_(dayCounter),
-      fixingCalendar_(fixingCalendar) {
+    : familyName_(familyName), tenor_(tenor), fixingDays_(fixingDays), currency_(currency),
+      dayCounter_(dayCounter), fixingCalendar_(fixingCalendar) {
         tenor_.normalize();
 
         std::ostringstream out;
         out << familyName_;
-        if (tenor_ == 1*Days) {
-            if (fixingDays_==0)
+        if (tenor_ == 1 * Days) {
+            if (fixingDays_ == 0)
                 out << "ON";
-            else if (fixingDays_==1)
+            else if (fixingDays_ == 1)
                 out << "TN";
-            else if (fixingDays_==2)
+            else if (fixingDays_ == 2)
                 out << "SN";
             else
                 out << io::short_period(tenor_);
@@ -58,20 +56,16 @@ namespace QuantLib {
         registerWith(IndexManager::instance().notifier(InterestRateIndex::name()));
     }
 
-    Rate InterestRateIndex::fixing(const Date& fixingDate,
-                                   bool forecastTodaysFixing) const {
+    Rate InterestRateIndex::fixing(const Date& fixingDate, bool forecastTodaysFixing) const {
 
-        QL_REQUIRE(isValidFixingDate(fixingDate),
-                   "Fixing date " << fixingDate << " is not valid");
+        QL_REQUIRE(isValidFixingDate(fixingDate), "Fixing date " << fixingDate << " is not valid");
 
         Date today = Settings::instance().evaluationDate();
 
-        if (fixingDate>today ||
-            (fixingDate==today && forecastTodaysFixing))
+        if (fixingDate > today || (fixingDate == today && forecastTodaysFixing))
             return forecastFixing(fixingDate);
 
-        if (fixingDate<today ||
-            Settings::instance().enforcesTodaysHistoricFixings()) {
+        if (fixingDate < today || Settings::instance().enforcesTodaysHistoricFixings()) {
             // must have been fixed
             // do not catch exceptions
             Rate result = pastFixing(fixingDate);
@@ -83,12 +77,12 @@ namespace QuantLib {
         try {
             // might have been fixed
             Rate result = pastFixing(fixingDate);
-            if (result!=Null<Real>())
+            if (result != Null<Real>())
                 return result;
             else
-                ;   // fall through and forecast
+                ; // fall through and forecast
         } catch (Error&) {
-                ;   // fall through and forecast
+            ; // fall through and forecast
         }
         return forecastFixing(fixingDate);
     }
