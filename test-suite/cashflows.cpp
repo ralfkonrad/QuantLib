@@ -525,8 +525,17 @@ void CashFlowsTest::testFloatingIsFixed() {
                 ext::make_shared<FloatingRateCoupon>(endDate, 100.00, startDate, endDate,
                                                      index->fixingDays(), index);
 
+            /* Just to be sure we haven't mixed up dates here. */
             BOOST_CHECK_EQUAL(expectedfixingDate, fixingDate);
-            BOOST_CHECK_EQUAL(expectedIsFixed, floatingRateCoupon->isFixed());
+
+            if (expectedIsFixed != floatingRateCoupon->isFixed()) {
+                auto shouldBe = expectedIsFixed ? "" : "not ";
+                auto butWas = expectedIsFixed ? "not " : "";
+
+                BOOST_ERROR("At " << fixingDate << " the cashflow should " << shouldBe
+                                  << "be fixed but was " << butWas << "fixed for index '"
+                                  << index->name() << "'.");
+            }
         }
     };
 
