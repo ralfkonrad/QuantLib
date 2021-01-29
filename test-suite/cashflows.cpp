@@ -529,8 +529,8 @@ void CashFlowsTest::testFloatingIsFixed() {
             BOOST_CHECK_EQUAL(expectedfixingDate, fixingDate);
 
             if (expectedIsFixed != floatingRateCoupon->isFixed()) {
-                auto shouldBe = expectedIsFixed ? "" : "not ";
-                auto butWas = expectedIsFixed ? "not " : "";
+                const auto* shouldBe = expectedIsFixed ? "" : "not ";
+                const auto* butWas = expectedIsFixed ? "not " : "";
 
                 BOOST_ERROR("At " << fixingDate << " the cashflow should " << shouldBe
                                   << "be fixed but was " << butWas << "fixed for index '"
