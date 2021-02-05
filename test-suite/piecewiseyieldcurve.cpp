@@ -1033,7 +1033,7 @@ namespace piecewise_yield_curve_test {
 
         typedef typename T::template curve<I>::type base_curve;
 
-        base_curve copiedCurve = curve;
+        const base_curve& copiedCurve = curve;
 
         // the two curves should be the same.
         Time t = 2.718;
