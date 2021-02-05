@@ -87,7 +87,7 @@ namespace QuantLib {
         /*! This method should be called at the end of non-const methods
             or when the programmer desires to notify any changes.
         */
-        void notifyObservers();
+        void notifyObservers() const;
       private:
         typedef boost::unordered_set<Observer*>::iterator iterator;
         std::pair<iterator, bool> registerObserver(Observer*);
@@ -364,7 +364,7 @@ namespace QuantLib {
         /*! This method should be called at the end of non-const methods
             or when the programmer desires to notify any changes.
         */
-        void notifyObservers();
+        void notifyObservers() const;
       private:
         void registerObserver(const ext::shared_ptr<Observer::Proxy>&);
         void unregisterObserver(

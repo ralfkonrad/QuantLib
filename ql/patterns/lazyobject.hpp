@@ -57,16 +57,16 @@ namespace QuantLib {
                   depend.  It is strongly advised to follow this
                   policy when possible.
         */
-        void recalculate();
+        void recalculate() const;
         /*! This method constrains the object to return the presently
             cached results on successive invocations, even if
             arguments upon which they depend should change.
         */
-        void freeze();
+        void freeze() const;
         /*! This method reverts the effect of the <i><b>freeze</b></i>
             method, thus re-enabling recalculations.
         */
-        void unfreeze();
+        void unfreeze() const;
         /*! This method causes the object to forward all
             notifications, even when not calculated.  The default
             behavior is to forward the first notification received,
@@ -82,7 +82,7 @@ namespace QuantLib {
                      discarding notifications cause an incorrect
                      behavior.
         */
-        void alwaysForwardNotifications();
+        void alwaysForwardNotifications() const;
       protected:
         /*! This method performs all needed calculations by calling
             the <i><b>performCalculations</b></i> method.
@@ -131,7 +131,7 @@ namespace QuantLib {
         }
     }
  
-    inline void LazyObject::recalculate() {
+    inline void LazyObject::recalculate() const {
         bool wasFrozen = frozen_;
         calculated_ = frozen_ = false;
         try {
@@ -145,11 +145,11 @@ namespace QuantLib {
         notifyObservers();
     }
 
-    inline void LazyObject::freeze() {
+    inline void LazyObject::freeze() const {
         frozen_ = true;
     }
 
-    inline void LazyObject::unfreeze() {
+    inline void LazyObject::unfreeze() const {
         // send notifications, just in case we lost any,
         // but only once, i.e. if it was frozen
         if (frozen_) {
@@ -158,7 +158,7 @@ namespace QuantLib {
         }
     }
 
-    inline void LazyObject::alwaysForwardNotifications() {
+    inline void LazyObject::alwaysForwardNotifications() const {
         alwaysForward_ = true;
     }
 

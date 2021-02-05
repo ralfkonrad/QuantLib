@@ -54,7 +54,7 @@ namespace QuantLib {
     }
 
 
-    void Observable::notifyObservers() {
+    void Observable::notifyObservers() const {
         if (!settings_.updatesEnabled()) {
             // if updates are only deferred, flag this for later notification
             // these are held centrally by the settings singleton
@@ -172,7 +172,7 @@ namespace QuantLib {
         }
     }
 
-    void Observable::notifyObservers() {
+    void Observable::notifyObservers() const {
         if (settings_.updatesEnabled()) {
             return (*sig_)();
         }
