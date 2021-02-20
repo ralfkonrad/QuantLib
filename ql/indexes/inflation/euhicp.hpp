@@ -37,10 +37,15 @@ namespace QuantLib {
         explicit EUHICP(
             bool interpolated,
             const Handle<ZeroInflationTermStructure>& ts = Handle<ZeroInflationTermStructure>())
+        : EUHICP(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit EUHICP(
+            const Handle<ZeroInflationTermStructure>& ts = Handle<ZeroInflationTermStructure>())
         : ZeroInflationIndex("HICP",
                              EURegion(),
                              false,
-                             interpolated,
                              Monthly,
                              Period(1, Months), // availability
                              EURCurrency(),
@@ -54,10 +59,15 @@ namespace QuantLib {
         explicit EUHICPXT(
             bool interpolated,
             const Handle<ZeroInflationTermStructure>& ts = Handle<ZeroInflationTermStructure>())
+        : EUHICPXT(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit EUHICPXT(
+            const Handle<ZeroInflationTermStructure>& ts = Handle<ZeroInflationTermStructure>())
         : ZeroInflationIndex("HICPXT",
                              EURegion(),
                              false,
-                             interpolated,
                              Monthly,
                              Period(1, Months), // availability
                              EURCurrency(),
@@ -72,15 +82,14 @@ namespace QuantLib {
         explicit YYEUHICP(
             bool interpolated,
             const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
-        : YoYInflationIndex("YY_HICP",
-                            EURegion(),
-                            false,
-                            interpolated,
-                            false,
-                            Monthly,
-                            Period(1, Months),
-                            EURCurrency(),
-                            ts) {}
+        : YYEUHICP(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit YYEUHICP(
+            const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
+        : YoYInflationIndex(
+              "YY_HICP", EURegion(), false, false, Monthly, Period(1, Months), EURCurrency(), ts) {}
     };
 
     //! Genuine year-on-year EU HICPXT
@@ -90,10 +99,15 @@ namespace QuantLib {
         explicit YYEUHICPXT(
             bool interpolated,
             const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
+        : YYEUHICPXT(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit YYEUHICPXT(
+            const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
         : YoYInflationIndex("YY_HICPXT",
                             EURegion(),
                             false,
-                            interpolated,
                             false,
                             Monthly,
                             Period(1, Months),
@@ -109,15 +123,14 @@ namespace QuantLib {
         explicit YYEUHICPr(
             bool interpolated,
             const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
-        : YoYInflationIndex("YYR_HICP",
-                            EURegion(),
-                            false,
-                            interpolated,
-                            true,
-                            Monthly,
-                            Period(1, Months),
-                            EURCurrency(),
-                            ts) {}
+        : YYEUHICPr(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit YYEUHICPr(
+            const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
+        : YoYInflationIndex(
+              "YYR_HICP", EURegion(), false, true, Monthly, Period(1, Months), EURCurrency(), ts) {}
     };
 
 }

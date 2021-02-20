@@ -36,14 +36,14 @@ namespace QuantLib {
         explicit FRHICP(
             bool interpolated,
             const Handle<ZeroInflationTermStructure>& ts = Handle<ZeroInflationTermStructure>())
-        : ZeroInflationIndex("HICP",
-                             FranceRegion(),
-                             false,
-                             interpolated,
-                             Monthly,
-                             Period(1, Months),
-                             EURCurrency(),
-                             ts) {}
+        : FRHICP(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit FRHICP(
+            const Handle<ZeroInflationTermStructure>& ts = Handle<ZeroInflationTermStructure>())
+        : ZeroInflationIndex(
+              "HICP", FranceRegion(), false, Monthly, Period(1, Months), EURCurrency(), ts) {}
     };
 
 
@@ -54,10 +54,15 @@ namespace QuantLib {
         explicit YYFRHICP(
             bool interpolated,
             const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
+        : YYFRHICP(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit YYFRHICP(
+            const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
         : YoYInflationIndex("YY_HICP",
                             FranceRegion(),
                             false,
-                            interpolated,
                             false,
                             Monthly,
                             Period(1, Months),
@@ -73,10 +78,15 @@ namespace QuantLib {
         explicit YYFRHICPr(
             bool interpolated,
             const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
+        : YYFRHICPr(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit YYFRHICPr(
+            const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
         : YoYInflationIndex("YYR_HICP",
                             FranceRegion(),
                             false,
-                            interpolated,
                             true,
                             Monthly,
                             Period(1, Months),

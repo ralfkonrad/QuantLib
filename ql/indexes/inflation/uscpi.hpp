@@ -36,10 +36,15 @@ namespace QuantLib {
         explicit USCPI(
             bool interpolated,
             const Handle<ZeroInflationTermStructure>& ts = Handle<ZeroInflationTermStructure>())
+        : USCPI(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit USCPI(
+            const Handle<ZeroInflationTermStructure>& ts = Handle<ZeroInflationTermStructure>())
         : ZeroInflationIndex("CPI",
                              USRegion(),
                              false,
-                             interpolated,
                              Monthly,
                              Period(1, Months), // availability
                              USDCurrency(),
@@ -54,15 +59,14 @@ namespace QuantLib {
         explicit YYUSCPI(
             bool interpolated,
             const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
-        : YoYInflationIndex("YY_CPI",
-                            USRegion(),
-                            false,
-                            interpolated,
-                            false,
-                            Monthly,
-                            Period(1, Months),
-                            USDCurrency(),
-                            ts) {}
+        : YYUSCPI(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit YYUSCPI(
+            const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
+        : YoYInflationIndex(
+              "YY_CPI", USRegion(), false, false, Monthly, Period(1, Months), USDCurrency(), ts) {}
     };
 
 
@@ -73,15 +77,14 @@ namespace QuantLib {
         explicit YYUSCPIr(
             bool interpolated,
             const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
-        : YoYInflationIndex("YYR_CPI",
-                            USRegion(),
-                            false,
-                            interpolated,
-                            true,
-                            Monthly,
-                            Period(1, Months),
-                            USDCurrency(),
-                            ts) {}
+        : YYUSCPIr(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit YYUSCPIr(
+            const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
+        : YoYInflationIndex(
+              "YYR_CPI", USRegion(), false, true, Monthly, Period(1, Months), USDCurrency(), ts) {}
     };
 
 }

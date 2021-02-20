@@ -36,14 +36,14 @@ namespace QuantLib {
         explicit UKRPI(
             bool interpolated,
             const Handle<ZeroInflationTermStructure>& ts = Handle<ZeroInflationTermStructure>())
-        : ZeroInflationIndex("RPI",
-                             UKRegion(),
-                             false,
-                             interpolated,
-                             Monthly,
-                             Period(1, Months),
-                             GBPCurrency(),
-                             ts) {}
+        : UKRPI(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit UKRPI(
+            const Handle<ZeroInflationTermStructure>& ts = Handle<ZeroInflationTermStructure>())
+        : ZeroInflationIndex(
+              "RPI", UKRegion(), false, Monthly, Period(1, Months), GBPCurrency(), ts) {}
     };
 
 
@@ -54,15 +54,14 @@ namespace QuantLib {
         explicit YYUKRPI(
             bool interpolated,
             const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
-        : YoYInflationIndex("YY_RPI",
-                            UKRegion(),
-                            false,
-                            interpolated,
-                            false,
-                            Monthly,
-                            Period(1, Months),
-                            GBPCurrency(),
-                            ts) {}
+        : YYUKRPI(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit YYUKRPI(
+            const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
+        : YoYInflationIndex(
+              "YY_RPI", UKRegion(), false, false, Monthly, Period(1, Months), GBPCurrency(), ts) {}
     };
 
 
@@ -73,15 +72,14 @@ namespace QuantLib {
         explicit YYUKRPIr(
             bool interpolated,
             const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
-        : YoYInflationIndex("YYR_RPI",
-                            UKRegion(),
-                            false,
-                            interpolated,
-                            true,
-                            Monthly,
-                            Period(1, Months),
-                            GBPCurrency(),
-                            ts) {}
+        : YYUKRPIr(ts) {
+            interpolated_ = interpolated;
+        }
+
+        explicit YYUKRPIr(
+            const Handle<YoYInflationTermStructure>& ts = Handle<YoYInflationTermStructure>())
+        : YoYInflationIndex(
+              "YYR_RPI", UKRegion(), false, true, Monthly, Period(1, Months), GBPCurrency(), ts) {}
     };
 
 }
