@@ -51,15 +51,15 @@ namespace QuantLib {
                               nominal,
                               startDate,
                               maturity,
-                              fixCalendar,
+                              std::move(fixCalendar),
                               fixConvention,
-                              dayCounter,
+                              std::move(dayCounter),
                               fixedRate,
                               infIndex,
                               infIndex->interpolated(),
                               observationLag,
                               adjustInfObsDates,
-                              infCalendar,
+                              std::move(infCalendar),
                               infConvention) {}
     QL_DEPRECATED_ENABLE_WARNING_III_INTERPOLATED_METHOD
 

@@ -48,7 +48,7 @@ namespace QuantLib {
             Calendar calendar, // index may have null calendar as valid on every day
             BusinessDayConvention paymentConvention,
             DayCounter dayCounter,
-            ext::shared_ptr<ZeroInflationIndex> zii,
+            const ext::shared_ptr<ZeroInflationIndex>& zii,
             Handle<YieldTermStructure> nominalTermStructure);
 
         ZeroCouponInflationSwapHelper(

@@ -35,17 +35,17 @@ namespace QuantLib {
         Calendar calendar,
         BusinessDayConvention paymentConvention,
         DayCounter dayCounter,
-        ext::shared_ptr<ZeroInflationIndex> zii,
+        const ext::shared_ptr<ZeroInflationIndex>& zii,
         Handle<YieldTermStructure> nominalTermStructure)
     : ZeroCouponInflationSwapHelper(quote,
                                     swapObsLag,
                                     maturity,
-                                    calendar,
+                                    std::move(calendar),
                                     paymentConvention,
-                                    dayCounter,
+                                    std::move(dayCounter),
                                     zii,
                                     zii->interpolated(),
-                                    nominalTermStructure) {}
+                                    std::move(nominalTermStructure)) {}
     QL_DEPRECATED_ENABLE_WARNING_III_INTERPOLATED_METHOD
 
     ZeroCouponInflationSwapHelper::ZeroCouponInflationSwapHelper(
