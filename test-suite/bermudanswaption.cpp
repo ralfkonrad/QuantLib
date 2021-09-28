@@ -20,17 +20,19 @@
 
 #include "bermudanswaption.hpp"
 #include "utilities.hpp"
-#include <ql/instruments/swaption.hpp>
-#include <ql/pricingengines/swaption/treeswaptionengine.hpp>
-#include <ql/pricingengines/swap/discountingswapengine.hpp>
-#include <ql/pricingengines/swaption/fdhullwhiteswaptionengine.hpp>
-#include <ql/pricingengines/swaption/fdg2swaptionengine.hpp>
-#include <ql/models/shortrate/onefactormodels/hullwhite.hpp>
-#include <ql/models/shortrate/twofactormodels/g2.hpp>
 #include <ql/cashflows/coupon.hpp>
 #include <ql/cashflows/iborcoupon.hpp>
-#include <ql/time/daycounters/thirty360.hpp>
 #include <ql/indexes/ibor/euribor.hpp>
+#include <ql/instruments/makevanillaswap.hpp>
+#include <ql/instruments/swaption.hpp>
+#include <ql/models/shortrate/onefactormodels/hullwhite.hpp>
+#include <ql/models/shortrate/twofactormodels/g2.hpp>
+#include <ql/pricingengines/swap/discountingswapengine.hpp>
+#include <ql/pricingengines/swaption/fdg2swaptionengine.hpp>
+#include <ql/pricingengines/swaption/fdhullwhiteswaptionengine.hpp>
+#include <ql/pricingengines/swaption/treeswaptionengine.hpp>
+#include <ql/termstructures/yield/flatforward.hpp>
+#include <ql/time/daycounters/thirty360.hpp>
 #include <ql/time/schedule.hpp>
 
 
@@ -311,10 +313,59 @@ void BermudanSwaptionTest::testCachedG2Values() {
     }
 }
 
+void BermudanSwaptionTest::testTreeEngineTimeSnapping() {
+    BOOST_TEST_MESSAGE("Testing snap of exercise dates for discretized swaption...");
+
+    Date today = Date(8, Jul, 2021);
+    SavedSettings backup;
+    Settings::instance().evaluationDate() = today;
+
+    RelinkableHandle<YieldTermStructure> termStructure;
+    termStructure.linkTo(ext::make_shared<FlatForward>(today, 0.02, Actual365Fixed()));
+
+    auto makeBermudanSwaption = [&today, &termStructure](Date callDate) {
+        auto effectiveDate = Date(15, May, 2025);
+        auto index = ext::make_shared<Euribor3M>(termStructure);
+        ext::shared_ptr<VanillaSwap> swap = MakeVanillaSwap(Period(10, Years), index, 0.05)
+                                                .withEffectiveDate(effectiveDate)
+                                                .withNominal(10000.00)
+                                                .withType(Swap::Type::Payer);
+
+        std::vector<Date> exerciseDates{effectiveDate, callDate};
+        auto bermudanExercise = ext::make_shared<BermudanExercise>(exerciseDates);
+        auto bermudanSwaption = ext::make_shared<Swaption>(swap, bermudanExercise);
+
+        return bermudanSwaption;
+    };
+
+    BOOST_TEST_MESSAGE("Call date\t   FD\t Tree");
+    for (int i = -10; i < 11; i++) {
+        static auto initialCallDate = Date(15, May, 2030);
+        static auto calendar = Euribor3M().fixingCalendar();
+
+        auto callDate = initialCallDate + i * Days;
+        if (calendar.isBusinessDay(callDate)) {
+            auto bermudanSwaption = makeBermudanSwaption(callDate);
+
+            auto model = ext::make_shared<HullWhite>(termStructure);
+
+            bermudanSwaption->setPricingEngine(ext::make_shared<FdHullWhiteSwaptionEngine>(model));
+            auto npvFD = bermudanSwaption->NPV();
+
+            bermudanSwaption->setPricingEngine(ext::make_shared<TreeSwaptionEngine>(model, 40));
+            auto npvTree = bermudanSwaption->NPV();
+
+            BOOST_TEST_MESSAGE(io::iso_date(callDate) << "\t" << std::fixed << std::setprecision(2)
+                                                      << std::setw(5) << npvFD << "\t" << npvTree);
+        }
+    }
+}
+
 test_suite* BermudanSwaptionTest::suite(SpeedLevel speed) {
     auto* suite = BOOST_TEST_SUITE("Bermudan swaption tests");
 
     suite->add(QUANTLIB_TEST_CASE(&BermudanSwaptionTest::testCachedValues));
+    suite->add(QUANTLIB_TEST_CASE(&BermudanSwaptionTest::testTreeEngineTimeSnapping));
 
     if (speed == Slow) {
         suite->add(QUANTLIB_TEST_CASE(
