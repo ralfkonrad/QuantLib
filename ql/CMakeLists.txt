@@ -181,6 +181,7 @@ set(QL_SOURCES
     experimental/forward/analytichestonforwardeuropeanengine.cpp
     experimental/fx/blackdeltacalculator.cpp
     experimental/fx/deltavolquote.cpp
+    experimental/hullwhitewithtwocurves/hullwhitewithtwocurves.cpp
     experimental/inflation/cpicapfloorengines.cpp
     experimental/inflation/cpicapfloortermpricesurface.cpp
     experimental/inflation/yoycapfloortermpricesurface.cpp
@@ -1149,6 +1150,7 @@ set(QL_HEADERS
     experimental/forward/analytichestonforwardeuropeanengine.hpp
     experimental/fx/blackdeltacalculator.hpp
     experimental/fx/deltavolquote.hpp
+    experimental/hullwhitewithtwocurves/hullwhitewithtwocurves.hpp
     experimental/inflation/cpicapfloorengines.hpp
     experimental/inflation/cpicapfloortermpricesurface.hpp
     experimental/inflation/genericindexes.hpp
