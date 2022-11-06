@@ -74,6 +74,7 @@ QL_TEST_SRCS = \
 	hestonmodel.cpp \
 	hestonslvmodel.cpp \
 	himalayaoption.cpp \
+    hullwhitewithtwocurves.cpp \
 	hybridhestonhullwhiteprocess.cpp \
 	indexes.cpp \
 	inflation.cpp \
@@ -242,6 +243,7 @@ QL_TEST_HDRS = \
 	hestonmodel.hpp \
 	hestonslvmodel.hpp \
 	himalayaoption.hpp \
+    hullwhitewithtwocurves.hpp \
 	hybridhestonhullwhiteprocess.hpp \
 	indexes.hpp \
 	inflation.hpp \

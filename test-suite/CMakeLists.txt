@@ -72,6 +72,7 @@ set(QL_TEST_SOURCES
     hestonmodel.cpp
     hestonslvmodel.cpp
     himalayaoption.cpp
+    hullwhitewithtwocurves.cpp
     hybridhestonhullwhiteprocess.cpp
     indexes.cpp
     inflation.cpp
@@ -241,6 +242,7 @@ set(QL_TEST_HEADERS
     hestonmodel.hpp
     hestonslvmodel.hpp
     himalayaoption.hpp
+    hullwhitewithtwocurves.hpp
     hybridhestonhullwhiteprocess.hpp
     indexes.hpp
     inflation.hpp
