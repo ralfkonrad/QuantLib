@@ -1,9 +1,32 @@
 
-SUBDIRS = amortizingbonds asian averageois barrieroption basismodels \
-          callablebonds catbonds commodities coupons credit \
-          exoticoptions finitedifferences forward fx inflation lattices \
-          math mcbasket models processes risk shortrate swaptions \
-          termstructures variancegamma varianceoption volatility
+SUBDIRS = amortizingbonds \
+          asian \
+          averageois \
+          barrieroption \
+          basismodels \
+          callablebonds \
+          catbonds \
+          commodities \
+          coupons \
+          credit \
+          exoticoptions \
+          finitedifferences \
+          forward \
+          fx \
+          hullwhitewithtwocurves \
+          inflation \
+          lattices \
+          math \
+          mcbasket \
+          models \
+          processes \
+          risk \
+          shortrate \
+          swaptions \
+          termstructures \
+          variancegamma \
+          varianceoption \
+          volatility
 
 AM_CPPFLAGS = -I${top_builddir} -I${top_srcdir}
 
@@ -27,6 +50,7 @@ libExperimental_la_LIBADD = \
     finitedifferences/libMultiDimFDM.la \
     forward/libForward.la \
     fx/libFX.la \
+    hullwhitewithtwocurves/libHullWhiteWithTwoCurves.la \
     inflation/libInflation.la \
     lattices/libLattices.la \
     math/libMath.la \
