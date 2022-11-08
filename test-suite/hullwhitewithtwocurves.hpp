@@ -22,7 +22,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-class HullWhiteWithTwoCurvesTests {
+class HullWhiteWithTwoCurves {
   public:
     static void testSwapPricing();
     static boost::unit_test_framework::test_suite* suite();
