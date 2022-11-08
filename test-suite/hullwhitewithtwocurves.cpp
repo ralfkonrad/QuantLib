@@ -19,13 +19,13 @@
 
 #include "hullwhitewithtwocurves.hpp"
 #include "utilities.hpp"
-#include <ql/experimental/hullwhitewithtwocurves/hullwhitewithtwocurves.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/model/hw2c.hpp>
 #include <ql/time/daycounters/actual360.hpp>
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-void HullWhiteWithTwoCurvesTests::testSwapPricing() {
+void HullWhiteWithTwoCurves::testSwapPricing() {
 
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap against discounting engine...");
 
@@ -35,12 +35,11 @@ void HullWhiteWithTwoCurvesTests::testSwapPricing() {
     Handle<YieldTermStructure> discountCurve(flatRate(today, 0.05, dc));
     Handle<YieldTermStructure> forwardCurve(flatRate(today, 0.05, dc));
 
-    auto hullWhiteWithTwoCurves =
-        ext::make_shared<HullWhiteWithTwoCurves>(discountCurve, forwardCurve);
+    auto hw2c = ext::make_shared<HW2C>(discountCurve, forwardCurve);
 }
 
-test_suite* HullWhiteWithTwoCurvesTests::suite() {
+test_suite* HullWhiteWithTwoCurves::suite() {
     auto* suite = BOOST_TEST_SUITE("HullWhiteWithTwoCurves tests");
-    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurvesTests::testSwapPricing));
+    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testSwapPricing));
     return suite;
 }

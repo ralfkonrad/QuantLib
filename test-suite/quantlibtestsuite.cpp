@@ -397,7 +397,7 @@ test_suite* init_unit_test_suite(int, char*[]) {
     test->add(GJRGARCHModelTest::suite(speed));
     test->add(GsrTest::suite());
     test->add(HestonModelTest::suite(speed));
-    test->add(HullWhiteWithTwoCurvesTests::suite());
+    test->add(HullWhiteWithTwoCurves::suite());
     test->add(HybridHestonHullWhiteProcessTest::suite(speed));
     test->add(IndexTest::suite());
     test->add(InflationTest::suite());
