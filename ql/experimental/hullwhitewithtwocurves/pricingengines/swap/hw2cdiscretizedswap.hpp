@@ -17,17 +17,28 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/experimental/hullwhitewithtwocurves/model/hw2c.hpp>
+/*! \file hw2cdiscretizedswap.hpp
+    \brief
+*/
+
+#ifndef quantlib_hw2c_discretized_swap_hpp
+#define quantlib_hw2c_discretized_swap_hpp
+
+#include <ql/discretizedasset.hpp>
 
 namespace QuantLib {
-    HW2C::HW2C(Handle<QuantLib::YieldTermStructure> discountTermStructure,
-               Handle<QuantLib::YieldTermStructure> forwardTermStructure,
-               QuantLib::Real a,
-               QuantLib::Real sigma)
-    : CalibratedModel(2), a_(a), sigma_(sigma) {
-        QL_REQUIRE(discountTermStructure->referenceDate() == forwardTermStructure->referenceDate(),
-                   "The reference date of discount and forward curve do not match");
-        discountModel_ = ext::make_shared<HullWhite>(discountTermStructure, a_, sigma_);
-        forwardModel_ = ext::make_shared<HullWhite>(forwardTermStructure, a_, sigma_);
-    }
+    class HW2CDiscretizedSwap : public DiscretizedAsset {
+      public:
+        void initialize(const ext::shared_ptr<Lattice>& discountMethod,
+                        const ext::shared_ptr<Lattice>& forwardMethod,
+                        Time t);
+
+        const ext::shared_ptr<Lattice>& forwardMethod() const { return forwardMethod_; }
+
+      private:
+        ext::shared_ptr<Lattice> forwardMethod_;
+    };
 }
+
+
+#endif // quantlib_hw2c_discretized_swap_hpp
