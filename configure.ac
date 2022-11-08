@@ -451,6 +451,8 @@ AC_CONFIG_FILES([
     ql/experimental/fx/Makefile
     ql/experimental/hullwhitewithtwocurves/Makefile
     ql/experimental/hullwhitewithtwocurves/model/Makefile
+    ql/experimental/hullwhitewithtwocurves/pricingengines/Makefile
+    ql/experimental/hullwhitewithtwocurves/pricingengines/swap/Makefile
     ql/experimental/inflation/Makefile
     ql/experimental/lattices/Makefile
     ql/experimental/math/Makefile
