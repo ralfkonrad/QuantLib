@@ -17,14 +17,13 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/experimental/hullwhitewithtwocurves/hullwhitewithtwocurves.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/model/hw2c.hpp>
 
 namespace QuantLib {
-    HullWhiteWithTwoCurves::HullWhiteWithTwoCurves(
-        Handle<QuantLib::YieldTermStructure> discountTermStructure,
-        Handle<QuantLib::YieldTermStructure> forwardTermStructure,
-        QuantLib::Real a,
-        QuantLib::Real sigma)
+    HW2C::HW2C(Handle<QuantLib::YieldTermStructure> discountTermStructure,
+               Handle<QuantLib::YieldTermStructure> forwardTermStructure,
+               QuantLib::Real a,
+               QuantLib::Real sigma)
     : CalibratedModel(2), discountTermStructure_(std::move(discountTermStructure)),
       forwardTermStructure_(std::move(forwardTermStructure)), a_(a), sigma_(sigma) {
         discountModel_ = ext::make_shared<HullWhite>(discountTermStructure_, a_, sigma_);
