@@ -17,17 +17,29 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
+/*! \file hw2ctreeengine.hpp
+    \brief
+*/
+
+#ifndef quantlib_hw2c_tree_swap_engine_hpp
+#define quantlib_hw2c_tree_swap_engine_hpp
+
 #include <ql/experimental/hullwhitewithtwocurves/model/hw2c.hpp>
+#include <ql/instruments/vanillaswap.hpp>
+#include <ql/pricingengines/genericmodelengine.hpp>
 
 namespace QuantLib {
-    HW2C::HW2C(Handle<QuantLib::YieldTermStructure> discountTermStructure,
-               Handle<QuantLib::YieldTermStructure> forwardTermStructure,
-               QuantLib::Real a,
-               QuantLib::Real sigma)
-    : CalibratedModel(2), a_(a), sigma_(sigma) {
-        QL_REQUIRE(discountTermStructure->referenceDate() == forwardTermStructure->referenceDate(),
-                   "The reference date of discount and forward curve do not match");
-        discountModel_ = ext::make_shared<HullWhite>(discountTermStructure, a_, sigma_);
-        forwardModel_ = ext::make_shared<HullWhite>(forwardTermStructure, a_, sigma_);
-    }
+    class HW2CTreeSwapEngine
+    : public GenericModelEngine<HW2C, VanillaSwap::arguments, VanillaSwap::results> {
+      public:
+        HW2CTreeSwapEngine(Handle<HW2C> model, Size timeSteps);
+        HW2CTreeSwapEngine(const ext::shared_ptr<HW2C>& model, Size timeSteps);
+
+        void calculate() const override;
+
+      private:
+        Size timeSteps_;
+    };
 }
+
+#endif // quantlib_hw2c_tree_swap_engine_hpp

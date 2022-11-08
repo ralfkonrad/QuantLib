@@ -17,7 +17,7 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-/*! \file hullwhitewithtwocurves.hpp
+/*! \file hw2c.hpp
     \brief
 */
 
@@ -35,15 +35,10 @@ namespace QuantLib {
              Real a = 0.1,
              Real sigma = 0.01);
 
-        Handle<YieldTermStructure> discountTermStructure() const { return discountTermStructure_; }
-        Handle<YieldTermStructure> forwardTermStructure() const { return forwardTermStructure_; }
-
         ext::shared_ptr<HullWhite> discountModel() const { return discountModel_; }
         ext::shared_ptr<HullWhite> forwardModel() const { return forwardModel_; }
 
       private:
-        Handle<YieldTermStructure> discountTermStructure_;
-        Handle<YieldTermStructure> forwardTermStructure_;
         ext::shared_ptr<HullWhite> discountModel_;
         ext::shared_ptr<HullWhite> forwardModel_;
         Real a_;

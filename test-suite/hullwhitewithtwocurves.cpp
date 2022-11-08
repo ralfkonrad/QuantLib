@@ -20,6 +20,10 @@
 #include "hullwhitewithtwocurves.hpp"
 #include "utilities.hpp"
 #include <ql/experimental/hullwhitewithtwocurves/model/hw2c.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.hpp>
+#include <ql/indexes/ibor/euribor.hpp>
+#include <ql/instruments/makevanillaswap.hpp>
+#include <ql/pricingengines/swap/discountingswapengine.hpp>
 #include <ql/time/daycounters/actual360.hpp>
 
 using namespace QuantLib;
@@ -33,9 +37,26 @@ void HullWhiteWithTwoCurves::testSwapPricing() {
     DayCounter dc = Actual360();
 
     Handle<YieldTermStructure> discountCurve(flatRate(today, 0.05, dc));
-    Handle<YieldTermStructure> forwardCurve(flatRate(today, 0.05, dc));
+    Handle<YieldTermStructure> forwardCurve(flatRate(today, 0.03, dc));
+    auto euribor3M = ext::make_shared<Euribor3M>(forwardCurve);
+    VanillaSwap swap = MakeVanillaSwap(Period(10, QuantLib::Years), euribor3M, 0.04)
+                           .withNominal(10000.00)
+                           .withDiscountingTermStructure(discountCurve);
+
+    auto discountingEngine = ext::make_shared<DiscountingSwapEngine>(discountCurve);
+    swap.setPricingEngine(discountingEngine);
+    auto discountingNpv = swap.NPV();
 
     auto hw2c = ext::make_shared<HW2C>(discountCurve, forwardCurve);
+    auto hw2cTreeSwapEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2c, 40);
+    swap.setPricingEngine(hw2cTreeSwapEngine);
+    auto treeNpv = swap.NPV();
+
+    if (!close(discountingNpv, treeNpv)) {
+        BOOST_FAIL(std::setprecision(10)
+                   << "The npvs from the discounting engine " << discountingNpv
+                   << " and the HW2C tree engine " << treeNpv << " do not match.");
+    }
 }
 
 test_suite* HullWhiteWithTwoCurves::suite() {

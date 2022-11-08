@@ -17,17 +17,16 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/experimental/hullwhitewithtwocurves/model/hw2c.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.hpp>
 
 namespace QuantLib {
-    HW2C::HW2C(Handle<QuantLib::YieldTermStructure> discountTermStructure,
-               Handle<QuantLib::YieldTermStructure> forwardTermStructure,
-               QuantLib::Real a,
-               QuantLib::Real sigma)
-    : CalibratedModel(2), a_(a), sigma_(sigma) {
-        QL_REQUIRE(discountTermStructure->referenceDate() == forwardTermStructure->referenceDate(),
-                   "The reference date of discount and forward curve do not match");
-        discountModel_ = ext::make_shared<HullWhite>(discountTermStructure, a_, sigma_);
-        forwardModel_ = ext::make_shared<HullWhite>(forwardTermStructure, a_, sigma_);
+    HW2CTreeSwapEngine::HW2CTreeSwapEngine(Handle<HW2C> model, Size timeSteps)
+    : GenericModelEngine(model), timeSteps_(timeSteps) {}
+
+    HW2CTreeSwapEngine::HW2CTreeSwapEngine(const ext::shared_ptr<HW2C>& model, Size timeSteps)
+    : GenericModelEngine(model), timeSteps_(timeSteps) {}
+
+    void HW2CTreeSwapEngine::calculate() const {
+        results_.value = 0.00;
     }
 }
