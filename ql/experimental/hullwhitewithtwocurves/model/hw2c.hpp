@@ -28,12 +28,12 @@
 #include <ql/models/shortrate/onefactormodels/hullwhite.hpp>
 
 namespace QuantLib {
-    class HullWhiteWithTwoCurves : public CalibratedModel {
+    class HW2C : public CalibratedModel {
       public:
-        HullWhiteWithTwoCurves(Handle<YieldTermStructure> discountTermStructure,
-                               Handle<YieldTermStructure> forwardTermStructure,
-                               Real a = 0.1,
-                               Real sigma = 0.01);
+        HW2C(Handle<YieldTermStructure> discountTermStructure,
+             Handle<YieldTermStructure> forwardTermStructure,
+             Real a = 0.1,
+             Real sigma = 0.01);
 
         Handle<YieldTermStructure> discountTermStructure() const { return discountTermStructure_; }
         Handle<YieldTermStructure> forwardTermStructure() const { return forwardTermStructure_; }
