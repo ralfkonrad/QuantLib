@@ -31,6 +31,7 @@
 namespace QuantLib {
     class HW2CTreeSwapEngine
     : public GenericModelEngine<HW2C, VanillaSwap::arguments, VanillaSwap::results> {
+
       public:
         HW2CTreeSwapEngine(Handle<HW2C> model, Size timeSteps);
         HW2CTreeSwapEngine(const ext::shared_ptr<HW2C>& model, Size timeSteps);

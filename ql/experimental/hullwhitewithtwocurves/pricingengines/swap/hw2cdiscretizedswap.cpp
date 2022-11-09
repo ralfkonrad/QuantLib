@@ -18,13 +18,54 @@
 */
 
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.hpp>
+#include <utility>
 
 namespace QuantLib {
+    HW2CDiscretizedSwap::HW2CDiscretizedSwap(const VanillaSwap::arguments& args,
+                                             const Date& referenceDate,
+                                             const DayCounter& dayCounter)
+    : DiscretizedSwap(args, referenceDate, dayCounter) {}
+
+    HW2CDiscretizedSwap::HW2CDiscretizedSwap(
+        const VanillaSwap::arguments& args,
+        const Date& referenceDate,
+        const DayCounter& dayCounter,
+        std::vector<CouponAdjustment> fixedCouponAdjustments,
+        std::vector<CouponAdjustment> floatingCouponAdjustments)
+    : DiscretizedSwap(args,
+                      referenceDate,
+                      dayCounter,
+                      std::move(fixedCouponAdjustments),
+                      std::move(floatingCouponAdjustments)) {}
+
     void HW2CDiscretizedSwap::initialize(const ext::shared_ptr<Lattice>& discountMethod,
                                          const ext::shared_ptr<Lattice>& forwardMethod,
                                          Time t) {
         DiscretizedAsset::initialize(discountMethod, t);
         forwardMethod_ = forwardMethod;
         forwardMethod_->initialize(*this, t);
+    }
+
+    void HW2CDiscretizedSwap::addFloatingCoupon(Size i) {
+        DiscretizedDiscountBond discountBond;
+        discountBond.initialize(discountMethod(), floatingPayTimes_[i]);
+        discountBond.rollback(time_);
+
+        DiscretizedDiscountBond forwardBond;
+        forwardBond.initialize(forwardMethod(), floatingPayTimes_[i]);
+        forwardBond.rollback(time_);
+
+        Real nominal = arguments_.nominal;
+        Time T = arguments_.floatingAccrualTimes[i];
+        Spread spread = arguments_.floatingSpreads[i];
+        Real accruedSpread = nominal * T * spread;
+        for (Size j = 0; j < values_.size(); j++) {
+            Real coupon = nominal * (1.0 - discountBond.values()[j]) +
+                          accruedSpread * discountBond.values()[j];
+            if (arguments_.type == Swap::Payer)
+                values_[j] += coupon;
+            else
+                values_[j] -= coupon;
+        }
     }
 }
