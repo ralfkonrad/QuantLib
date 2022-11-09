@@ -49,7 +49,6 @@ namespace QuantLib {
         void preAdjustValuesImpl() override;
         void postAdjustValuesImpl() override;
 
-      private:
         VanillaSwap::arguments arguments_;
         std::vector<Time> fixedResetTimes_;
         std::vector<Time> fixedPayTimes_;
@@ -60,8 +59,8 @@ namespace QuantLib {
         std::vector<CouponAdjustment> floatingCouponAdjustments_;
         std::vector<bool> floatingResetTimeIsInPast_;
 
-        void addFixedCoupon(Size i);
-        void addFloatingCoupon(Size i);
+        virtual void addFixedCoupon(Size i);
+        virtual void addFloatingCoupon(Size i);
     };
 
 }
