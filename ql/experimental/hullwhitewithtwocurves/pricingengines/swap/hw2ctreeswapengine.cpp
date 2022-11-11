@@ -28,6 +28,9 @@ namespace QuantLib {
     : GenericModelEngine(model), timeSteps_(timeSteps) {}
 
     void HW2CTreeSwapEngine::calculate() const {
+        for (Size i = 0; i < timeSteps_; i++) {
+        }
+
         results_.value = 0.00;
     }
 }
