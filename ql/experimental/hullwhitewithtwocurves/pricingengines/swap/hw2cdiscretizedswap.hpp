@@ -31,11 +31,13 @@ namespace QuantLib {
       public:
         HW2CDiscretizedSwap(const VanillaSwap::arguments& args,
                             const Date& referenceDate,
-                            const DayCounter& dayCounter);
+                            const DayCounter& dayCounter,
+                            const DayCounter& forwardDayCounter);
 
         HW2CDiscretizedSwap(const VanillaSwap::arguments& args,
                             const Date& referenceDate,
                             const DayCounter& dayCounter,
+                            const DayCounter& forwardDayCounter,
                             std::vector<CouponAdjustment> fixedCouponAdjustments,
                             std::vector<CouponAdjustment> floatingCouponAdjustments);
 
@@ -51,8 +53,9 @@ namespace QuantLib {
 
       private:
         ext::shared_ptr<Lattice> forwardMethod_;
+        std::vector<Time> forwardStartTimes_;
+        std::vector<Time> forwardEndTimes_;
     };
 }
-
 
 #endif // quantlib_hw2c_discretized_swap_hpp

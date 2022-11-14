@@ -34,11 +34,15 @@ void HullWhiteWithTwoCurves::testSwapPricing() {
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap against discounting engine...");
 
     Date today = Settings::instance().evaluationDate();
-    DayCounter dc = Actual360();
+
+    auto dc = Actual360();
+    auto dcEuribor3M = Euribor3M().dayCounter();
 
     Handle<YieldTermStructure> discountCurve(flatRate(today, 0.05, dc));
-    Handle<YieldTermStructure> forwardCurve(flatRate(today, 0.03, dc));
+    Handle<YieldTermStructure> forwardCurve(flatRate(today, 0.03, dcEuribor3M));
+
     auto euribor3M = ext::make_shared<Euribor3M>(forwardCurve);
+
     VanillaSwap swap = MakeVanillaSwap(Period(10, QuantLib::Years), euribor3M, 0.04)
                            .withNominal(10000.00)
                            .withDiscountingTermStructure(discountCurve);
@@ -52,7 +56,7 @@ void HullWhiteWithTwoCurves::testSwapPricing() {
     swap.setPricingEngine(hw2cTreeSwapEngine);
     auto treeNpv = swap.NPV();
 
-    if (!close(discountingNpv, treeNpv)) {
+    if (!close(discountingNpv, treeNpv, 125)) {
         auto diff = discountingNpv - treeNpv;
         BOOST_FAIL(std::setprecision(6)
                    << "The npvs from the discounting engine (" << discountingNpv
