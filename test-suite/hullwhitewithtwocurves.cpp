@@ -31,19 +31,27 @@ using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
 namespace {
-    void testSwapPricing(bool atParCoupons) {
+    const std::vector<ext::shared_ptr<IborIndex>> INDICES{ext::make_shared<Euribor3M>(),
+                                                          ext::make_shared<Euribor6M>(),
+                                                          ext::make_shared<Euribor1Y>()};
+    const std::vector<Period> MATURITIES{Period(1, Years), Period(2, Years), Period(5, Years),
+                                         Period(10, Years), Period(20, Years)};
+
+    void
+    testSwapPricing(const ext::shared_ptr<IborIndex>& index, Period maturity, bool atParCoupons) {
         Date today = Settings::instance().evaluationDate();
 
+        auto nominal = 10000.00;
+
         auto dc = Actual360();
-        auto dcEuribor3M = Euribor3M().dayCounter();
 
         Handle<YieldTermStructure> discountCurve(flatRate(today, 0.05, dc));
-        Handle<YieldTermStructure> forwardCurve(flatRate(today, 0.03, dcEuribor3M));
+        Handle<YieldTermStructure> forwardCurve(flatRate(today, 0.03, index->dayCounter()));
 
-        auto euribor3M = ext::make_shared<Euribor3M>(forwardCurve);
+        auto clonedIndex = index->clone(forwardCurve);
 
-        VanillaSwap swap = MakeVanillaSwap(Period(10, Years), euribor3M, 0.04)
-                               .withNominal(10000.00)
+        VanillaSwap swap = MakeVanillaSwap(maturity, clonedIndex, 0.04)
+                               .withNominal(nominal)
                                .withDiscountingTermStructure(discountCurve)
                                .withAtParCoupons(atParCoupons);
 
@@ -56,36 +64,36 @@ namespace {
         swap.setPricingEngine(hw2cTreeSwapEngine);
         auto treeNpv = swap.NPV();
 
-        if (!close(discountingNpv, treeNpv, 42)) {
-            auto diff = discountingNpv - treeNpv;
+        auto relativeDiff = (discountingNpv - treeNpv) / nominal;
+        auto relativeTolerance = atParCoupons ? 1e-14 : 1e-5;
+        if (std::abs(relativeDiff) > relativeTolerance) {
             BOOST_FAIL(std::setprecision(6)
-                       << std::boolalpha << "The npvs with atParCoupons=" << atParCoupons
+                       << std::boolalpha << "The npvs with index='" << index->name()
+                       << "', maturity=" << maturity << ", atParCoupons=" << atParCoupons
                        << " from the discounting engine (" << discountingNpv
                        << ") and the HW2CModel tree engine (" << treeNpv << ") do not match. "
-                       << std::setprecision(4) << "The difference is " << diff << ".");
+                       << std::setprecision(4)
+                       << "The relative difference compared to the nominal is " << relativeDiff
+                       << ", tolerance " << relativeTolerance << ".");
         }
     }
 }
 
-void HullWhiteWithTwoCurves::testSwapPricingWithAtParCoupons() {
+void HullWhiteWithTwoCurves::testSwapPricings() {
 
-    BOOST_TEST_MESSAGE(
-        "Testing HullWhiteWithTwoCurves swap with at par coupons against discounting engine...");
+    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap against discounting engine...");
 
-    testSwapPricing(true);
-}
-
-void HullWhiteWithTwoCurves::testSwapPricingWithIndexedCoupons() {
-
-    BOOST_TEST_MESSAGE(
-        "Testing HullWhiteWithTwoCurves swap with indexed coupons against discounting engine...");
-
-    testSwapPricing(false);
+    for (const auto& index : INDICES) {
+        for (const auto& maturity : MATURITIES) {
+            for (const auto atParCoupon : {true, false}) {
+                testSwapPricing(index, maturity, atParCoupon);
+            }
+        }
+    }
 }
 
 test_suite* HullWhiteWithTwoCurves::suite() {
     auto* suite = BOOST_TEST_SUITE("HullWhiteWithTwoCurves tests");
-    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testSwapPricingWithAtParCoupons));
-    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testSwapPricingWithIndexedCoupons));
+    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testSwapPricings));
     return suite;
 }
