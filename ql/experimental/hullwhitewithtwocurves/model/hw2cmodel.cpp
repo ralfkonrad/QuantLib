@@ -17,13 +17,13 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/experimental/hullwhitewithtwocurves/model/hw2c.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
 
 namespace QuantLib {
-    HW2C::HW2C(Handle<QuantLib::YieldTermStructure> discountTermStructure,
-               Handle<QuantLib::YieldTermStructure> forwardTermStructure,
-               QuantLib::Real a,
-               QuantLib::Real sigma)
+    HW2CModel::HW2CModel(Handle<QuantLib::YieldTermStructure> discountTermStructure,
+                         Handle<QuantLib::YieldTermStructure> forwardTermStructure,
+                         QuantLib::Real a,
+                         QuantLib::Real sigma)
     : CalibratedModel(2), a_(a), sigma_(sigma) {
         QL_REQUIRE(discountTermStructure->referenceDate() == forwardTermStructure->referenceDate(),
                    "The reference date of discount and forward curve do not match");

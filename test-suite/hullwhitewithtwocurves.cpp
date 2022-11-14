@@ -19,7 +19,7 @@
 
 #include "hullwhitewithtwocurves.hpp"
 #include "utilities.hpp"
-#include <ql/experimental/hullwhitewithtwocurves/model/hw2c.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.hpp>
 #include <ql/indexes/ibor/euribor.hpp>
 #include <ql/instruments/makevanillaswap.hpp>
@@ -47,7 +47,7 @@ void HullWhiteWithTwoCurves::testSwapPricing() {
     swap.setPricingEngine(discountingEngine);
     auto discountingNpv = swap.NPV();
 
-    auto hw2c = ext::make_shared<HW2C>(discountCurve, forwardCurve);
+    auto hw2c = ext::make_shared<HW2CModel>(discountCurve, forwardCurve);
     auto hw2cTreeSwapEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2c, 40);
     swap.setPricingEngine(hw2cTreeSwapEngine);
     auto treeNpv = swap.NPV();
@@ -55,7 +55,7 @@ void HullWhiteWithTwoCurves::testSwapPricing() {
     if (!close(discountingNpv, treeNpv)) {
         BOOST_FAIL(std::setprecision(10)
                    << "The npvs from the discounting engine " << discountingNpv
-                   << " and the HW2C tree engine " << treeNpv << " do not match.");
+                   << " and the HW2CModel tree engine " << treeNpv << " do not match.");
     }
 }
 
