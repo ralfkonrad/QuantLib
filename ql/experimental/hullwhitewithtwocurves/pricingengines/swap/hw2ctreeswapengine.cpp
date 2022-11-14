@@ -21,15 +21,19 @@
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.hpp>
 
 namespace QuantLib {
-    HW2CTreeSwapEngine::HW2CTreeSwapEngine(Handle<HW2C> model, Size timeSteps)
+    HW2CTreeSwapEngine::HW2CTreeSwapEngine(Handle<HW2CModel> model, Size timeSteps)
     : GenericModelEngine(model), timeSteps_(timeSteps) {}
 
-    HW2CTreeSwapEngine::HW2CTreeSwapEngine(const ext::shared_ptr<HW2C>& model, Size timeSteps)
+    HW2CTreeSwapEngine::HW2CTreeSwapEngine(const ext::shared_ptr<HW2CModel>& model, Size timeSteps)
     : GenericModelEngine(model), timeSteps_(timeSteps) {}
 
     void HW2CTreeSwapEngine::calculate() const {
-        for (Size i = 0; i < timeSteps_; i++) {
-        }
+        QL_REQUIRE(!model_.empty(), "no model specified");
+
+        auto referenceDate = model_->discountModel()->termStructure()->referenceDate();
+        auto dayCounter = model_->discountModel()->termStructure()->dayCounter();
+
+        auto swap = HW2CDiscretizedSwap(arguments_, referenceDate, dayCounter);
 
         results_.value = 0.00;
     }

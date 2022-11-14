@@ -4,10 +4,10 @@ AM_CPPFLAGS = -I${top_builddir} -I${top_srcdir}
 this_includedir=${includedir}/${subdir}
 this_include_HEADERS = \
     all.hpp \
-	hw2c.hpp
+	hw2cmodel.hpp
 
 cpp_files = \
-    hw2c.cpp
+    hw2cmodel.cpp
 
 if UNITY_BUILD
 
