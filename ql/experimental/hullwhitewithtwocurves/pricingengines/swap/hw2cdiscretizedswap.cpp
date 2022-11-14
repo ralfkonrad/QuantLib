@@ -23,20 +23,40 @@
 namespace QuantLib {
     HW2CDiscretizedSwap::HW2CDiscretizedSwap(const VanillaSwap::arguments& args,
                                              const Date& referenceDate,
-                                             const DayCounter& dayCounter)
-    : DiscretizedSwap(args, referenceDate, dayCounter) {}
+                                             const DayCounter& dayCounter,
+                                             const DayCounter& forwardDayCounter)
+    : HW2CDiscretizedSwap(
+          args,
+          referenceDate,
+          dayCounter,
+          forwardDayCounter,
+          std::vector<CouponAdjustment>(args.fixedPayDates.size(), CouponAdjustment::pre),
+          std::vector<CouponAdjustment>(args.floatingPayDates.size(), CouponAdjustment::pre)) {}
 
     HW2CDiscretizedSwap::HW2CDiscretizedSwap(
         const VanillaSwap::arguments& args,
         const Date& referenceDate,
         const DayCounter& dayCounter,
+        const DayCounter& forwardDayCounter,
         std::vector<CouponAdjustment> fixedCouponAdjustments,
         std::vector<CouponAdjustment> floatingCouponAdjustments)
     : DiscretizedSwap(args,
                       referenceDate,
                       dayCounter,
                       std::move(fixedCouponAdjustments),
-                      std::move(floatingCouponAdjustments)) {}
+                      std::move(floatingCouponAdjustments)) {
+        auto nrOfFloatingCoupons = args.floatingResetDates.size();
+        forwardStartTimes_.resize(nrOfFloatingCoupons);
+        forwardEndTimes_.resize(nrOfFloatingCoupons);
+        for (Size i = 0; i < nrOfFloatingCoupons; ++i) {
+            auto forwardStartTime =
+                forwardDayCounter.yearFraction(referenceDate, args.floatingResetDates[i]);
+            auto forwardEndTime =
+                forwardDayCounter.yearFraction(referenceDate, args.floatingPayDates[i]);
+            forwardStartTimes_[i] = forwardStartTime;
+            forwardEndTimes_[i] = forwardEndTime;
+        }
+    }
 
     void HW2CDiscretizedSwap::initialize(const ext::shared_ptr<Lattice>& discountMethod,
                                          const ext::shared_ptr<Lattice>& forwardMethod,
