@@ -53,9 +53,11 @@ void HullWhiteWithTwoCurves::testSwapPricing() {
     auto treeNpv = swap.NPV();
 
     if (!close(discountingNpv, treeNpv)) {
-        BOOST_FAIL(std::setprecision(10)
-                   << "The npvs from the discounting engine " << discountingNpv
-                   << " and the HW2CModel tree engine " << treeNpv << " do not match.");
+        auto diff = discountingNpv - treeNpv;
+        BOOST_FAIL(std::setprecision(6)
+                   << "The npvs from the discounting engine (" << discountingNpv
+                   << ") and the HW2CModel tree engine (" << treeNpv << ") do not match. "
+                   << std::setprecision(4) << "The difference is " << diff << ".");
     }
 }
 

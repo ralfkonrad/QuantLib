@@ -34,7 +34,16 @@ namespace QuantLib {
         auto dayCounter = model_->discountModel()->termStructure()->dayCounter();
 
         auto swap = HW2CDiscretizedSwap(arguments_, referenceDate, dayCounter);
+        auto times = swap.mandatoryTimes();
+        auto maxTime = *std::max_element(times.begin(), times.end());
 
-        results_.value = 0.00;
+        TimeGrid timeGrid(times.begin(), times.end(), timeSteps_);
+        auto discountLattice = model_->discountTree(timeGrid);
+        auto forwardLattice = model_->forwardTree(timeGrid);
+
+        swap.initialize(discountLattice, forwardLattice, maxTime);
+        swap.rollback(0.0);
+
+        results_.value = swap.presentValue();
     }
 }

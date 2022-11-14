@@ -30,4 +30,12 @@ namespace QuantLib {
         discountModel_ = ext::make_shared<HullWhite>(discountTermStructure, a_, sigma_);
         forwardModel_ = ext::make_shared<HullWhite>(forwardTermStructure, a_, sigma_);
     }
+
+    ext::shared_ptr<Lattice> HW2CModel::discountTree(const TimeGrid& timeGrid) const {
+        return discountModel()->tree(timeGrid);
+    }
+
+    ext::shared_ptr<Lattice> HW2CModel::forwardTree(const TimeGrid& timeGrid) const {
+        return forwardModel()->tree(timeGrid);
+    }
 }

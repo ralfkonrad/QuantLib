@@ -38,6 +38,9 @@ namespace QuantLib {
         ext::shared_ptr<HullWhite> discountModel() const { return discountModel_; }
         ext::shared_ptr<HullWhite> forwardModel() const { return forwardModel_; }
 
+        ext::shared_ptr<Lattice> discountTree(const TimeGrid& timeGrid) const;
+        ext::shared_ptr<Lattice> forwardTree(const TimeGrid& timeGrid) const;
+
       private:
         ext::shared_ptr<HullWhite> discountModel_;
         ext::shared_ptr<HullWhite> forwardModel_;
