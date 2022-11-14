@@ -77,19 +77,21 @@ namespace QuantLib {
         discountBond.initialize(discountMethod(), floatingPayTimes_[i]);
         discountBond.rollback(time_);
 
-        DiscretizedDiscountBond forwardBond;
-        forwardBond.initialize(forwardMethod(), indexEndTimes_[i]);
-        forwardBond.rollback(indexStartTimes_[i]);
+        DiscretizedDiscountBond indexBond;
+        indexBond.initialize(forwardMethod(), indexEndTimes_[i]);
+        indexBond.rollback(indexStartTimes_[i]);
 
-        Real nominal = arguments_.nominal;
-        Time T = arguments_.floatingAccrualTimes[i];
-        Spread spread = arguments_.floatingSpreads[i];
-        Real accruedSpread = nominal * T * spread;
+        auto nominal = arguments_.nominal;
+        auto T = arguments_.floatingAccrualTimes[i];
+        auto fixingSpanningTime = arguments_.fixingSpanningTimes[i];
+        auto spread = arguments_.floatingSpreads[i];
+        auto accruedSpread = nominal * T * spread;
         for (Size j = 0; j < values_.size(); j++) {
             auto discountFactor = discountBond.values()[j];
-            auto forwardRate =
-                (1.0 / forwardBond.values()[j] - 1.0) / arguments_.fixingSpanningTimes[i];
-            auto coupon = (nominal * T * forwardRate + accruedSpread) * discountFactor;
+            auto forwardRate = (1.0 / indexBond.values()[j] - 1.0) / fixingSpanningTime;
+            auto accruedNominal = nominal * T * forwardRate;
+            auto coupon = (accruedNominal + accruedSpread) * discountFactor;
+
             if (arguments_.type == Swap::Payer)
                 values_[j] += coupon;
             else
