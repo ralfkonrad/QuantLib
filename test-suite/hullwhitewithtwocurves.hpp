@@ -25,8 +25,7 @@
 
 class HullWhiteWithTwoCurves {
   public:
-    static void testSwapPricingWithAtParCoupons();
-    static void testSwapPricingWithIndexedCoupons();
+    static void testSwapPricings();
     static boost::unit_test_framework::test_suite* suite();
 };
 
