@@ -24,17 +24,17 @@
 #ifndef quantlib_hw2c_tree_swap_engine_hpp
 #define quantlib_hw2c_tree_swap_engine_hpp
 
-#include <ql/experimental/hullwhitewithtwocurves/model/hw2c.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
 #include <ql/instruments/vanillaswap.hpp>
 #include <ql/pricingengines/genericmodelengine.hpp>
 
 namespace QuantLib {
     class HW2CTreeSwapEngine
-    : public GenericModelEngine<HW2C, VanillaSwap::arguments, VanillaSwap::results> {
+    : public GenericModelEngine<HW2CModel, VanillaSwap::arguments, VanillaSwap::results> {
 
       public:
-        HW2CTreeSwapEngine(Handle<HW2C> model, Size timeSteps);
-        HW2CTreeSwapEngine(const ext::shared_ptr<HW2C>& model, Size timeSteps);
+        HW2CTreeSwapEngine(Handle<HW2CModel> model, Size timeSteps);
+        HW2CTreeSwapEngine(const ext::shared_ptr<HW2CModel>& model, Size timeSteps);
 
         void calculate() const override;
 

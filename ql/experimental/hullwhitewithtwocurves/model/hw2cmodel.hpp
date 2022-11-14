@@ -28,12 +28,12 @@
 #include <ql/models/shortrate/onefactormodels/hullwhite.hpp>
 
 namespace QuantLib {
-    class HW2C : public CalibratedModel {
+    class HW2CModel : public CalibratedModel {
       public:
-        HW2C(Handle<YieldTermStructure> discountTermStructure,
-             Handle<YieldTermStructure> forwardTermStructure,
-             Real a = 0.1,
-             Real sigma = 0.01);
+        HW2CModel(Handle<YieldTermStructure> discountTermStructure,
+                  Handle<YieldTermStructure> forwardTermStructure,
+                  Real a = 0.1,
+                  Real sigma = 0.01);
 
         ext::shared_ptr<HullWhite> discountModel() const { return discountModel_; }
         ext::shared_ptr<HullWhite> forwardModel() const { return forwardModel_; }
