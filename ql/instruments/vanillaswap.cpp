@@ -115,7 +115,9 @@ namespace QuantLib {
         arguments->floatingSpreads = std::vector<Spread>(floatingCoupons.size());
         arguments->floatingCoupons = std::vector<Real>(floatingCoupons.size());
         arguments->fixingValueDates = std::vector<Date>(floatingCoupons.size());
-        arguments->fixingMaturityDates = std::vector<Date>(floatingCoupons.size());
+        arguments->fixingEndDates = std::vector<Date>(floatingCoupons.size());
+        arguments->fixingSpanningTimes = std::vector<Time>(floatingCoupons.size());
+
         for (Size i = 0; i < floatingCoupons.size(); ++i) {
             ext::shared_ptr<IborCoupon> coupon =
                 ext::dynamic_pointer_cast<IborCoupon>(floatingCoupons[i]);
@@ -128,7 +130,8 @@ namespace QuantLib {
             arguments->floatingSpreads[i] = coupon->spread();
 
             arguments->fixingValueDates[i] = coupon->fixingValueDate();
-            arguments->fixingMaturityDates[i] = coupon->fixingMaturityDate();
+            arguments->fixingEndDates[i] = coupon->fixingEndDate();
+            arguments->fixingSpanningTimes[i] = coupon->spanningTime();
             try {
                 arguments->floatingCoupons[i] = coupon->amount();
             } catch (Error&) {

@@ -19,6 +19,7 @@
 
 #include "hullwhitewithtwocurves.hpp"
 #include "utilities.hpp"
+#include <ql/cashflows/iborcoupon.hpp>
 #include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.hpp>
 #include <ql/indexes/ibor/euribor.hpp>
@@ -29,44 +30,62 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-void HullWhiteWithTwoCurves::testSwapPricing() {
+namespace {
+    void testSwapPricing(bool atParCoupons) {
+        Date today = Settings::instance().evaluationDate();
 
-    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap against discounting engine...");
+        auto dc = Actual360();
+        auto dcEuribor3M = Euribor3M().dayCounter();
 
-    Date today = Settings::instance().evaluationDate();
+        Handle<YieldTermStructure> discountCurve(flatRate(today, 0.05, dc));
+        Handle<YieldTermStructure> forwardCurve(flatRate(today, 0.03, dcEuribor3M));
 
-    auto dc = Actual360();
-    auto dcEuribor3M = Euribor3M().dayCounter();
+        auto euribor3M = ext::make_shared<Euribor3M>(forwardCurve);
 
-    Handle<YieldTermStructure> discountCurve(flatRate(today, 0.05, dc));
-    Handle<YieldTermStructure> forwardCurve(flatRate(today, 0.03, dcEuribor3M));
+        VanillaSwap swap = MakeVanillaSwap(Period(10, Years), euribor3M, 0.04)
+                               .withNominal(10000.00)
+                               .withDiscountingTermStructure(discountCurve)
+                               .withAtParCoupons(atParCoupons);
 
-    auto euribor3M = ext::make_shared<Euribor3M>(forwardCurve);
+        auto discountingEngine = boost::make_shared<DiscountingSwapEngine>(discountCurve);
+        swap.setPricingEngine(discountingEngine);
+        auto discountingNpv = swap.NPV();
 
-    VanillaSwap swap = MakeVanillaSwap(Period(10, QuantLib::Years), euribor3M, 0.04)
-                           .withNominal(10000.00)
-                           .withDiscountingTermStructure(discountCurve);
+        auto hw2c = boost::make_shared<HW2CModel>(discountCurve, forwardCurve);
+        auto hw2cTreeSwapEngine = boost::make_shared<HW2CTreeSwapEngine>(hw2c, 40);
+        swap.setPricingEngine(hw2cTreeSwapEngine);
+        auto treeNpv = swap.NPV();
 
-    auto discountingEngine = ext::make_shared<DiscountingSwapEngine>(discountCurve);
-    swap.setPricingEngine(discountingEngine);
-    auto discountingNpv = swap.NPV();
-
-    auto hw2c = ext::make_shared<HW2CModel>(discountCurve, forwardCurve);
-    auto hw2cTreeSwapEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2c, 40);
-    swap.setPricingEngine(hw2cTreeSwapEngine);
-    auto treeNpv = swap.NPV();
-
-    if (!close(discountingNpv, treeNpv, 125)) {
-        auto diff = discountingNpv - treeNpv;
-        BOOST_FAIL(std::setprecision(6)
-                   << "The npvs from the discounting engine (" << discountingNpv
-                   << ") and the HW2CModel tree engine (" << treeNpv << ") do not match. "
-                   << std::setprecision(4) << "The difference is " << diff << ".");
+        if (!close(discountingNpv, treeNpv, 42)) {
+            auto diff = discountingNpv - treeNpv;
+            BOOST_FAIL(std::setprecision(6)
+                       << std::boolalpha << "The npvs with atParCoupons=" << atParCoupons
+                       << " from the discounting engine (" << discountingNpv
+                       << ") and the HW2CModel tree engine (" << treeNpv << ") do not match. "
+                       << std::setprecision(4) << "The difference is " << diff << ".");
+        }
     }
+}
+
+void HullWhiteWithTwoCurves::testSwapPricingWithAtParCoupons() {
+
+    BOOST_TEST_MESSAGE(
+        "Testing HullWhiteWithTwoCurves swap with at par coupons against discounting engine...");
+
+    testSwapPricing(true);
+}
+
+void HullWhiteWithTwoCurves::testSwapPricingWithIndexedCoupons() {
+
+    BOOST_TEST_MESSAGE(
+        "Testing HullWhiteWithTwoCurves swap with indexed coupons against discounting engine...");
+
+    testSwapPricing(false);
 }
 
 test_suite* HullWhiteWithTwoCurves::suite() {
     auto* suite = BOOST_TEST_SUITE("HullWhiteWithTwoCurves tests");
-    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testSwapPricing));
+    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testSwapPricingWithAtParCoupons));
+    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testSwapPricingWithIndexedCoupons));
     return suite;
 }
