@@ -32,9 +32,8 @@ namespace QuantLib {
 
         auto referenceDate = model_->discountModel()->termStructure()->referenceDate();
         auto dayCounter = model_->discountModel()->termStructure()->dayCounter();
-        auto forwardDayCounter = model_->forwardModel()->termStructure()->dayCounter();
 
-        auto swap = HW2CDiscretizedSwap(arguments_, referenceDate, dayCounter, forwardDayCounter);
+        auto swap = HW2CDiscretizedSwap(arguments_, referenceDate, dayCounter);
         auto times = swap.mandatoryTimes();
         auto maxTime = *std::max_element(times.begin(), times.end());
 

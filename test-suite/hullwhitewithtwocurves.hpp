@@ -20,11 +20,13 @@
 #ifndef quantlib_test_hullwhitewithtwocurves_hpp
 #define quantlib_test_hullwhitewithtwocurves_hpp
 
+#include "ql/handle.hpp"
 #include <boost/test/unit_test.hpp>
 
 class HullWhiteWithTwoCurves {
   public:
-    static void testSwapPricing();
+    static void testSwapPricingWithAtParCoupons();
+    static void testSwapPricingWithIndexedCoupons();
     static boost::unit_test_framework::test_suite* suite();
 };
 
