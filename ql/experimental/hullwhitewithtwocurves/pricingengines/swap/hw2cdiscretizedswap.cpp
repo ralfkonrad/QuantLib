@@ -60,8 +60,9 @@ namespace QuantLib {
         Spread spread = arguments_.floatingSpreads[i];
         Real accruedSpread = nominal * T * spread;
         for (Size j = 0; j < values_.size(); j++) {
-            Real coupon = nominal * (1.0 - discountBond.values()[j]) +
-                          accruedSpread * discountBond.values()[j];
+            auto discountFactor = discountBond.values()[j];
+            auto unaccruedForwardRate = (1 / forwardBond.values()[j] - 1.0);
+            auto coupon = (nominal * unaccruedForwardRate + accruedSpread) * discountFactor;
             if (arguments_.type == Swap::Payer)
                 values_[j] += coupon;
             else
