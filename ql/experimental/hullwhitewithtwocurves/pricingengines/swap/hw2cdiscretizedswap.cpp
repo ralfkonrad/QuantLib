@@ -23,13 +23,11 @@
 namespace QuantLib {
     HW2CDiscretizedSwap::HW2CDiscretizedSwap(const VanillaSwap::arguments& args,
                                              const Date& referenceDate,
-                                             const DayCounter& dayCounter,
-                                             const DayCounter& forwardDayCounter)
+                                             const DayCounter& dayCounter)
     : HW2CDiscretizedSwap(
           args,
           referenceDate,
           dayCounter,
-          forwardDayCounter,
           std::vector<CouponAdjustment>(args.fixedPayDates.size(), CouponAdjustment::pre),
           std::vector<CouponAdjustment>(args.floatingPayDates.size(), CouponAdjustment::pre)) {}
 
@@ -37,7 +35,6 @@ namespace QuantLib {
         const VanillaSwap::arguments& args,
         const Date& referenceDate,
         const DayCounter& dayCounter,
-        const DayCounter& forwardDayCounter,
         std::vector<CouponAdjustment> fixedCouponAdjustments,
         std::vector<CouponAdjustment> floatingCouponAdjustments)
     : DiscretizedSwap(args,
@@ -46,16 +43,25 @@ namespace QuantLib {
                       std::move(fixedCouponAdjustments),
                       std::move(floatingCouponAdjustments)) {
         auto nrOfFloatingCoupons = args.floatingResetDates.size();
-        forwardStartTimes_.resize(nrOfFloatingCoupons);
-        forwardEndTimes_.resize(nrOfFloatingCoupons);
+        indexStartTimes_.resize(nrOfFloatingCoupons);
+        indexEndTimes_.resize(nrOfFloatingCoupons);
         for (Size i = 0; i < nrOfFloatingCoupons; ++i) {
-            auto forwardStartTime =
-                forwardDayCounter.yearFraction(referenceDate, args.floatingResetDates[i]);
-            auto forwardEndTime =
-                forwardDayCounter.yearFraction(referenceDate, args.floatingPayDates[i]);
-            forwardStartTimes_[i] = forwardStartTime;
-            forwardEndTimes_[i] = forwardEndTime;
+            auto fixingValueTime = dayCounter.yearFraction(referenceDate, args.fixingValueDates[i]);
+            auto fixingEndTime = dayCounter.yearFraction(referenceDate, args.fixingEndDates[i]);
+            indexStartTimes_[i] = fixingValueTime;
+            indexEndTimes_[i] = fixingEndTime;
         }
+    }
+
+    std::vector<Time> HW2CDiscretizedSwap::mandatoryTimes() const {
+        auto times = DiscretizedSwap::mandatoryTimes();
+        for (const auto time : indexStartTimes_) {
+            times.push_back(time);
+        }
+        for (const auto time : indexEndTimes_) {
+            times.push_back(time);
+        }
+        return times;
     }
 
     void HW2CDiscretizedSwap::initialize(const ext::shared_ptr<Lattice>& discountMethod,
@@ -72,8 +78,8 @@ namespace QuantLib {
         discountBond.rollback(time_);
 
         DiscretizedDiscountBond forwardBond;
-        forwardBond.initialize(forwardMethod(), floatingPayTimes_[i]);
-        forwardBond.rollback(time_);
+        forwardBond.initialize(forwardMethod(), indexEndTimes_[i]);
+        forwardBond.rollback(indexStartTimes_[i]);
 
         Real nominal = arguments_.nominal;
         Time T = arguments_.floatingAccrualTimes[i];
@@ -81,8 +87,9 @@ namespace QuantLib {
         Real accruedSpread = nominal * T * spread;
         for (Size j = 0; j < values_.size(); j++) {
             auto discountFactor = discountBond.values()[j];
-            auto unaccruedForwardRate = (1 / forwardBond.values()[j] - 1.0);
-            auto coupon = (nominal * unaccruedForwardRate + accruedSpread) * discountFactor;
+            auto forwardRate =
+                (1.0 / forwardBond.values()[j] - 1.0) / arguments_.fixingSpanningTimes[i];
+            auto coupon = (nominal * T * forwardRate + accruedSpread) * discountFactor;
             if (arguments_.type == Swap::Payer)
                 values_[j] += coupon;
             else

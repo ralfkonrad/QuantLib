@@ -149,7 +149,8 @@ namespace QuantLib {
         std::vector<Real> floatingCoupons;
 
         std::vector<Date> fixingValueDates;
-        std::vector<Date> fixingMaturityDates;
+        std::vector<Date> fixingEndDates;
+        std::vector<Time> fixingSpanningTimes;
 
         void validate() const override;
     };
