@@ -147,6 +147,10 @@ namespace QuantLib {
         std::vector<Real> fixedCoupons;
         std::vector<Spread> floatingSpreads;
         std::vector<Real> floatingCoupons;
+
+        std::vector<Date> fixingValueDates;
+        std::vector<Date> fixingMaturityDates;
+
         void validate() const override;
     };
 
@@ -158,8 +162,8 @@ namespace QuantLib {
         void reset() override;
     };
 
-    class VanillaSwap::engine : public GenericEngine<VanillaSwap::arguments,
-                                                     VanillaSwap::results> {};
+    class VanillaSwap::engine : public GenericEngine<VanillaSwap::arguments, VanillaSwap::results> {
+    };
 
 
     // inline definitions

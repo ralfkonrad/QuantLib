@@ -53,30 +53,30 @@ namespace QuantLib {
             paymentConvention_ = floatingSchedule_.businessDayConvention();
 
         legs_[0] = FixedRateLeg(fixedSchedule_)
-            .withNotionals(nominal_)
-            .withCouponRates(fixedRate_, fixedDayCount_)
-            .withPaymentAdjustment(paymentConvention_);
+                       .withNotionals(nominal_)
+                       .withCouponRates(fixedRate_, fixedDayCount_)
+                       .withPaymentAdjustment(paymentConvention_);
 
         legs_[1] = IborLeg(floatingSchedule_, iborIndex_)
-            .withNotionals(nominal_)
-            .withPaymentDayCounter(floatingDayCount_)
-            .withPaymentAdjustment(paymentConvention_)
-            .withSpreads(spread_)
-            .withIndexedCoupons(useIndexedCoupons);
+                       .withNotionals(nominal_)
+                       .withPaymentDayCounter(floatingDayCount_)
+                       .withPaymentAdjustment(paymentConvention_)
+                       .withSpreads(spread_)
+                       .withIndexedCoupons(useIndexedCoupons);
         for (Leg::const_iterator i = legs_[1].begin(); i < legs_[1].end(); ++i)
             registerWith(*i);
 
         switch (type_) {
-          case Payer:
-            payer_[0] = -1.0;
-            payer_[1] = +1.0;
-            break;
-          case Receiver:
-            payer_[0] = +1.0;
-            payer_[1] = -1.0;
-            break;
-          default:
-            QL_FAIL("Unknown vanilla-swap type");
+            case Payer:
+                payer_[0] = -1.0;
+                payer_[1] = +1.0;
+                break;
+            case Receiver:
+                payer_[0] = +1.0;
+                payer_[1] = -1.0;
+                break;
+            default:
+                QL_FAIL("Unknown vanilla-swap type");
         }
     }
 
@@ -98,7 +98,7 @@ namespace QuantLib {
             std::vector<Date>(fixedCoupons.size());
         arguments->fixedCoupons = std::vector<Real>(fixedCoupons.size());
 
-        for (Size i=0; i<fixedCoupons.size(); ++i) {
+        for (Size i = 0; i < fixedCoupons.size(); ++i) {
             ext::shared_ptr<FixedRateCoupon> coupon =
                 ext::dynamic_pointer_cast<FixedRateCoupon>(fixedCoupons[i]);
 
@@ -110,14 +110,13 @@ namespace QuantLib {
         const Leg& floatingCoupons = floatingLeg();
 
         arguments->floatingResetDates = arguments->floatingPayDates =
-            arguments->floatingFixingDates =
-            std::vector<Date>(floatingCoupons.size());
-        arguments->floatingAccrualTimes =
-            std::vector<Time>(floatingCoupons.size());
-        arguments->floatingSpreads =
-            std::vector<Spread>(floatingCoupons.size());
+            arguments->floatingFixingDates = std::vector<Date>(floatingCoupons.size());
+        arguments->floatingAccrualTimes = std::vector<Time>(floatingCoupons.size());
+        arguments->floatingSpreads = std::vector<Spread>(floatingCoupons.size());
         arguments->floatingCoupons = std::vector<Real>(floatingCoupons.size());
-        for (Size i=0; i<floatingCoupons.size(); ++i) {
+        arguments->fixingValueDates = std::vector<Date>(floatingCoupons.size());
+        arguments->fixingMaturityDates = std::vector<Date>(floatingCoupons.size());
+        for (Size i = 0; i < floatingCoupons.size(); ++i) {
             ext::shared_ptr<IborCoupon> coupon =
                 ext::dynamic_pointer_cast<IborCoupon>(floatingCoupons[i]);
 
@@ -127,6 +126,9 @@ namespace QuantLib {
             arguments->floatingFixingDates[i] = coupon->fixingDate();
             arguments->floatingAccrualTimes[i] = coupon->accrualPeriod();
             arguments->floatingSpreads[i] = coupon->spread();
+
+            arguments->fixingValueDates[i] = coupon->fixingValueDate();
+            arguments->fixingMaturityDates[i] = coupon->fixingMaturityDate();
             try {
                 arguments->floatingCoupons[i] = coupon->amount();
             } catch (Error&) {
@@ -195,12 +197,12 @@ namespace QuantLib {
         if (fairRate_ == Null<Rate>()) {
             // calculate it from other results
             if (legBPS_[0] != Null<Real>())
-                fairRate_ = fixedRate_ - NPV_/(legBPS_[0]/basisPoint);
+                fairRate_ = fixedRate_ - NPV_ / (legBPS_[0] / basisPoint);
         }
         if (fairSpread_ == Null<Spread>()) {
             // ditto
             if (legBPS_[1] != Null<Real>())
-                fairSpread_ = spread_ - NPV_/(legBPS_[1]/basisPoint);
+                fairSpread_ = spread_ - NPV_ / (legBPS_[1] / basisPoint);
         }
     }
 
