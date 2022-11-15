@@ -17,10 +17,38 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include "hw2ctreeswaptionengine.hpp"
+#include <ql/experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2cdiscretizedswaption.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2ctreeswaptionengine.hpp>
+#include <utility>
 
 namespace QuantLib {
+    HW2CTreeSwaptionEngine::HW2CTreeSwaptionEngine(Handle<HW2CModel> model, Size timeSteps)
+    : GenericModelEngine(std::move(model)), timeSteps_(timeSteps) {}
+
+    HW2CTreeSwaptionEngine::HW2CTreeSwaptionEngine(const ext::shared_ptr<HW2CModel>& model,
+                                                   Size timeSteps)
+    : GenericModelEngine(model), timeSteps_(timeSteps) {}
+
     void QuantLib::HW2CTreeSwaptionEngine::calculate() const {
-        results_.value = 0.0;
+        QL_REQUIRE(arguments_.settlementMethod != Settlement::ParYieldCurve,
+                   "cash settled (ParYieldCurve) swaptions not priced with "
+                   "HW2CTreeSwaptionEngine");
+        QL_REQUIRE(!model_.empty(), "no model specified");
+
+        auto referenceDate = model_->discountModel()->termStructure()->referenceDate();
+        auto dayCounter = model_->discountModel()->termStructure()->dayCounter();
+
+        auto swaption = HW2CDiscretizedSwaption(arguments_, referenceDate, dayCounter);
+        auto times = swaption.mandatoryTimes();
+        auto maxTime = *std::max_element(times.begin(), times.end());
+
+        auto timeGrid = TimeGrid(times.begin(), times.end(), timeSteps_);
+        auto discountLattice = model_->discountTree(timeGrid);
+        auto forwardLattice = model_->forwardTree(timeGrid);
+
+        swaption.initialize(discountLattice, forwardLattice, maxTime);
+        swaption.rollback(0.0);
+
+        results_.value = swaption.presentValue();
     }
 }

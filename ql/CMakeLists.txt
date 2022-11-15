@@ -182,6 +182,7 @@ set(QL_SOURCES
     experimental/fx/blackdeltacalculator.cpp
     experimental/fx/deltavolquote.cpp
     experimental/hullwhitewithtwocurves/model/hw2cmodel.cpp
+    experimental/hullwhitewithtwocurves/pricingengines/hw2cdiscretizedasset.cpp
     experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.cpp
     experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.cpp
     experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2cdiscretizedswaption.cpp
@@ -1155,6 +1156,7 @@ set(QL_HEADERS
     experimental/fx/blackdeltacalculator.hpp
     experimental/fx/deltavolquote.hpp
     experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp
+    experimental/hullwhitewithtwocurves/pricingengines/hw2cdiscretizedasset.hpp
     experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.hpp
     experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.hpp
     experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2cdiscretizedswaption.hpp

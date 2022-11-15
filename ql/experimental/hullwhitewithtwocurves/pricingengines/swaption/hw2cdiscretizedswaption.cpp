@@ -17,5 +17,20 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
+#include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2cdiscretizedswaption.hpp>
+
 namespace QuantLib {
+    QuantLib::HW2CDiscretizedSwaption::HW2CDiscretizedSwaption(const Swaption::arguments& args,
+                                                               const Date& referenceDate,
+                                                               const DayCounter& dayCounter)
+    : DiscretizedSwaption(args, referenceDate, dayCounter) {
+        underlying_ = ext::make_shared<HW2CDiscretizedSwap>(args, referenceDate, dayCounter);
+    }
+
+    void HW2CDiscretizedSwaption::reset(Size size) {}
+
+    void HW2CDiscretizedSwaption::initialize(const ext::shared_ptr<Lattice>& discountMethod,
+                                             const ext::shared_ptr<Lattice>& forwardMethod,
+                                             Time t) {}
 }

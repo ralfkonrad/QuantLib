@@ -19,10 +19,11 @@
 
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.hpp>
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.hpp>
+#include <utility>
 
 namespace QuantLib {
     HW2CTreeSwapEngine::HW2CTreeSwapEngine(Handle<HW2CModel> model, Size timeSteps)
-    : GenericModelEngine(model), timeSteps_(timeSteps) {}
+    : GenericModelEngine(std::move(model)), timeSteps_(timeSteps) {}
 
     HW2CTreeSwapEngine::HW2CTreeSwapEngine(const ext::shared_ptr<HW2CModel>& model, Size timeSteps)
     : GenericModelEngine(model), timeSteps_(timeSteps) {}
