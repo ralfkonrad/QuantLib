@@ -184,6 +184,8 @@ set(QL_SOURCES
     experimental/hullwhitewithtwocurves/model/hw2cmodel.cpp
     experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.cpp
     experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.cpp
+    experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2cdiscretizedswaption.cpp
+    experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2ctreeswaptionengine.cpp
     experimental/inflation/cpicapfloorengines.cpp
     experimental/inflation/cpicapfloortermpricesurface.cpp
     experimental/inflation/yoycapfloortermpricesurface.cpp
@@ -1155,6 +1157,8 @@ set(QL_HEADERS
     experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp
     experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.hpp
     experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.hpp
+    experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2cdiscretizedswaption.hpp
+    experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2ctreeswaptionengine.hpp
     experimental/inflation/cpicapfloorengines.hpp
     experimental/inflation/cpicapfloortermpricesurface.hpp
     experimental/inflation/genericindexes.hpp
@@ -2231,6 +2235,7 @@ set(QL_GENERATED_HEADERS
     ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/model/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/pricingengines/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/pricingengines/swap/all.hpp
+    ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/pricingengines/swaption/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/inflation/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/lattices/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/math/all.hpp
