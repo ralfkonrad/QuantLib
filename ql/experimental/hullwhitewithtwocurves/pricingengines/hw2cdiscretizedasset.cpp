@@ -17,30 +17,7 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-/*! \file hw2ctreeswaptionengine.hpp
-    \brief
-*/
-
-#ifndef quantlib_hw2c_tree_swaption_engine_hpp
-#define quantlib_hw2c_tree_swaption_engine_hpp
-
-#include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
-#include <ql/instruments/swaption.hpp>
-#include <ql/pricingengines/genericmodelengine.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/pricingengines/hw2cdiscretizedasset.hpp>
 
 namespace QuantLib {
-    class HW2CTreeSwaptionEngine
-    : public GenericModelEngine<HW2CModel, Swaption::arguments, Swaption::results> {
-
-      public:
-        HW2CTreeSwaptionEngine(Handle<HW2CModel> model, Size timeSteps);
-        HW2CTreeSwaptionEngine(const ext::shared_ptr<HW2CModel>& model, Size timeSteps);
-
-        void calculate() const override;
-
-      private:
-        Size timeSteps_;
-    };
 }
-
-#endif // quantlib_hw2c_tree_swaption_engine_hpp

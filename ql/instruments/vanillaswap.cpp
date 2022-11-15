@@ -233,6 +233,15 @@ namespace QuantLib {
         QL_REQUIRE(floatingPayDates.size() == floatingCoupons.size(),
                    "number of floating payment dates different from "
                    "number of floating coupon amounts");
+        QL_REQUIRE(fixingValueDates.size() == floatingCoupons.size(),
+                   "number of fixing value dates different from "
+                   "number of floating coupon amounts");
+        QL_REQUIRE(fixingEndDates.size() == floatingCoupons.size(),
+                   "number of fixing end dates different from "
+                   "number of floating coupon amounts");
+        QL_REQUIRE(fixingSpanningTimes.size() == floatingCoupons.size(),
+                   "number of fixing spanning times different from "
+                   "number of floating coupon amounts");
     }
 
     void VanillaSwap::results::reset() {

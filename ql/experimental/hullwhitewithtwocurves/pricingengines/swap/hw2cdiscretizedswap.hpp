@@ -24,10 +24,15 @@
 #ifndef quantlib_hw2c_discretized_swap_hpp
 #define quantlib_hw2c_discretized_swap_hpp
 
+#include <ql/experimental/hullwhitewithtwocurves/pricingengines/hw2cdiscretizedasset.hpp>
 #include <ql/pricingengines/swap/discretizedswap.hpp>
 
 namespace QuantLib {
-    class HW2CDiscretizedSwap : public DiscretizedSwap {
+    class HW2CDiscretizedSwap : public DiscretizedSwap, public HW2CDiscretizedAsset {
+        using DiscretizedSwap::time_;
+        using DiscretizedSwap::values_;
+        using DiscretizedSwap::reset;
+
       public:
         HW2CDiscretizedSwap(const VanillaSwap::arguments& args,
                             const Date& referenceDate,
@@ -41,12 +46,12 @@ namespace QuantLib {
 
         std::vector<Time> mandatoryTimes() const override;
 
+        const ext::shared_ptr<Lattice>& discountMethod() const override { return method(); }
+        const ext::shared_ptr<Lattice>& forwardMethod() const override { return forwardMethod_; }
+
         void initialize(const ext::shared_ptr<Lattice>& discountMethod,
                         const ext::shared_ptr<Lattice>& forwardMethod,
-                        Time t);
-
-        const ext::shared_ptr<Lattice>& discountMethod() const { return method(); }
-        const ext::shared_ptr<Lattice>& forwardMethod() const { return forwardMethod_; }
+                        Time t) override;
 
       protected:
         void addFloatingCoupon(Size i) override;

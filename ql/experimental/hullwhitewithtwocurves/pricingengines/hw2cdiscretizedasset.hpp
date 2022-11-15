@@ -17,30 +17,27 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-/*! \file hw2ctreeswaptionengine.hpp
+/*! \file hw2cdiscretizedasset.hpp
     \brief
 */
 
-#ifndef quantlib_hw2c_tree_swaption_engine_hpp
-#define quantlib_hw2c_tree_swaption_engine_hpp
+#ifndef quantlib_hw2c_discretized_asset_hpp
+#define quantlib_hw2c_discretized_asset_hpp
 
-#include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
-#include <ql/instruments/swaption.hpp>
-#include <ql/pricingengines/genericmodelengine.hpp>
+#include <ql/methods/lattices/lattice.hpp>
 
 namespace QuantLib {
-    class HW2CTreeSwaptionEngine
-    : public GenericModelEngine<HW2CModel, Swaption::arguments, Swaption::results> {
-
+    class HW2CDiscretizedAsset {
       public:
-        HW2CTreeSwaptionEngine(Handle<HW2CModel> model, Size timeSteps);
-        HW2CTreeSwaptionEngine(const ext::shared_ptr<HW2CModel>& model, Size timeSteps);
+        virtual ~HW2CDiscretizedAsset() = default;
 
-        void calculate() const override;
+        virtual const ext::shared_ptr<Lattice>& discountMethod() const = 0;
+        virtual const ext::shared_ptr<Lattice>& forwardMethod() const = 0;
 
-      private:
-        Size timeSteps_;
+        virtual void initialize(const ext::shared_ptr<Lattice>& discountMethod,
+                                const ext::shared_ptr<Lattice>& forwardMethod,
+                                Time t) = 0;
     };
 }
 
-#endif // quantlib_hw2c_tree_swaption_engine_hpp
+#endif // quantlib_hw2c_discretized_asset_hpp
