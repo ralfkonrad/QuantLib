@@ -2227,6 +2227,10 @@ set(QL_GENERATED_HEADERS
     ${PROJECT_BINARY_DIR}/ql/experimental/finitedifferences/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/forward/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/fx/all.hpp
+    ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/all.hpp
+    ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/model/all.hpp
+    ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/pricingengines/all.hpp
+    ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/pricingengines/swap/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/inflation/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/lattices/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/math/all.hpp
