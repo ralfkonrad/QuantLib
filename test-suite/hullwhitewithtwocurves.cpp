@@ -55,12 +55,12 @@ namespace {
                                .withDiscountingTermStructure(discountCurve)
                                .withAtParCoupons(atParCoupons);
 
-        auto discountingEngine = boost::make_shared<DiscountingSwapEngine>(discountCurve);
+        auto discountingEngine = ext::make_shared<DiscountingSwapEngine>(discountCurve);
         swap.setPricingEngine(discountingEngine);
         auto discountingNpv = swap.NPV();
 
-        auto hw2c = boost::make_shared<HW2CModel>(discountCurve, forwardCurve);
-        auto hw2cTreeSwapEngine = boost::make_shared<HW2CTreeSwapEngine>(hw2c, 40);
+        auto hw2c = ext::make_shared<HW2CModel>(discountCurve, forwardCurve);
+        auto hw2cTreeSwapEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2c, 40);
         swap.setPricingEngine(hw2cTreeSwapEngine);
         auto treeNpv = swap.NPV();
 
