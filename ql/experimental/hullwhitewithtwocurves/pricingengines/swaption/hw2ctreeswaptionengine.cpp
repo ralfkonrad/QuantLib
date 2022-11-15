@@ -17,4 +17,10 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-namespace QuantLib {}
+#include "hw2ctreeswaptionengine.hpp"
+
+namespace QuantLib {
+    void QuantLib::HW2CTreeSwaptionEngine::calculate() const {
+        results_.value = 0.0;
+    }
+}

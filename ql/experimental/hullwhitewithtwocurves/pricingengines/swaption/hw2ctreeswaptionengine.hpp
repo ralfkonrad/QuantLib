@@ -24,8 +24,17 @@
 #ifndef quantlib_hw2c_tree_swaption_engine_hpp
 #define quantlib_hw2c_tree_swaption_engine_hpp
 
+#include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
+#include <ql/instruments/swaption.hpp>
+#include <ql/pricingengines/genericmodelengine.hpp>
+
 namespace QuantLib {
-    class HW2CTreeSwaptionEngine {};
+    class HW2CTreeSwaptionEngine
+    : public GenericModelEngine<HW2CModel, Swaption::arguments, Swaption::results> {
+
+      public:
+        void calculate() const override;
+    };
 }
 
 #endif // quantlib_hw2c_tree_swaption_engine_hpp
