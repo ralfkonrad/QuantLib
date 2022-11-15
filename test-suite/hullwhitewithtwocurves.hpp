@@ -26,6 +26,7 @@
 class HullWhiteWithTwoCurves {
   public:
     static void testSwapPricing();
+    static void testEuropeanSwaptionPricing();
     static boost::unit_test_framework::test_suite* suite();
 };
 
