@@ -3,3 +3,4 @@
 
 
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/all.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/pricingengines/swaption/all.hpp>
