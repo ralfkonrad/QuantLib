@@ -42,8 +42,7 @@ namespace hw2c_test {
         Real nominal = 10000.00;
         Rate fixedRate = 0.04;
 
-        Real swaptionStrike = 1000;
-        Volatility swaptionVola = 0.30;
+        Volatility swaptionVola = 0.20;
 
         Rate discountRate = 0.05;
         Rate forwardRate = 0.03;
@@ -111,8 +110,8 @@ void HullWhiteWithTwoCurves::testSwapPricing() {
                 auto discountingNpv = swap.NPV();
 
                 auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve);
-                auto hw2cTreeSwapEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2cModel, 40);
-                swap.setPricingEngine(hw2cTreeSwapEngine);
+                auto treeEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2cModel, 40);
+                swap.setPricingEngine(treeEngine);
                 auto treeNpv = swap.NPV();
 
                 auto relativeDiff = (discountingNpv - treeNpv) / vars.nominal;
@@ -139,35 +138,25 @@ void HullWhiteWithTwoCurves::testEuropeanSwaptionPricing() {
 
     hw2c_test::CommonVars vars;
 
-    for (const auto& index : hw2c_test::indices()) {
-        for (const auto& swapTenor : hw2c_test::swapTenors()) {
-            for (const auto& swaptionTenor : hw2c_test::swaptionTenors()) {
-                for (const auto atParCoupons : {true, false}) {
-                    if (atParCoupons) {
-                        IborCoupon::Settings::instance().createAtParCoupons();
-                    } else {
-                        IborCoupon::Settings::instance().createIndexedCoupons();
-                    }
+    for (const auto& swapTenor : hw2c_test::swapTenors()) {
+        for (const auto& swaptionTenor : hw2c_test::swaptionTenors()) {
+            auto swaption = vars.makeSwaption(swaptionTenor, swapTenor);
 
-                    auto swaption = vars.makeSwaption(swaptionTenor, swapTenor);
+            auto blackEngine =
+                ext::make_shared<BlackSwaptionEngine>(vars.discountCurve, vars.swaptionVola);
+            swaption.setPricingEngine(blackEngine);
+            auto bachelierNpv = swaption.NPV();
 
-                    auto bachelierSwaptionEngine = ext::make_shared<BachelierSwaptionEngine>(
-                        vars.discountCurve, vars.swaptionVola);
-                    swaption.setPricingEngine(bachelierSwaptionEngine);
-                    auto bachelierNpv = swaption.NPV();
+            auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve);
+            auto treeEngine = ext::make_shared<HW2CTreeSwaptionEngine>(hw2cModel, 40);
+            swaption.setPricingEngine(treeEngine);
+            auto treeNpv = swaption.NPV();
 
-                    auto hwe = ext::make_shared<HW2CTreeSwaptionEngine>();
-                    swaption.setPricingEngine(hwe);
-                    auto treeNpv = swaption.NPV();
-
-                    BOOST_TEST_MESSAGE("" << std::boolalpha << "" << swaptionTenor << "*"
-                                          << swapTenor << ", atParCoupons=" << atParCoupons);
-                    BOOST_TEST_MESSAGE("" << std::setprecision(2) << std::fixed
-                                          << "\tNPV BachelierSwaptionEngine: " << bachelierNpv);
-                    BOOST_TEST_MESSAGE("" << std::setprecision(2) << std::fixed
-                                          << "\tNPV  HW2CTreeSwaptionEngine: " << treeNpv);
-                }
-            }
+            BOOST_TEST_MESSAGE("" << std::boolalpha << "" << swaptionTenor << "*" << swapTenor);
+            BOOST_TEST_MESSAGE("" << std::setprecision(2) << std::fixed
+                                  << "\tNPV BachelierSwaptionEngine: " << bachelierNpv);
+            BOOST_TEST_MESSAGE("" << std::setprecision(2) << std::fixed
+                                  << "\tNPV  HW2CTreeSwaptionEngine: " << treeNpv);
         }
     }
 }

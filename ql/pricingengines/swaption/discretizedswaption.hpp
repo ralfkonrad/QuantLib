@@ -38,17 +38,17 @@ namespace QuantLib {
                             const DayCounter& dayCounter);
         void reset(Size size) override;
 
-      private:
+      protected:
         Swaption::arguments arguments_;
         Time lastPayment_;
 
-        static void prepareSwaptionWithSnappedDates(
-            const Swaption::arguments& args,
-            const Date& referenceDate,
-            const DayCounter& dayCounter,
-            PricingEngine::arguments& snappedArgs,
-            std::vector<CouponAdjustment>& fixedCouponAdjustments,
-            std::vector<CouponAdjustment>& floatingCouponAdjustments);
+        static void
+        prepareSwaptionWithSnappedDates(const Swaption::arguments& args,
+                                        const Date& referenceDate,
+                                        const DayCounter& dayCounter,
+                                        PricingEngine::arguments& snappedArgs,
+                                        std::vector<CouponAdjustment>& fixedCouponAdjustments,
+                                        std::vector<CouponAdjustment>& floatingCouponAdjustments);
     };
 
 }

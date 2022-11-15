@@ -21,8 +21,8 @@
     \brief
 */
 
-#ifndef quantlib_hullwhite_with_two_curves_hpp
-#define quantlib_hullwhite_with_two_curves_hpp
+#ifndef quantlib_hw2c_model_hpp
+#define quantlib_hw2c_model_hpp
 
 #include <ql/models/model.hpp>
 #include <ql/models/shortrate/onefactormodels/hullwhite.hpp>
@@ -50,4 +50,4 @@ namespace QuantLib {
 }
 
 
-#endif // quantlib_hullwhite_with_two_curves_hpp
+#endif // quantlib_hw2c_model_hpp
