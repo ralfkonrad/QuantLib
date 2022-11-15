@@ -17,7 +17,7 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-/*! \file hw2c.hpp
+/*! \file hw2cmodel.hpp
     \brief
 */
 
