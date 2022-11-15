@@ -30,63 +30,84 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-namespace {
-    const std::vector<ext::shared_ptr<IborIndex>> INDICES{ext::make_shared<Euribor3M>(),
-                                                          ext::make_shared<Euribor6M>(),
-                                                          ext::make_shared<Euribor1Y>()};
-    const std::vector<Period> MATURITIES{Period(1, Years), Period(2, Years), Period(5, Years),
-                                         Period(10, Years), Period(20, Years)};
+namespace hw2c_test {
+    struct CommonVars {
+        Date today;
 
-    void
-    testSwapPricing(const ext::shared_ptr<IborIndex>& index, Period maturity, bool atParCoupons) {
-        Date today = Settings::instance().evaluationDate();
+        Real nominal = 10000.00;
+        Rate fixedRate = 0.04;
 
-        auto nominal = 10000.00;
+        Rate discountRate = 0.05;
+        Rate forwardRate = 0.03;
+        DayCounter dc = Actual360();
 
-        auto dc = Actual360();
+        Handle<YieldTermStructure> discountCurve;
+        Handle<YieldTermStructure> forwardCurve;
 
-        Handle<YieldTermStructure> discountCurve(flatRate(today, 0.05, dc));
-        Handle<YieldTermStructure> forwardCurve(flatRate(today, 0.03, index->dayCounter()));
+        SavedSettings backup;
 
-        auto clonedIndex = index->clone(forwardCurve);
+        CommonVars() {
+            today = Date(15, Nov, 2022);
+            Settings::instance().evaluationDate() = today;
 
-        VanillaSwap swap = MakeVanillaSwap(maturity, clonedIndex, 0.04)
-                               .withNominal(nominal)
-                               .withDiscountingTermStructure(discountCurve)
-                               .withAtParCoupons(atParCoupons);
-
-        auto discountingEngine = ext::make_shared<DiscountingSwapEngine>(discountCurve);
-        swap.setPricingEngine(discountingEngine);
-        auto discountingNpv = swap.NPV();
-
-        auto hw2c = ext::make_shared<HW2CModel>(discountCurve, forwardCurve);
-        auto hw2cTreeSwapEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2c, 40);
-        swap.setPricingEngine(hw2cTreeSwapEngine);
-        auto treeNpv = swap.NPV();
-
-        auto relativeDiff = (discountingNpv - treeNpv) / nominal;
-        auto relativeTolerance = atParCoupons ? 1e-14 : 1e-5;
-        if (std::abs(relativeDiff) > relativeTolerance) {
-            BOOST_FAIL(std::setprecision(6)
-                       << std::boolalpha << "The npvs with index='" << index->name()
-                       << "', maturity=" << maturity << ", atParCoupons=" << atParCoupons
-                       << " from the discounting engine (" << discountingNpv
-                       << ") and the HW2CModel tree engine (" << treeNpv << ") do not match. "
-                       << std::setprecision(4)
-                       << "The relative difference compared to the nominal is " << relativeDiff
-                       << ", tolerance " << relativeTolerance << ".");
+            discountCurve = Handle<YieldTermStructure>(flatRate(today, discountRate, dc));
+            forwardCurve = Handle<YieldTermStructure>(flatRate(today, forwardRate, dc));
         }
+
+        VanillaSwap makeSwap(const ext::shared_ptr<IborIndex>& index,
+                             const Period& swapTenor,
+                             bool atParCoupons) const {
+            auto iborIndex = index->clone(forwardCurve);
+            return MakeVanillaSwap(swapTenor, iborIndex, fixedRate)
+                .withNominal(nominal)
+                .withAtParCoupons(atParCoupons);
+        }
+    };
+
+    std::vector<ext::shared_ptr<IborIndex>> indices() {
+        return {ext::make_shared<Euribor3M>(), ext::make_shared<Euribor6M>(),
+                ext::make_shared<Euribor1Y>()};
+    }
+
+    std::vector<Period> swapTenors() {
+        return {Period(1, Years), Period(2, Years), Period(5, Years), Period(10, Years),
+                Period(20, Years)};
     }
 }
 
-void HullWhiteWithTwoCurves::testSwapPricings() {
+void HullWhiteWithTwoCurves::testSwapPricing() {
 
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap against discounting engine...");
 
-    for (const auto& index : INDICES) {
-        for (const auto& maturity : MATURITIES) {
-            for (const auto atParCoupon : {true, false}) {
-                testSwapPricing(index, maturity, atParCoupon);
+    hw2c_test::CommonVars vars;
+
+    for (const auto& index : hw2c_test::indices()) {
+        for (const auto& swapTenor : hw2c_test::swapTenors()) {
+            for (const auto atParCoupons : {true, false}) {
+                auto swap = vars.makeSwap(index, swapTenor, atParCoupons);
+
+                auto discountingEngine =
+                    ext::make_shared<DiscountingSwapEngine>(vars.discountCurve);
+                swap.setPricingEngine(discountingEngine);
+                auto discountingNpv = swap.NPV();
+
+                auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve);
+                auto hw2cTreeSwapEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2cModel, 40);
+                swap.setPricingEngine(hw2cTreeSwapEngine);
+                auto treeNpv = swap.NPV();
+
+                auto relativeDiff = (discountingNpv - treeNpv) / vars.nominal;
+                auto relativeTolerance = atParCoupons ? 1e-14 : 1e-5;
+                if (std::abs(relativeDiff) > relativeTolerance) {
+                    BOOST_FAIL(std::setprecision(6)
+                               << std::boolalpha << "The npvs with index='" << index->name()
+                               << "', maturity=" << swapTenor << ", atParCoupons=" << atParCoupons
+                               << " from the discounting engine (" << discountingNpv
+                               << ") and the HW2CModel tree engine (" << treeNpv
+                               << ") do not match. " << std::setprecision(4)
+                               << "The relative difference compared to the nominal is "
+                               << relativeDiff << ", tolerance " << relativeTolerance << ".");
+                }
             }
         }
     }
@@ -94,6 +115,6 @@ void HullWhiteWithTwoCurves::testSwapPricings() {
 
 test_suite* HullWhiteWithTwoCurves::suite() {
     auto* suite = BOOST_TEST_SUITE("HullWhiteWithTwoCurves tests");
-    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testSwapPricings));
+    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testSwapPricing));
     return suite;
 }

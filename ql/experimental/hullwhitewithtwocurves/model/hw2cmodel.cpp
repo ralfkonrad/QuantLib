@@ -26,7 +26,9 @@ namespace QuantLib {
                          QuantLib::Real sigma)
     : CalibratedModel(2), a_(a), sigma_(sigma) {
         QL_REQUIRE(discountTermStructure->referenceDate() == forwardTermStructure->referenceDate(),
-                   "The reference date of discount and forward curve do not match");
+                   "The reference date of discount and forward curve do not match.");
+        QL_REQUIRE(discountTermStructure->dayCounter() == forwardTermStructure->dayCounter(),
+                   "The day counter of discount and forward curve do not match.");
         discountModel_ = ext::make_shared<HullWhite>(discountTermStructure, a_, sigma_);
         forwardModel_ = ext::make_shared<HullWhite>(forwardTermStructure, a_, sigma_);
     }
