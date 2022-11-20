@@ -709,6 +709,7 @@
     <ClCompile Include="hestonmodel.cpp" />
     <ClCompile Include="hestonslvmodel.cpp" />
     <ClCompile Include="himalayaoption.cpp" />
+    <ClCompile Include="hullwhitewithtwocurves.cpp" />
     <ClCompile Include="hybridhestonhullwhiteprocess.cpp" />
     <ClCompile Include="indexes.cpp" />
     <ClCompile Include="inflation.cpp" />
@@ -876,6 +877,7 @@
     <ClInclude Include="hestonmodel.hpp" />
     <ClInclude Include="hestonslvmodel.hpp" />
     <ClInclude Include="himalayaoption.hpp" />
+    <ClInclude Include="hullwhitewithtwocurves.hpp" />
     <ClInclude Include="hybridhestonhullwhiteprocess.hpp" />
     <ClInclude Include="indexes.hpp" />
     <ClInclude Include="inflation.hpp" />

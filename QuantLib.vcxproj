@@ -135,7 +135,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|x64'">QuantLib-x64-mt-s</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">QuantLib-mt</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">QuantLib-x64-mt</TargetName>
-  </PropertyGroup>  
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
@@ -549,6 +549,17 @@
     <ClInclude Include="ql\experimental\asian\all.hpp" />
     <ClInclude Include="ql\experimental\asian\analytic_cont_geom_av_price_heston.hpp" />
     <ClInclude Include="ql\experimental\asian\analytic_discr_geom_av_price_heston.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\all.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\model\all.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\model\hw2cmodel.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\all.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\hw2cdiscretizedasset.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\all.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2cdiscretizedswaption.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2ctreeswaptionengine.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\all.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2cdiscretizedswap.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2ctreeswapengine.hpp" />
     <ClInclude Include="ql\pricingengines\asian\turnbullwakemanasianengine.hpp" />
     <ClInclude Include="ql\experimental\averageois\all.hpp" />
     <ClInclude Include="ql\experimental\averageois\arithmeticaverageois.hpp" />
@@ -1043,7 +1054,7 @@
     <ClInclude Include="ql\math\interpolations\backwardflatlinearinterpolation.hpp" />
     <ClInclude Include="ql\math\interpolations\bicubicsplineinterpolation.hpp" />
     <ClInclude Include="ql\math\interpolations\bilinearinterpolation.hpp" />
-    <ClInclude Include="ql\math\interpolations\chebyshevinterpolation.hpp" />    
+    <ClInclude Include="ql\math\interpolations\chebyshevinterpolation.hpp" />
     <ClInclude Include="ql\math\interpolations\convexmonotoneinterpolation.hpp" />
     <ClInclude Include="ql\math\interpolations\cubicinterpolation.hpp" />
     <ClInclude Include="ql\math\interpolations\extrapolation.hpp" />
@@ -1929,6 +1940,11 @@
     <ClCompile Include="ql\currencies\oceania.cpp" />
     <ClCompile Include="ql\experimental\asian\analytic_cont_geom_av_price_heston.cpp" />
     <ClCompile Include="ql\experimental\asian\analytic_discr_geom_av_price_heston.cpp" />
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\model\hw2cmodel.cpp" />
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2cdiscretizedswaption.cpp" />
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2ctreeswaptionengine.cpp" />
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2cdiscretizedswap.cpp" />
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2ctreeswapengine.cpp" />
     <ClCompile Include="ql\pricingengines\asian\turnbullwakemanasianengine.cpp" />
     <ClCompile Include="ql\experimental\averageois\arithmeticaverageois.cpp" />
     <ClCompile Include="ql\experimental\averageois\arithmeticoisratehelper.cpp" />
@@ -2266,7 +2282,7 @@
     <ClCompile Include="ql\math\integrals\integral.cpp" />
     <ClCompile Include="ql\math\integrals\kronrodintegral.cpp" />
     <ClCompile Include="ql\math\integrals\segmentintegral.cpp" />
-    <ClCompile Include="ql\math\interpolations\chebyshevinterpolation.cpp" />    
+    <ClCompile Include="ql\math\interpolations\chebyshevinterpolation.cpp" />
     <ClCompile Include="ql\math\matrix.cpp" />
     <ClCompile Include="ql\math\matrixutilities\basisincompleteordered.cpp" />
     <ClCompile Include="ql\math\matrixutilities\bicgstab.cpp" />
