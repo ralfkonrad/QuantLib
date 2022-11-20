@@ -9,8 +9,7 @@ this_include_HEADERS = \
     all.hpp \
     hw2cdiscretizedasset.hpp
 
-cpp_files = \
-    hw2cdiscretizedasset.cpp
+cpp_files = 
 
 if UNITY_BUILD
 
