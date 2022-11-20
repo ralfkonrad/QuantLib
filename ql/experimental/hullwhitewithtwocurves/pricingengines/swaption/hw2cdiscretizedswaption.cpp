@@ -25,12 +25,19 @@ namespace QuantLib {
                                                                const Date& referenceDate,
                                                                const DayCounter& dayCounter)
     : DiscretizedSwaption(args, referenceDate, dayCounter) {
-        underlying_ = ext::make_shared<HW2CDiscretizedSwap>(args, referenceDate, dayCounter);
+        hw2cUnderlying_ = ext::make_shared<HW2CDiscretizedSwap>(args, referenceDate, dayCounter);
+        underlying_ = hw2cUnderlying_;
     }
 
-    void HW2CDiscretizedSwaption::reset(Size size) {}
+    void HW2CDiscretizedSwaption::reset(Size size) {
+        hw2cUnderlying_->initialize(discountMethod(), forwardMethod(), lastPayment_);
+        DiscretizedOption::reset(size);
+    }
 
     void HW2CDiscretizedSwaption::initialize(const ext::shared_ptr<Lattice>& discountMethod,
                                              const ext::shared_ptr<Lattice>& forwardMethod,
-                                             Time t) {}
+                                             Time t) {
+        forwardMethod_ = forwardMethod;
+        DiscretizedSwaption::initialize(discountMethod, t);
+    }
 }
