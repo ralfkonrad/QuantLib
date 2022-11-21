@@ -152,8 +152,42 @@ namespace hw2c_test {
         model->calibrate(calibrationHelper, om, endCriteria, constraint, weights, fixParameters);
     }
 
-    void testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType volatilityType) {
+    void testSwapPricingAgainstDiscountingEngine(bool useAtParCoupons, Real relativeTolerance) {
+        hw2c_test::CommonVars vars;
 
+        for (const auto& index : hw2c_test::indices()) {
+            for (const auto& swapTenor : hw2c_test::swapTenors()) {
+                auto swap = hw2c_test::makeSwap(vars, index, swapTenor, useAtParCoupons);
+
+                auto discountingEngine =
+                    ext::make_shared<DiscountingSwapEngine>(vars.discountCurve);
+                swap->setPricingEngine(discountingEngine);
+                auto discountingNpv = swap->NPV();
+
+                auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve);
+                auto treeEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2cModel, 40);
+                swap->setPricingEngine(treeEngine);
+                auto treeNpv = swap->NPV();
+
+                auto diff = (discountingNpv - treeNpv) / vars.nominal;
+                if (std::abs(diff) > relativeTolerance) {
+                    BOOST_ERROR("" << std::setprecision(2) << std::fixed << std::boolalpha
+                                   << "The npvs with index='" << index->name()
+                                   << "', maturity=" << swapTenor
+                                   << ", atParCoupons=" << useAtParCoupons << " do not match.\n"
+                                   << "       discounting engine: " << discountingNpv << "\n"
+                                   << "    HW2CModel tree engine: " << treeNpv << "\n"
+                                   << std::setprecision(2) << std::defaultfloat
+                                   << " diff relative to nominal: " << diff << "\n"
+                                   << "                tolerance: " << relativeTolerance);
+                }
+            }
+        }
+    }
+
+    void testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType volatilityType,
+                                                     bool useAtParCoupons,
+                                                     Real relativeTolerance) {
         hw2c_test::CommonVars vars(volatilityType);
 
         for (const auto& swapTenor : hw2c_test::swapTenors()) {
@@ -181,79 +215,77 @@ namespace hw2c_test {
                 auto treeNpv = swaption->NPV();
 
                 auto relativeDiff = (analyticalNpv - treeNpv) / vars.nominal;
-                auto relativeTolerance = 1e-15;
-
                 if (std::abs(relativeDiff) > relativeTolerance) {
-                    BOOST_FAIL("" << swaptionTenor << "*" << swapTenor << " swaption, "
-                                  << std::setprecision(2) << std::fixed
-                                  << "NPV analytical SwaptionEngine: " << analyticalNpv
-                                  << ", NPV  HW2CTreeSwaptionEngine: " << treeNpv
-                                  << std::setprecision(4) << std::defaultfloat
-                                  << ", relative difference: " << relativeDiff
-                                  << ", tolerance: " << relativeTolerance);
+                    BOOST_ERROR("" << std::setprecision(2) << std::fixed << std::boolalpha
+                                   << "The npvs for " << swaptionTenor << "*" << swapTenor
+                                   << " swaption, "
+                                   << "atParCoupons=" << useAtParCoupons << " do not match.\n"
+                                   << "   NPV analytical SwaptionEngine: " << analyticalNpv << "\n"
+                                   << "     NPV  HW2CTreeSwaptionEngine: " << treeNpv << "\n"
+                                   << std::setprecision(2) << std::defaultfloat
+                                   << "        diff relative to nominal: " << relativeDiff << "\n"
+                                   << "                       tolerance: " << relativeTolerance);
                 }
             }
         }
     }
 }
 
-void HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngine() {
-
-    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap against discounting engine...");
-
-    hw2c_test::CommonVars vars;
-
-    for (const auto& index : hw2c_test::indices()) {
-        for (const auto& swapTenor : hw2c_test::swapTenors()) {
-            for (const auto atParCoupons : {true, false}) {
-                auto swap = hw2c_test::makeSwap(vars, index, swapTenor, atParCoupons);
-
-                auto discountingEngine =
-                    ext::make_shared<DiscountingSwapEngine>(vars.discountCurve);
-                swap->setPricingEngine(discountingEngine);
-                auto discountingNpv = swap->NPV();
-
-                auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve);
-                auto treeEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2cModel, 40);
-                swap->setPricingEngine(treeEngine);
-                auto treeNpv = swap->NPV();
-
-                auto relativeDiff = (discountingNpv - treeNpv) / vars.nominal;
-                auto relativeTolerance = atParCoupons ? 1e-14 : 1e-5;
-                if (std::abs(relativeDiff) > relativeTolerance) {
-                    BOOST_FAIL(std::setprecision(2)
-                               << std::fixed << std::boolalpha << "The npvs with index='"
-                               << index->name() << "', maturity=" << swapTenor << ", atParCoupons="
-                               << atParCoupons << " from the discounting engine (" << discountingNpv
-                               << ") and the HW2CModel tree engine (" << treeNpv
-                               << ") do not match. " << std::setprecision(4) << std::defaultfloat
-                               << "The relative difference compared to the nominal is "
-                               << relativeDiff << ", tolerance " << relativeTolerance << ".");
-                }
-            }
-        }
-    }
+void HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithAtParCoupons() {
+    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap with at par coupons...");
+    hw2c_test::testSwapPricingAgainstDiscountingEngine(true, 1e-15);
 }
 
-void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngine() {
-    BOOST_TEST_MESSAGE(
-        "Testing HullWhiteWithTwoCurves european swaption against black swaption engine...");
-    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::ShiftedLognormal);
+void HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithIndexedCoupons() {
+    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap with indexed coupons...");
+    hw2c_test::testSwapPricingAgainstDiscountingEngine(false, 1e-5);
 }
 
-void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBachelierEngine() {
-    BOOST_TEST_MESSAGE(
-        "Testing HullWhiteWithTwoCurves european swaption against bachelier swaption engine...");
-    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::Normal);
+void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithAtParCoupons() {
+    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against black swaption "
+                       "engine with at par coupons...");
+    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::ShiftedLognormal, true,
+                                                           1e-15);
+}
+
+void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithIndexedCoupons() {
+    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against black swaption "
+                       "engine with at par coupons...");
+    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::ShiftedLognormal, false,
+                                                           1e-5);
+}
+
+void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBachelierEngineWithAtParCoupons() {
+    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against bachelier "
+                       "swaption engine with at par coupons...");
+    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::Normal, true, 1e-15);
+}
+
+void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBachelierEngineWithIndexedCoupons() {
+    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against bachelier "
+                       "swaption engine with at par coupons...");
+    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::Normal, false, 1e-5);
 }
 
 test_suite* HullWhiteWithTwoCurves::suite() {
     auto* suite = BOOST_TEST_SUITE("HullWhiteWithTwoCurves tests");
-    suite->add(
-        QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngine));
-    suite->add(
-        QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngine));
+
     suite->add(QUANTLIB_TEST_CASE(
-        &HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBachelierEngine));
+        &HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithAtParCoupons));
+    suite->add(QUANTLIB_TEST_CASE(
+        &HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithIndexedCoupons));
+
+    suite->add(QUANTLIB_TEST_CASE(
+        &HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithAtParCoupons));
+    suite->add(QUANTLIB_TEST_CASE(
+        &HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithIndexedCoupons));
+
+    suite->add(
+        QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::
+                               testEuropeanSwaptionPricingAgainstBachelierEngineWithAtParCoupons));
+    suite->add(QUANTLIB_TEST_CASE(
+        &HullWhiteWithTwoCurves::
+            testEuropeanSwaptionPricingAgainstBachelierEngineWithIndexedCoupons));
+
     return suite;
 }
