@@ -233,7 +233,7 @@ namespace hw2c_test {
 
 void HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithAtParCoupons() {
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap with at par coupons...");
-    hw2c_test::testSwapPricingAgainstDiscountingEngine(true, 1e-15);
+    hw2c_test::testSwapPricingAgainstDiscountingEngine(true, 1e-14);
 }
 
 void HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithIndexedCoupons() {
@@ -245,7 +245,7 @@ void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithAt
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against black swaption "
                        "engine with at par coupons...");
     hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::ShiftedLognormal, true,
-                                                           1e-15);
+                                                           1e-14);
 }
 
 void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithIndexedCoupons() {
@@ -258,7 +258,7 @@ void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithIn
 void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBachelierEngineWithAtParCoupons() {
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against bachelier "
                        "swaption engine with at par coupons...");
-    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::Normal, true, 1e-15);
+    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::Normal, true, 1e-14);
 }
 
 void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBachelierEngineWithIndexedCoupons() {
