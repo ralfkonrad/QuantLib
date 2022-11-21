@@ -20,25 +20,28 @@
 #include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
 
 namespace QuantLib {
-    HW2CModel::HW2CModel(Handle<QuantLib::YieldTermStructure> discountTermStructure,
-                         Handle<QuantLib::YieldTermStructure> forwardTermStructure,
-                         QuantLib::Real a,
-                         QuantLib::Real sigma)
-    : CalibratedModel(2), a_(arguments_[0]), sigma_(arguments_[1]) {
-        QL_REQUIRE(discountTermStructure->referenceDate() == forwardTermStructure->referenceDate(),
+    HW2CModel::HW2CModel(const Handle<YieldTermStructure>& discountTermStructure,
+                         const Handle<YieldTermStructure>& forwardTermStructure,
+                         Real a,
+                         Real sigma)
+    : CalibratedModel(2), a_(arguments_[0]), sigma_(arguments_[1]),
+      discountTermStructure_(discountTermStructure), forwardTermStructure_(forwardTermStructure) {
+        QL_REQUIRE(discountTermStructure_->referenceDate() ==
+                       forwardTermStructure_->referenceDate(),
                    "The reference date of discount and forward curve do not match.");
-        QL_REQUIRE(discountTermStructure->dayCounter() == forwardTermStructure->dayCounter(),
+        QL_REQUIRE(discountTermStructure_->dayCounter() == forwardTermStructure_->dayCounter(),
                    "The day counter of discount and forward curve do not match.");
 
         a_ = ConstantParameter(a, PositiveConstraint());
         sigma_ = ConstantParameter(sigma, PositiveConstraint());
 
-        discountModel_ =
-            ext::make_shared<HullWhite>(discountTermStructure, this->a(), this->sigma());
-        forwardModel_ = ext::make_shared<HullWhite>(forwardTermStructure, this->a(), this->sigma());
+        discountModel_ = RelinkableHandle<HullWhite>(
+            ext::make_shared<HullWhite>(discountTermStructure, this->a(), this->sigma()));
+        forwardModel_ = RelinkableHandle<HullWhite>(
+            ext::make_shared<HullWhite>(forwardTermStructure, this->a(), this->sigma()));
 
-        registerWith(discountTermStructure);
-        registerWith(forwardTermStructure);
+        registerWith(discountTermStructure_);
+        registerWith(forwardTermStructure_);
     }
 
     ext::shared_ptr<Lattice> HW2CModel::discountTree(const TimeGrid& timeGrid) const {
@@ -50,9 +53,9 @@ namespace QuantLib {
     }
 
     void HW2CModel::generateArguments() {
-        discountModel_ =
-            ext::make_shared<HullWhite>(discountModel()->termStructure(), this->a(), this->sigma());
-        forwardModel_ =
-            ext::make_shared<HullWhite>(forwardModel()->termStructure(), this->a(), this->sigma());
+        discountModel_.linkTo(
+            ext::make_shared<HullWhite>(discountTermStructure_, this->a(), this->sigma()));
+        forwardModel_.linkTo(
+            ext::make_shared<HullWhite>(forwardTermStructure_, this->a(), this->sigma()));
     }
 }
