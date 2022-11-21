@@ -27,9 +27,13 @@ namespace QuantLib {
 
     namespace {
 
-        bool withinPreviousWeek(const Date& d1, const Date& d2) { return d2 >= d1 - 7 && d2 <= d1; }
+        bool withinPreviousWeek(const Date& d1, const Date& d2) {
+            return d2 >= d1 - 7 && d2 <= d1;
+        }
 
-        bool withinNextWeek(const Date& d1, const Date& d2) { return d2 >= d1 && d2 <= d1 + 7; }
+        bool withinNextWeek(const Date& d1, const Date& d2) {
+            return d2 >= d1 && d2 <= d1 + 7;
+        }
 
         bool withinOneWeek(const Date& d1, const Date& d2) {
             return withinPreviousWeek(d1, d2) || withinNextWeek(d1, d2);
@@ -58,15 +62,12 @@ namespace QuantLib {
             exerciseTimes_[i] =
                 dayCounter.yearFraction(referenceDate, snappedArgs.exercise->date(i));
 
-        Time lastFixedPayment =
-            dayCounter.yearFraction(referenceDate, snappedArgs.fixedPayDates.back());
-        Time lastFloatingPayment =
-            dayCounter.yearFraction(referenceDate, snappedArgs.floatingPayDates.back());
-        lastPayment_ = std::max(lastFixedPayment, lastFloatingPayment);
-
         underlying_ =
             ext::make_shared<DiscretizedSwap>(snappedArgs, referenceDate, dayCounter,
                                               fixedCouponAdjustments, floatingCouponAdjustments);
+
+        auto times = mandatoryTimes();
+        lastPayment_ = *std::max_element(times.begin(), times.end());
     }
 
     void DiscretizedSwaption::reset(Size size) {
@@ -85,10 +86,8 @@ namespace QuantLib {
         std::vector<Date> fixedDates = args.swap->fixedSchedule().dates();
         std::vector<Date> floatDates = args.swap->floatingSchedule().dates();
 
-        fixedCouponAdjustments.resize(args.swap->fixedLeg().size(),
-                                      CouponAdjustment::pre);
-        floatingCouponAdjustments.resize(args.swap->floatingLeg().size(),
-                                         CouponAdjustment::pre);
+        fixedCouponAdjustments.resize(args.swap->fixedLeg().size(), CouponAdjustment::pre);
+        floatingCouponAdjustments.resize(args.swap->floatingLeg().size(), CouponAdjustment::pre);
 
         for (const auto& exerciseDate : args.exercise->dates()) {
             for (Size j = 0; j < fixedDates.size() - 1; j++) {

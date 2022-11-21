@@ -27,11 +27,14 @@ namespace QuantLib {
     : DiscretizedSwaption(args, referenceDate, dayCounter) {
         hw2cUnderlying_ = ext::make_shared<HW2CDiscretizedSwap>(args, referenceDate, dayCounter);
         underlying_ = hw2cUnderlying_;
+
+        auto times = mandatoryTimes();
+        lastPayment_ = *std::max_element(times.begin(), times.end());
     }
 
     void HW2CDiscretizedSwaption::reset(Size size) {
         hw2cUnderlying_->initialize(discountMethod(), forwardMethod(), lastPayment_);
-        DiscretizedOption::reset(size);
+        DiscretizedOption::reset(size); // NOLINT(bugprone-parent-virtual-call)
     }
 
     void HW2CDiscretizedSwaption::initialize(const ext::shared_ptr<Lattice>& discountMethod,
