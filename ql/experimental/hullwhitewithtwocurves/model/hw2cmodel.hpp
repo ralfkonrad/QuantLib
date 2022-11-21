@@ -35,17 +35,23 @@ namespace QuantLib {
                   Real a = 0.1,
                   Real sigma = 0.01);
 
+        Real a() const { return a_(0.0); }
+        Real sigma() const { return sigma_(0.0); }
+
         ext::shared_ptr<HullWhite> discountModel() const { return discountModel_; }
         ext::shared_ptr<HullWhite> forwardModel() const { return forwardModel_; }
 
         ext::shared_ptr<Lattice> discountTree(const TimeGrid& timeGrid) const;
         ext::shared_ptr<Lattice> forwardTree(const TimeGrid& timeGrid) const;
 
+      protected:
+        void generateArguments() override;
+
       private:
         ext::shared_ptr<HullWhite> discountModel_;
         ext::shared_ptr<HullWhite> forwardModel_;
-        Real a_;
-        Real sigma_;
+        Parameter& a_;
+        Parameter& sigma_;
     };
 }
 

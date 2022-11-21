@@ -33,6 +33,7 @@
 #include <ql/pricingengines/swaption/blackswaptionengine.hpp>
 #include <ql/quotes/simplequote.hpp>
 #include <ql/time/daycounters/actual360.hpp>
+#include <ql/time/daycounters/actualactual.hpp>
 #include <iostream>
 #include <utility>
 
@@ -98,6 +99,13 @@ namespace hw2c_test {
 
             return {swaption, {swaptionHelper}};
         }
+
+        Size calculateTimeSteps(const Swaption& swaption, Size minTimeStepsPerYear) {
+            auto maturityDate = swaption.underlyingSwap()->maturityDate();
+            auto timeToMaturiy =
+                swaption.underlyingSwap()->fixedDayCount().yearFraction(today, maturityDate);
+            return timeToMaturiy * minTimeStepsPerYear;
+        }
     };
 
     std::vector<ext::shared_ptr<IborIndex>> indices() {
@@ -116,9 +124,10 @@ namespace hw2c_test {
     }
 
     void calibrateModel(ext::shared_ptr<HW2CModel>& model,
-                        std::vector<ext::shared_ptr<SwaptionHelper>> helpers) {
+                        std::vector<ext::shared_ptr<SwaptionHelper>> helpers,
+                        Size timeSteps) {
         for (const auto& helper : helpers) {
-            auto treeEngine = ext::make_shared<HW2CTreeSwaptionEngine>(model, 40);
+            auto treeEngine = ext::make_shared<HW2CTreeSwaptionEngine>(model, timeSteps);
             helper->setPricingEngine(treeEngine);
         }
 
@@ -126,8 +135,12 @@ namespace hw2c_test {
                                                                           helpers.end());
         LevenbergMarquardt om;
         EndCriteria endCriteria(400, 100, 1.0e-8, 1.0e-8, 1.0e-8);
-        model->calibrate(calibrationHelper, om, endCriteria);
+        auto constraint = Constraint();
+        auto weights = std::vector<Real>();
+        auto fixParameters = {true, false};
+        model->calibrate(calibrationHelper, om, endCriteria, constraint, weights, fixParameters);
     }
+
 }
 
 void HullWhiteWithTwoCurves::testSwapPricing() {
@@ -180,6 +193,7 @@ void HullWhiteWithTwoCurves::testEuropeanSwaptionPricing() {
             auto swaptionWithHelpers = vars.makeSwaptionWithHelpers(swaptionTenor, swapTenor);
             auto swaption = swaptionWithHelpers.first;
             auto swaptionHelpers = swaptionWithHelpers.second;
+            auto timeSteps = vars.calculateTimeSteps(swaption, 8);
 
             auto blackEngine =
                 ext::make_shared<BlackSwaptionEngine>(vars.discountCurve, vars.swaptionVola);
@@ -187,9 +201,9 @@ void HullWhiteWithTwoCurves::testEuropeanSwaptionPricing() {
             auto bachelierNpv = swaption.NPV();
 
             auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve);
-            // hw2c_test::calibrateModel(hw2cModel, swaptionHelpers);
+            hw2c_test::calibrateModel(hw2cModel, swaptionHelpers, timeSteps);
 
-            auto treeEngine = ext::make_shared<HW2CTreeSwaptionEngine>(hw2cModel, 40);
+            auto treeEngine = ext::make_shared<HW2CTreeSwaptionEngine>(hw2cModel, timeSteps);
             swaption.setPricingEngine(treeEngine);
             auto treeNpv = swaption.NPV();
 
@@ -198,6 +212,8 @@ void HullWhiteWithTwoCurves::testEuropeanSwaptionPricing() {
                                   << "\tNPV BachelierSwaptionEngine: " << bachelierNpv);
             BOOST_TEST_MESSAGE("" << std::setprecision(2) << std::fixed
                                   << "\tNPV  HW2CTreeSwaptionEngine: " << treeNpv);
+            BOOST_TEST_MESSAGE("" << std::setprecision(4)
+                                  << "\t                       diff: " << (treeNpv - bachelierNpv));
         }
     }
 }
