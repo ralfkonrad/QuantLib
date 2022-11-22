@@ -166,6 +166,7 @@ namespace QuantLib {
           exerciseTimes_(std::move(exerciseTimes)) {}
         void reset(Size size) override;
         std::vector<Time> mandatoryTimes() const override;
+        std::vector<Time> exerciseTimes() { return exerciseTimes_; }
 
       protected:
         void postAdjustValuesImpl() override;

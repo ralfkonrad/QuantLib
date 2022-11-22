@@ -79,17 +79,12 @@ namespace QuantLib {
             lattice = model_->tree(timeGrid);
         }
 
-        std::vector<Time> stoppingTimes(arguments_.exercise->dates().size());
-        for (Size i=0; i<stoppingTimes.size(); ++i)
-            stoppingTimes[i] =
-                dayCounter.yearFraction(referenceDate,
-                                        arguments_.exercise->date(i));
+        auto exerciseTimes = swaption.exerciseTimes();
+        auto nextExercise = *std::find_if(exerciseTimes.begin(), exerciseTimes.end(),
+                                          [](Time t) { return t >= 0.0; });
+        auto lastExercise = exerciseTimes.back();
 
-        swaption.initialize(lattice, stoppingTimes.back());
-
-        Time nextExercise =
-            *std::find_if(stoppingTimes.begin(), stoppingTimes.end(),
-                          [](Time t){ return t >= 0.0; });
+        swaption.initialize(lattice, lastExercise);
         swaption.rollback(nextExercise);
 
         results_.value = swaption.presentValue();
