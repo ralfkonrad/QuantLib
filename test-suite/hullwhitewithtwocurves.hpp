@@ -27,10 +27,12 @@ class HullWhiteWithTwoCurves {
   public:
     static void testSwapPricingAgainstDiscountingEngineWithAtParCoupons();
     static void testSwapPricingAgainstDiscountingEngineWithIndexedCoupons();
+
     static void testEuropeanSwaptionPricingAgainstBlackEngineWithAtParCoupons();
     static void testEuropeanSwaptionPricingAgainstBlackEngineWithIndexedCoupons();
     static void testEuropeanSwaptionPricingAgainstBachelierEngineWithAtParCoupons();
     static void testEuropeanSwaptionPricingAgainstBachelierEngineWithIndexedCoupons();
+
     static boost::unit_test_framework::test_suite* suite();
 };
 
