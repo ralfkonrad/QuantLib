@@ -43,6 +43,7 @@ using namespace boost::unit_test_framework;
 namespace hw2c_test {
     struct CommonVars {
         Date today;
+        bool useAtParCoupons;
 
         Real nominal = 10000.00;
         Rate fixedRate = 0.04;
@@ -60,9 +61,15 @@ namespace hw2c_test {
 
         SavedSettings backup;
 
-        CommonVars() : CommonVars(VolatilityType::ShiftedLognormal) {}
+        CommonVars(bool atParCoupons)
+        : CommonVars(atParCoupons, VolatilityType::ShiftedLognormal) {}
 
-        CommonVars(VolatilityType volatilityType) {
+        CommonVars(bool atParCoupons, VolatilityType volatilityType) {
+            // We need to set (and reset) the IborCoupon type here to create the same type within
+            // the SwaptionHelpers as well.
+            previousUseAtParCoupons_ = IborCoupon::Settings::instance().usingAtParCoupons();
+            setIborCouponType(atParCoupons);
+
             today = Date(15, Nov, 2022);
             Settings::instance().evaluationDate() = today;
 
@@ -72,6 +79,23 @@ namespace hw2c_test {
             discountCurve = Handle<YieldTermStructure>(flatRate(today, discountRate, dc));
             forwardCurve = Handle<YieldTermStructure>(flatRate(today, forwardRate, dc));
             volatility = Handle<Quote>(ext::make_shared<SimpleQuote>(swaptionVola));
+        }
+
+        ~CommonVars() {
+            // reset the previous IborCoupun type.
+            setIborCouponType(previousUseAtParCoupons_);
+        }
+
+      private:
+        bool previousUseAtParCoupons_;
+
+        void setIborCouponType(bool atParCoupons) {
+            useAtParCoupons = atParCoupons;
+            if (useAtParCoupons) {
+                IborCoupon::Settings::instance().createAtParCoupons();
+            } else {
+                IborCoupon::Settings::instance().createIndexedCoupons();
+            }
         }
     };
 
@@ -90,12 +114,9 @@ namespace hw2c_test {
 
     ext::shared_ptr<VanillaSwap> makeSwap(const CommonVars& vars,
                                           const ext::shared_ptr<IborIndex>& index,
-                                          const Period& swapTenor,
-                                          bool atParCoupons) {
+                                          const Period& swapTenor) {
         auto iborIndex = index->clone(vars.forwardCurve);
-        return MakeVanillaSwap(swapTenor, iborIndex, vars.fixedRate)
-            .withNominal(vars.nominal)
-            .withAtParCoupons(atParCoupons);
+        return MakeVanillaSwap(swapTenor, iborIndex, vars.fixedRate).withNominal(vars.nominal);
     }
 
     std::pair<ext::shared_ptr<Swaption>, std::vector<ext::shared_ptr<SwaptionHelper>>>
@@ -152,12 +173,12 @@ namespace hw2c_test {
         model->calibrate(calibrationHelper, om, endCriteria, constraint, weights, fixParameters);
     }
 
-    void testSwapPricingAgainstDiscountingEngine(bool useAtParCoupons, Real relativeTolerance) {
-        hw2c_test::CommonVars vars;
+    void testSwapPricingAgainstDiscountingEngine(bool atParCoupons, Real relativeTolerance) {
+        hw2c_test::CommonVars vars(atParCoupons);
 
         for (const auto& index : hw2c_test::indices()) {
             for (const auto& swapTenor : hw2c_test::swapTenors()) {
-                auto swap = hw2c_test::makeSwap(vars, index, swapTenor, useAtParCoupons);
+                auto swap = hw2c_test::makeSwap(vars, index, swapTenor);
 
                 auto discountingEngine =
                     ext::make_shared<DiscountingSwapEngine>(vars.discountCurve);
@@ -172,9 +193,9 @@ namespace hw2c_test {
                 auto diff = (discountingNpv - treeNpv) / vars.nominal;
                 if (std::abs(diff) > relativeTolerance) {
                     BOOST_ERROR("" << std::setprecision(2) << std::fixed << std::boolalpha
-                                   << "The npvs with index='" << index->name()
-                                   << "', maturity=" << swapTenor
-                                   << ", atParCoupons=" << useAtParCoupons << " do not match.\n"
+                                   << "The npvs with index='" << index->name() << "', maturity="
+                                   << swapTenor << ", atParCoupons=" << vars.useAtParCoupons
+                                   << " do not match.\n"
                                    << "       discounting engine: " << discountingNpv << "\n"
                                    << "    HW2CModel tree engine: " << treeNpv << "\n"
                                    << std::setprecision(2) << std::defaultfloat
@@ -186,9 +207,9 @@ namespace hw2c_test {
     }
 
     void testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType volatilityType,
-                                                     bool useAtParCoupons,
+                                                     bool atParCoupons,
                                                      Real relativeTolerance) {
-        hw2c_test::CommonVars vars(volatilityType);
+        hw2c_test::CommonVars vars(atParCoupons, volatilityType);
 
         for (const auto& swapTenor : hw2c_test::swapTenors()) {
             for (const auto& swaptionTenor : hw2c_test::swaptionTenors()) {
@@ -219,7 +240,7 @@ namespace hw2c_test {
                     BOOST_ERROR("" << std::setprecision(2) << std::fixed << std::boolalpha
                                    << "The npvs for " << swaptionTenor << "*" << swapTenor
                                    << " swaption, "
-                                   << "atParCoupons=" << useAtParCoupons << " do not match.\n"
+                                   << "atParCoupons=" << vars.useAtParCoupons << " do not match.\n"
                                    << "   NPV analytical SwaptionEngine: " << analyticalNpv << "\n"
                                    << "     NPV  HW2CTreeSwaptionEngine: " << treeNpv << "\n"
                                    << std::setprecision(2) << std::defaultfloat
