@@ -173,8 +173,8 @@ namespace hw2c_test {
         model->calibrate(calibrationHelper, om, endCriteria, constraint, weights, fixParameters);
     }
 
-    void testSwapPricingAgainstDiscountingEngine(bool atParCoupons, Real relativeTolerance) {
-        hw2c_test::CommonVars vars(atParCoupons);
+    void testSwapPricingAgainstDiscountingEngine(bool atParCoupons, Real tolerance) {
+        CommonVars vars(atParCoupons);
 
         for (const auto& index : hw2c_test::indices()) {
             for (const auto& swapTenor : hw2c_test::swapTenors()) {
@@ -190,8 +190,8 @@ namespace hw2c_test {
                 swap->setPricingEngine(treeEngine);
                 auto treeNpv = swap->NPV();
 
-                auto diff = (discountingNpv - treeNpv) / vars.nominal;
-                if (std::abs(diff) > relativeTolerance) {
+                auto diff = discountingNpv - treeNpv;
+                if (std::abs(diff) > tolerance) {
                     BOOST_ERROR("" << std::setprecision(2) << std::fixed << std::boolalpha
                                    << "The npvs with index='" << index->name() << "', maturity="
                                    << swapTenor << ", atParCoupons=" << vars.useAtParCoupons
@@ -199,8 +199,8 @@ namespace hw2c_test {
                                    << "       discounting engine: " << discountingNpv << "\n"
                                    << "    HW2CModel tree engine: " << treeNpv << "\n"
                                    << std::setprecision(2) << std::defaultfloat
-                                   << " diff relative to nominal: " << diff << "\n"
-                                   << "                tolerance: " << relativeTolerance);
+                                   << "                    diff : " << diff << "\n"
+                                   << "                tolerance: " << tolerance);
                 }
             }
         }
@@ -208,8 +208,8 @@ namespace hw2c_test {
 
     void testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType volatilityType,
                                                      bool atParCoupons,
-                                                     Real relativeTolerance) {
-        hw2c_test::CommonVars vars(atParCoupons, volatilityType);
+                                                     Real tolerance) {
+        CommonVars vars(atParCoupons, volatilityType);
 
         for (const auto& swapTenor : hw2c_test::swapTenors()) {
             for (const auto& swaptionTenor : hw2c_test::swaptionTenors()) {
@@ -235,8 +235,8 @@ namespace hw2c_test {
                 swaption->setPricingEngine(treeEngine);
                 auto treeNpv = swaption->NPV();
 
-                auto relativeDiff = (analyticalNpv - treeNpv) / vars.nominal;
-                if (std::abs(relativeDiff) > relativeTolerance) {
+                auto diff = analyticalNpv - treeNpv;
+                if (std::abs(diff) > tolerance) {
                     BOOST_ERROR("" << std::setprecision(2) << std::fixed << std::boolalpha
                                    << "The npvs for " << swaptionTenor << "*" << swapTenor
                                    << " swaption, "
@@ -244,8 +244,8 @@ namespace hw2c_test {
                                    << "   NPV analytical SwaptionEngine: " << analyticalNpv << "\n"
                                    << "     NPV  HW2CTreeSwaptionEngine: " << treeNpv << "\n"
                                    << std::setprecision(2) << std::defaultfloat
-                                   << "        diff relative to nominal: " << relativeDiff << "\n"
-                                   << "                       tolerance: " << relativeTolerance);
+                                   << "                            diff: " << diff << "\n"
+                                   << "                       tolerance: " << tolerance);
                 }
             }
         }
@@ -254,38 +254,38 @@ namespace hw2c_test {
 
 void HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithAtParCoupons() {
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap with at par coupons...");
-    hw2c_test::testSwapPricingAgainstDiscountingEngine(true, 1e-14);
+    hw2c_test::testSwapPricingAgainstDiscountingEngine(true, 1e-11);
 }
 
 void HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithIndexedCoupons() {
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap with indexed coupons...");
-    hw2c_test::testSwapPricingAgainstDiscountingEngine(false, 1e-5);
+    hw2c_test::testSwapPricingAgainstDiscountingEngine(false, 0.1);
 }
 
 void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithAtParCoupons() {
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against black swaption "
                        "engine with at par coupons...");
     hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::ShiftedLognormal, true,
-                                                           1e-14);
+                                                           1e-11);
 }
 
 void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithIndexedCoupons() {
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against black swaption "
                        "engine with at par coupons...");
     hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::ShiftedLognormal, false,
-                                                           1e-5);
+                                                           0.1);
 }
 
 void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBachelierEngineWithAtParCoupons() {
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against bachelier "
                        "swaption engine with at par coupons...");
-    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::Normal, true, 1e-14);
+    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::Normal, true, 1e-11);
 }
 
 void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBachelierEngineWithIndexedCoupons() {
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against bachelier "
                        "swaption engine with at par coupons...");
-    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::Normal, false, 1e-5);
+    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::Normal, false, 0.01);
 }
 
 test_suite* HullWhiteWithTwoCurves::suite() {
