@@ -55,12 +55,10 @@ namespace QuantLib {
 
     std::vector<Time> HW2CDiscretizedSwap::mandatoryTimes() const {
         auto times = DiscretizedSwap::mandatoryTimes();
-        for (const auto time : indexStartTimes_) {
-            times.push_back(time);
-        }
-        for (const auto time : indexEndTimes_) {
-            times.push_back(time);
-        }
+        std::copy_if(indexStartTimes_.begin(), indexStartTimes_.end(), std::back_inserter(times),
+                     [](auto time) { return time >= 0; });
+        std::copy_if(indexEndTimes_.begin(), indexEndTimes_.end(), std::back_inserter(times),
+                     [](auto time) { return time >= 0; });
         return times;
     }
 

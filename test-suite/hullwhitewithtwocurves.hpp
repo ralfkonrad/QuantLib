@@ -21,17 +21,14 @@
 #define quantlib_test_hullwhitewithtwocurves_hpp
 
 #include "ql/handle.hpp"
+#include "ql/time/period.hpp"
 #include <boost/test/unit_test.hpp>
 
 class HullWhiteWithTwoCurves {
   public:
-    static void testSwapPricingAgainstDiscountingEngineWithAtParCoupons();
-    static void testSwapPricingAgainstDiscountingEngineWithIndexedCoupons();
-
-    static void testEuropeanSwaptionPricingAgainstBlackEngineWithAtParCoupons();
-    static void testEuropeanSwaptionPricingAgainstBlackEngineWithIndexedCoupons();
-    static void testEuropeanSwaptionPricingAgainstBachelierEngineWithAtParCoupons();
-    static void testEuropeanSwaptionPricingAgainstBachelierEngineWithIndexedCoupons();
+    static void testSwapPricing();
+    static void testEuropeanSwaptionPricing();
+    static void testBermudanSwaptionPricing();
 
     static boost::unit_test_framework::test_suite* suite();
 };
