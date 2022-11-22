@@ -45,8 +45,8 @@ namespace QuantLib {
             return forwardTermStructure_;
         }
 
-        Handle<HullWhite> discountModel() const { return discountModel_; }
-        Handle<HullWhite> forwardModel() const { return forwardModel_; }
+        const Handle<HullWhite>& discountModel() const { return discountModel_; }
+        const Handle<HullWhite>& forwardModel() const { return forwardModel_; }
 
         ext::shared_ptr<Lattice> discountTree(const TimeGrid& timeGrid) const;
         ext::shared_ptr<Lattice> forwardTree(const TimeGrid& timeGrid) const;
