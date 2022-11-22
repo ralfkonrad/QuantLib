@@ -24,6 +24,7 @@
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.hpp>
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2ctreeswaptionengine.hpp>
 #include <ql/indexes/ibor/euribor.hpp>
+#include <ql/indexes/indexmanager.hpp>
 #include <ql/indexes/swap/euriborswap.hpp>
 #include <ql/instruments/makeswaption.hpp>
 #include <ql/instruments/makevanillaswap.hpp>
@@ -31,7 +32,9 @@
 #include <ql/models/shortrate/calibrationhelpers/swaptionhelper.hpp>
 #include <ql/pricingengines/swap/discountingswapengine.hpp>
 #include <ql/pricingengines/swaption/blackswaptionengine.hpp>
+#include <ql/pricingengines/swaption/treeswaptionengine.hpp>
 #include <ql/quotes/simplequote.hpp>
+#include <ql/time/calendars/target.hpp>
 #include <ql/time/daycounters/actual360.hpp>
 #include <ql/time/daycounters/actualactual.hpp>
 #include <iostream>
@@ -48,6 +51,8 @@ namespace hw2c_test {
         Date today;
         bool useAtParCoupons;
 
+        Calendar calendar = TARGET();
+
         Real nominal = 10000.00;
         Rate fixedRate = 0.04;
 
@@ -63,6 +68,10 @@ namespace hw2c_test {
         Handle<Quote> volatility;
 
         SavedSettings backup;
+
+        CommonVars()
+        : CommonVars(IborCoupon::Settings::instance().usingAtParCoupons(),
+                     VolatilityType::ShiftedLognormal) {}
 
         CommonVars(bool atParCoupons)
         : CommonVars(atParCoupons, VolatilityType::ShiftedLognormal) {}
@@ -87,6 +96,7 @@ namespace hw2c_test {
         ~CommonVars() {
             // reset the previous IborCoupun type.
             setIborCouponType(previousUseAtParCoupons_);
+            IndexManager::instance().clearHistories();
         }
 
       private:
@@ -108,18 +118,20 @@ namespace hw2c_test {
     }
 
     std::vector<Period> swapTenors() {
-        return {Period(2, Years), Period(5, Years), Period(10, Years)};
+        return {2 * Years, 5 * Years, 10 * Years};
     }
 
     std::vector<Period> swaptionTenors() {
-        return {Period(1, Years), Period(2, Years), Period(5, Years)};
+        return {1 * Years, 2 * Years, 5 * Years};
     }
 
-    ext::shared_ptr<VanillaSwap> makeSwap(const CommonVars& vars,
-                                          const ext::shared_ptr<IborIndex>& index,
-                                          const Period& swapTenor) {
-        auto iborIndex = index->clone(vars.forwardCurve);
-        return MakeVanillaSwap(swapTenor, iborIndex, vars.fixedRate).withNominal(vars.nominal);
+    void addFixings(ext::shared_ptr<IborIndex>& index, Date startDate, Rate fixing) {
+        for (auto date = startDate - 1 * Months; date <= Settings::instance().evaluationDate();
+             date++) {
+            if (index->isValidFixingDate(date)) {
+                index->addFixing(date, fixing);
+            }
+        }
     }
 
     std::pair<ext::shared_ptr<Swaption>, std::vector<ext::shared_ptr<SwaptionHelper>>>
@@ -148,6 +160,29 @@ namespace hw2c_test {
         return {swaption, {swaptionHelper}};
     }
 
+    std::pair<ext::shared_ptr<Swaption>, std::vector<ext::shared_ptr<SwaptionHelper>>>
+    makeBermudanSwaptionWithHelpers(const CommonVars& vars,
+                                    const Date& effectiveDate,
+                                    ext::shared_ptr<IborIndex> index,
+                                    Rate fixing,
+                                    const Period& swapTenor) {
+        addFixings(index, effectiveDate, fixing);
+        ext::shared_ptr<VanillaSwap> swap = MakeVanillaSwap(swapTenor, index, vars.fixedRate)
+                                                .withEffectiveDate(effectiveDate)
+                                                .withNominal(vars.nominal);
+
+        std::vector<Date> exerciseDates;
+        for (const auto& cf : swap->fixedLeg()) {
+            auto fixedRateCoupon = ext::dynamic_pointer_cast<FixedRateCoupon>(cf);
+            exerciseDates.push_back(fixedRateCoupon->accrualStartDate());
+        }
+        auto exercise = ext::make_shared<BermudanExercise>(exerciseDates);
+
+        auto swaption = ext::make_shared<Swaption>(swap, exercise);
+
+        return {swaption, {}};
+    }
+
     Size calculateTimeSteps(const CommonVars& vars,
                             const ext::shared_ptr<Swaption>& swaption,
                             Size minTimeStepsPerYear) {
@@ -160,6 +195,10 @@ namespace hw2c_test {
     void calibrateModel(ext::shared_ptr<HW2CModel>& model,
                         std::vector<ext::shared_ptr<SwaptionHelper>> helpers,
                         Size timeSteps) {
+        if (helpers.empty()) {
+            return;
+        }
+
         for (const auto& helper : helpers) {
             auto treeEngine = ext::make_shared<HW2CTreeSwaptionEngine>(model, timeSteps);
             helper->setPricingEngine(treeEngine);
@@ -175,142 +214,176 @@ namespace hw2c_test {
             helpers.size() == 1 ? std::vector<bool>{true, false} : std::vector<bool>{false, false};
         model->calibrate(calibrationHelper, om, endCriteria, constraint, weights, fixParameters);
     }
+}
 
-    void testSwapPricingAgainstDiscountingEngine(bool atParCoupons) {
-        CommonVars vars(atParCoupons);
+void HullWhiteWithTwoCurves::testSwapPricing() {
+    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap against discounting engine...");
 
-        for (const auto& index : hw2c_test::indices()) {
-            for (const auto& swapTenor : hw2c_test::swapTenors()) {
-                auto swap = hw2c_test::makeSwap(vars, index, swapTenor);
+    auto testSwapPricing = [](const ext::shared_ptr<IborIndex>& index, const Period& swapTenor,
+                              bool atParCoupons) {
+        hw2c_test::CommonVars vars(atParCoupons);
 
-                auto discountingEngine =
-                    ext::make_shared<DiscountingSwapEngine>(vars.discountCurve);
-                swap->setPricingEngine(discountingEngine);
-                auto discountingNpv = swap->NPV();
+        auto clonedIndex = index->clone(vars.forwardCurve);
+        VanillaSwap swap =
+            MakeVanillaSwap(swapTenor, index, vars.fixedRate).withNominal(vars.nominal);
 
-                auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve);
-                auto treeEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2cModel, 40);
-                swap->setPricingEngine(treeEngine);
-                auto treeNpv = swap->NPV();
+        auto discountingEngine = ext::make_shared<DiscountingSwapEngine>(vars.discountCurve);
+        swap.setPricingEngine(discountingEngine);
+        auto discountingNpv = swap.NPV();
 
-                auto diff = discountingNpv - treeNpv;
-                auto tolerance =
-                    vars.useAtParCoupons ? atParCouponsTolerance : indexedCouponsTolerance;
-                if (std::abs(diff) > tolerance) {
-                    BOOST_ERROR("" << std::setprecision(2) << std::fixed << std::boolalpha
-                                   << "The npvs with index='" << index->name() << "', maturity="
-                                   << swapTenor << ", atParCoupons=" << vars.useAtParCoupons
-                                   << " do not match.\n"
-                                   << "       discounting engine: " << discountingNpv << "\n"
-                                   << "    HW2CModel tree engine: " << treeNpv << "\n"
-                                   << std::setprecision(2) << std::defaultfloat
-                                   << "                    diff : " << diff << "\n"
-                                   << "                tolerance: " << tolerance);
-                }
-            }
+        auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve);
+        auto treeEngine = ext::make_shared<HW2CTreeSwapEngine>(hw2cModel, 40);
+        swap.setPricingEngine(treeEngine);
+        auto treeNpv = swap.NPV();
+
+        auto diff = discountingNpv - treeNpv;
+        auto tolerance = vars.useAtParCoupons ? hw2c_test::atParCouponsTolerance :
+                                                hw2c_test::indexedCouponsTolerance;
+        if (std::abs(diff) > tolerance) {
+            BOOST_ERROR(std::setprecision(2)
+                        << std::fixed << std::boolalpha << "The npvs do not match.\n"
+                        << "                    index: " << index->name() << "\n"
+                        << "               swap tenor: " << swapTenor << "\n"
+                        << "             atParCoupons: " << vars.useAtParCoupons << "\n"
+                        << "    DiscountingSwapEngine: " << discountingNpv << "\n"
+                        << "       HW2CTreeSwapEngine: " << treeNpv << "\n"
+                        << std::setprecision(2) << std::defaultfloat
+                        << "                     diff: " << diff << "\n"
+                        << "                tolerance: " << tolerance);
         }
-    }
+    };
 
-    void testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType volatilityType,
-                                                     bool atParCoupons) {
-        CommonVars vars(atParCoupons, volatilityType);
-
+    for (const auto& index : hw2c_test::indices()) {
         for (const auto& swapTenor : hw2c_test::swapTenors()) {
-            for (const auto& swaptionTenor : hw2c_test::swaptionTenors()) {
-                auto swaptionWithHelpers =
-                    hw2c_test::makeEuropeanSwaptionWithHelpers(vars, swaptionTenor, swapTenor);
-                auto swaption = swaptionWithHelpers.first;
-                auto swaptionHelpers = swaptionWithHelpers.second;
-                auto timeSteps = hw2c_test::calculateTimeSteps(vars, swaption, 4);
-
-                auto engine =
-                    vars.volatilityType == VolatilityType::ShiftedLognormal ?
-                        ext::shared_ptr<PricingEngine>(
-                            new BlackSwaptionEngine(vars.discountCurve, vars.swaptionVola)) :
-                        ext::shared_ptr<PricingEngine>(
-                            new BachelierSwaptionEngine(vars.discountCurve, vars.swaptionVola));
-                swaption->setPricingEngine(engine);
-                auto analyticalNpv = swaption->NPV();
-
-                auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve);
-                hw2c_test::calibrateModel(hw2cModel, swaptionHelpers, timeSteps);
-
-                auto treeEngine = ext::make_shared<HW2CTreeSwaptionEngine>(hw2cModel, timeSteps);
-                swaption->setPricingEngine(treeEngine);
-                auto treeNpv = swaption->NPV();
-
-                auto diff = analyticalNpv - treeNpv;
-                auto tolerance =
-                    vars.useAtParCoupons ? atParCouponsTolerance : indexedCouponsTolerance;
-                if (std::abs(diff) > tolerance) {
-                    BOOST_ERROR("" << std::setprecision(2) << std::fixed << std::boolalpha
-                                   << "The npvs for " << swaptionTenor << "*" << swapTenor
-                                   << " swaption, "
-                                   << "atParCoupons=" << vars.useAtParCoupons << " do not match.\n"
-                                   << "   NPV analytical SwaptionEngine: " << analyticalNpv << "\n"
-                                   << "     NPV  HW2CTreeSwaptionEngine: " << treeNpv << "\n"
-                                   << std::setprecision(2) << std::defaultfloat
-                                   << "                            diff: " << diff << "\n"
-                                   << "                       tolerance: " << tolerance);
-                }
+            for (auto atParCoupons : {true, false}) {
+                testSwapPricing(index, swapTenor, atParCoupons);
             }
         }
     }
 }
 
-void HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithAtParCoupons() {
-    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap with at par coupons...");
-    hw2c_test::testSwapPricingAgainstDiscountingEngine(true);
-}
-
-void HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithIndexedCoupons() {
-    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves swap with indexed coupons...");
-    hw2c_test::testSwapPricingAgainstDiscountingEngine(false);
-}
-
-void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithAtParCoupons() {
+void HullWhiteWithTwoCurves::testEuropeanSwaptionPricing() {
     BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against black swaption "
                        "engine with at par coupons...");
-    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::ShiftedLognormal, true);
+
+    auto testEuropeanSwaptionPricing = [](const Period& swaptionTenor, const Period& swapTenor,
+                                          VolatilityType volatilityType, bool atParCoupons) {
+        hw2c_test::CommonVars vars(atParCoupons, volatilityType);
+
+        auto swaptionWithHelpers =
+            hw2c_test::makeEuropeanSwaptionWithHelpers(vars, swaptionTenor, swapTenor);
+        auto swaption = swaptionWithHelpers.first;
+        auto swaptionHelpers = swaptionWithHelpers.second;
+        auto timeSteps = hw2c_test::calculateTimeSteps(vars, swaption, 4);
+
+        auto engine = vars.volatilityType == VolatilityType::ShiftedLognormal ?
+                          ext::shared_ptr<PricingEngine>(
+                              new BlackSwaptionEngine(vars.discountCurve, vars.swaptionVola)) :
+                          ext::shared_ptr<PricingEngine>(
+                              new BachelierSwaptionEngine(vars.discountCurve, vars.swaptionVola));
+        swaption->setPricingEngine(engine);
+        auto analyticalNpv = swaption->NPV();
+
+        auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve);
+        hw2c_test::calibrateModel(hw2cModel, swaptionHelpers, timeSteps);
+
+        auto treeEngine = ext::make_shared<HW2CTreeSwaptionEngine>(hw2cModel, timeSteps);
+        swaption->setPricingEngine(treeEngine);
+        auto treeNpv = swaption->NPV();
+
+        auto diff = analyticalNpv - treeNpv;
+        auto tolerance = vars.useAtParCoupons ? hw2c_test::atParCouponsTolerance :
+                                                hw2c_test::indexedCouponsTolerance;
+        if (std::abs(diff) > tolerance) {
+            BOOST_ERROR(std::setprecision(2)
+                        << std::fixed << std::boolalpha << "The npvs do not match.\n"
+                        << "                    swaption: " << swaptionTenor << "*" << swapTenor
+                        << "\n"
+                        << "              volatilityType: " << volatilityType << "\n"
+                        << "                atParCoupons: " << vars.useAtParCoupons << "\n"
+                        << "    BlackStyleSwaptionEngine: " << analyticalNpv << "\n"
+                        << "      HW2CTreeSwaptionEngine: " << treeNpv << "\n"
+                        << std::setprecision(2) << std::defaultfloat
+                        << "                        diff: " << diff << "\n"
+                        << "                   tolerance: " << tolerance);
+        }
+    };
+
+    for (const auto& swaptionTenor : hw2c_test::swaptionTenors()) {
+        for (const auto& swapTenor : hw2c_test::swapTenors()) {
+            for (auto volatilityType : {VolatilityType::ShiftedLognormal, VolatilityType::Normal}) {
+                for (auto atParCoupons : {true, false}) {
+                    testEuropeanSwaptionPricing(swaptionTenor, swapTenor, volatilityType,
+                                                atParCoupons);
+                }
+            }
+        }
+    }
 }
 
-void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithIndexedCoupons() {
-    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against black swaption "
-                       "engine with indexed coupons...");
-    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::ShiftedLognormal, false);
-}
+void HullWhiteWithTwoCurves::testBermudanSwaptionPricing() {
+    BOOST_TEST_MESSAGE(
+        "Testing HullWhiteWithTwoCurves bermudan swaption against HullWhite TreeSwaptionEngine...");
 
-void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBachelierEngineWithAtParCoupons() {
-    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against bachelier "
-                       "swaption engine with at par coupons...");
-    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::Normal, true);
-}
+    auto testBermudanSwaptionPricing = [](const boost::shared_ptr<IborIndex>& index,
+                                          const Period& swapTenor, const Period& shift,
+                                          bool atParCoupons) {
+        hw2c_test::CommonVars vars(atParCoupons);
 
-void HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBachelierEngineWithIndexedCoupons() {
-    BOOST_TEST_MESSAGE("Testing HullWhiteWithTwoCurves european swaption against bachelier "
-                       "swaption engine with indexed coupons...");
-    hw2c_test::testEuropeanSwaptionAgainstAnalyticalEngine(VolatilityType::Normal, false);
+        auto indexWithForwardCurve = index->clone(vars.discountCurve);
+        auto effectiveDate = vars.calendar.adjust(vars.today + shift);
+
+        auto swaptionWithHelpers = hw2c_test::makeBermudanSwaptionWithHelpers(
+            vars, effectiveDate, indexWithForwardCurve, vars.discountRate, swapTenor);
+        auto swaption = swaptionWithHelpers.first;
+        auto helpers = swaptionWithHelpers.second;
+        auto timeSteps = hw2c_test::calculateTimeSteps(vars, swaption, 4);
+
+        auto hw2cModel = boost::make_shared<HW2CModel>(vars.discountCurve, vars.discountCurve);
+        auto hw2cTreeEngine = boost::make_shared<HW2CTreeSwaptionEngine>(hw2cModel, timeSteps);
+        swaption->setPricingEngine(hw2cTreeEngine);
+        auto hw2cNPV = swaption->NPV();
+
+        auto hwModel = boost::make_shared<HullWhite>(vars.discountCurve);
+        auto hwTreeEngine = boost::make_shared<TreeSwaptionEngine>(hwModel, timeSteps);
+        swaption->setPricingEngine(hwTreeEngine);
+        auto hwNPV = swaption->NPV();
+
+        auto diff = hw2cNPV - hwNPV;
+        auto tolerance = vars.useAtParCoupons ? hw2c_test::atParCouponsTolerance :
+                                                2 * hw2c_test::indexedCouponsTolerance;
+
+        if (abs(diff) > tolerance) {
+            BOOST_ERROR(std::setprecision(2)
+                        << std::fixed << std::boolalpha << "The npvs do not match.\n"
+                        << "           swap start date: " << io::iso_date(effectiveDate) << "\n"
+                        << "                 swapTenor: " << swapTenor << "\n"
+                        << "              atParCoupons: " << vars.useAtParCoupons << "\n"
+                        << "    HW2CTreeSwaptionEngine: " << hw2cNPV << "\n"
+                        << "        TreeSwaptionEngine: " << hwNPV << "\n"
+                        << std::setprecision(2) << std::defaultfloat
+                        << "                      diff: " << diff << "\n"
+                        << "                 tolerance: " << tolerance);
+        }
+    };
+
+    for (const auto& index : hw2c_test::indices()) {
+        for (const auto& swapTenor : hw2c_test::swapTenors()) {
+            for (const auto& shift : {-16 * Months, 0 * Months, 5 * Months}) {
+                for (auto atParCoupons : {true, false}) {
+                    testBermudanSwaptionPricing(index, swapTenor, shift, atParCoupons);
+                }
+            }
+        }
+    }
 }
 
 test_suite* HullWhiteWithTwoCurves::suite() {
     auto* suite = BOOST_TEST_SUITE("HullWhiteWithTwoCurves tests");
 
-    suite->add(QUANTLIB_TEST_CASE(
-        &HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithAtParCoupons));
-    suite->add(QUANTLIB_TEST_CASE(
-        &HullWhiteWithTwoCurves::testSwapPricingAgainstDiscountingEngineWithIndexedCoupons));
-
-    suite->add(QUANTLIB_TEST_CASE(
-        &HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithAtParCoupons));
-    suite->add(QUANTLIB_TEST_CASE(
-        &HullWhiteWithTwoCurves::testEuropeanSwaptionPricingAgainstBlackEngineWithIndexedCoupons));
-
-    suite->add(
-        QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::
-                               testEuropeanSwaptionPricingAgainstBachelierEngineWithAtParCoupons));
-    suite->add(QUANTLIB_TEST_CASE(
-        &HullWhiteWithTwoCurves::
-            testEuropeanSwaptionPricingAgainstBachelierEngineWithIndexedCoupons));
+    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testSwapPricing));
+    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testEuropeanSwaptionPricing));
+    suite->add(QUANTLIB_TEST_CASE(&HullWhiteWithTwoCurves::testBermudanSwaptionPricing));
 
     return suite;
 }
