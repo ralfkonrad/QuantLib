@@ -39,15 +39,19 @@ namespace QuantLib {
         auto dayCounter = model_->discountModel()->termStructure()->dayCounter();
 
         auto swaption = HW2CDiscretizedSwaption(arguments_, referenceDate, dayCounter);
-        auto times = swaption.mandatoryTimes();
-        auto maxTime = *std::max_element(times.begin(), times.end());
 
-        auto timeGrid = TimeGrid(times.begin(), times.end(), timeSteps_);
+        auto mandatoryTimes = swaption.mandatoryTimes();
+        auto timeGrid = TimeGrid(mandatoryTimes.begin(), mandatoryTimes.end(), timeSteps_);
         auto discountLattice = model_->discountTree(timeGrid);
         auto forwardLattice = model_->forwardTree(timeGrid);
 
-        swaption.initialize(discountLattice, forwardLattice, maxTime);
-        swaption.rollback(0.0);
+        auto exerciseTimes = swaption.exerciseTimes();
+        auto nextExercise = *std::find_if(exerciseTimes.begin(), exerciseTimes.end(),
+                                          [](Time t) { return t >= 0.0; });
+        auto lastExercise = exerciseTimes.back();
+
+        swaption.initialize(discountLattice, forwardLattice, lastExercise);
+        swaption.rollback(nextExercise);
 
         results_.value = swaption.presentValue();
     }
