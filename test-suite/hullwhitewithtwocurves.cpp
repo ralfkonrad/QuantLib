@@ -325,7 +325,7 @@ void HullWhiteWithTwoCurves::testBermudanSwaptionPricing() {
     BOOST_TEST_MESSAGE(
         "Testing HullWhiteWithTwoCurves bermudan swaption against HullWhite TreeSwaptionEngine...");
 
-    auto testBermudanSwaptionPricing = [](const boost::shared_ptr<IborIndex>& index,
+    auto testBermudanSwaptionPricing = [](const ext::shared_ptr<IborIndex>& index,
                                           const Period& swapTenor, const Period& shift,
                                           bool atParCoupons) {
         hw2c_test::CommonVars vars(atParCoupons);
@@ -339,13 +339,13 @@ void HullWhiteWithTwoCurves::testBermudanSwaptionPricing() {
         auto helpers = swaptionWithHelpers.second;
         auto timeSteps = hw2c_test::calculateTimeSteps(vars, swaption, 4);
 
-        auto hw2cModel = boost::make_shared<HW2CModel>(vars.discountCurve, vars.discountCurve);
-        auto hw2cTreeEngine = boost::make_shared<HW2CTreeSwaptionEngine>(hw2cModel, timeSteps);
+        auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.discountCurve);
+        auto hw2cTreeEngine = ext::make_shared<HW2CTreeSwaptionEngine>(hw2cModel, timeSteps);
         swaption->setPricingEngine(hw2cTreeEngine);
         auto hw2cNPV = swaption->NPV();
 
-        auto hwModel = boost::make_shared<HullWhite>(vars.discountCurve);
-        auto hwTreeEngine = boost::make_shared<TreeSwaptionEngine>(hwModel, timeSteps);
+        auto hwModel = ext::make_shared<HullWhite>(vars.discountCurve);
+        auto hwTreeEngine = ext::make_shared<TreeSwaptionEngine>(hwModel, timeSteps);
         swaption->setPricingEngine(hwTreeEngine);
         auto hwNPV = swaption->NPV();
 
