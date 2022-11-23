@@ -353,7 +353,7 @@ void HullWhiteWithTwoCurves::testBermudanSwaptionPricing() {
         auto tolerance = vars.useAtParCoupons ? hw2c_test::atParCouponsTolerance :
                                                 2 * hw2c_test::indexedCouponsTolerance;
 
-        if (abs(diff) > tolerance) {
+        if (std::abs(diff) > tolerance) {
             BOOST_ERROR(std::setprecision(2)
                         << std::fixed << std::boolalpha << "The npvs do not match.\n"
                         << "           swap start date: " << io::iso_date(effectiveDate) << "\n"
