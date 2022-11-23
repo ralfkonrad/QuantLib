@@ -225,7 +225,7 @@ void HullWhiteWithTwoCurves::testSwapPricing() {
 
         auto clonedIndex = index->clone(vars.forwardCurve);
         VanillaSwap swap =
-            MakeVanillaSwap(swapTenor, index, vars.fixedRate).withNominal(vars.nominal);
+            MakeVanillaSwap(swapTenor, clonedIndex, vars.fixedRate).withNominal(vars.nominal);
 
         auto discountingEngine = ext::make_shared<DiscountingSwapEngine>(vars.discountCurve);
         swap.setPricingEngine(discountingEngine);
