@@ -29,10 +29,6 @@
 
 namespace QuantLib {
     class HW2CDiscretizedSwap : public DiscretizedSwap, public HW2CDiscretizedAsset {
-        using DiscretizedSwap::time_;
-        using DiscretizedSwap::values_;
-        using DiscretizedSwap::reset;
-
       public:
         HW2CDiscretizedSwap(const VanillaSwap::arguments& args,
                             const Date& referenceDate,
