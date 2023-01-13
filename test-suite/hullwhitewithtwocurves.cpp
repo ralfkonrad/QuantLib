@@ -36,7 +36,6 @@
 #include <ql/quotes/simplequote.hpp>
 #include <ql/time/calendars/target.hpp>
 #include <ql/time/daycounters/actual360.hpp>
-#include <ql/time/daycounters/actualactual.hpp>
 #include <iostream>
 #include <utility>
 
@@ -140,7 +139,7 @@ namespace hw2c_test {
                                     const Period& swapTenor) {
         auto swapIndex =
             ext::make_shared<EuriborSwapIsdaFixA>(swapTenor, vars.forwardCurve, vars.discountCurve);
-        ext::shared_ptr<Swaption> swaption =
+        ext::shared_ptr<Swaption> const swaption =
             MakeSwaption(swapIndex, swaptionTenor).withNominal(vars.nominal);
         const auto& underlyingSwap = swaption->underlyingSwap();
 
@@ -204,10 +203,10 @@ namespace hw2c_test {
             helper->setPricingEngine(treeEngine);
         }
 
-        std::vector<ext::shared_ptr<CalibrationHelper>> calibrationHelper(helpers.begin(),
-                                                                          helpers.end());
+        std::vector<ext::shared_ptr<CalibrationHelper>> const calibrationHelper(helpers.begin(),
+                                                                                helpers.end());
         LevenbergMarquardt om;
-        EndCriteria endCriteria(400, 100, 1.0e-8, 1.0e-8, 1.0e-8);
+        EndCriteria const endCriteria(400, 100, 1.0e-8, 1.0e-8, 1.0e-8);
         auto constraint = Constraint();
         auto weights = std::vector<Real>();
         auto fixParameters =
