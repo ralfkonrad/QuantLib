@@ -28,11 +28,14 @@ namespace QuantLib {
                                         const Period& observationLag,
                                         Frequency frequency,
                                         const DayCounter& dayCounter,
-                                        const ext::shared_ptr<Seasonality> &seasonality)
-    : TermStructure(dayCounter),
+                                        ext::shared_ptr<Seasonality> seasonality)
+    : TermStructure(dayCounter), seasonality_(std::move(seasonality)),
       observationLag_(observationLag), frequency_(frequency),
       baseRate_(baseRate) {
-        setSeasonality(seasonality);
+        if (seasonality_ != nullptr) {
+            QL_REQUIRE(seasonality_->isConsistent(*this),
+                       "Seasonality inconsistent with inflation term structure");
+        }
     }
 
     InflationTermStructure::InflationTermStructure(
@@ -42,11 +45,13 @@ namespace QuantLib {
                                         Frequency frequency,
                                         const Calendar& calendar,
                                         const DayCounter& dayCounter,
-                                        const ext::shared_ptr<Seasonality> &seasonality)
-    : TermStructure(referenceDate, calendar, dayCounter),
-      observationLag_(observationLag), frequency_(frequency),
-      baseRate_(baseRate) {
-        setSeasonality(seasonality);
+                                        ext::shared_ptr<Seasonality> seasonality)
+    : TermStructure(referenceDate, calendar, dayCounter), seasonality_(std::move(seasonality)),
+      observationLag_(observationLag), frequency_(frequency), baseRate_(baseRate) {
+        if (seasonality_ != nullptr) {
+            QL_REQUIRE(seasonality_->isConsistent(*this),
+                       "Seasonality inconsistent with inflation term structure");
+        }
     }
 
     InflationTermStructure::InflationTermStructure(
@@ -56,11 +61,14 @@ namespace QuantLib {
                                         const Period& observationLag,
                                         Frequency frequency,
                                         const DayCounter &dayCounter,
-                                        const ext::shared_ptr<Seasonality> &seasonality)
-    : TermStructure(settlementDays, calendar, dayCounter),
+                                        ext::shared_ptr<Seasonality> seasonality)
+    : TermStructure(settlementDays, calendar, dayCounter), seasonality_(std::move(seasonality)),
       observationLag_(observationLag), frequency_(frequency),
       baseRate_(baseRate) {
-        setSeasonality(seasonality);
+        if (seasonality_ != nullptr) {
+            QL_REQUIRE(seasonality_->isConsistent(*this),
+                       "Seasonality inconsistent with inflation term structure");
+        }
     }
 
     void InflationTermStructure::setSeasonality(
@@ -69,10 +77,9 @@ namespace QuantLib {
         seasonality_ = seasonality;
         if (seasonality_ != nullptr) {
             QL_REQUIRE(seasonality_->isConsistent(*this),
-                       "Seasonality inconsistent with "
-                       "inflation term structure");
+                       "Seasonality inconsistent with inflation term structure");
         }
-        notifyObservers();
+        update();
     }
 
 
