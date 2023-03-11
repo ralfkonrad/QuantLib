@@ -1,9 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2006, 2007 Giorgio Facchinetti
- Copyright (C) 2014, 2015 Peter Caspers
- Copyright (C) 2023 Ignacio Anguita
+ Copyright (C) 2023 Marcin Rybacki
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -19,15 +17,20 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#ifndef quantlib_swaption_volcube_fit_early_interpolate_later_h
-#define quantlib_swaption_volcube_fit_early_interpolate_later_h
+#ifndef quantlib_test_equitytotalreturnswap_hpp
+#define quantlib_test_equitytotalreturnswap_hpp
 
-/* Deprecated in version 1.30 */
+#include <boost/test/unit_test.hpp>
 
-#pragma message("Warning: this file will disappear in a future release; do not include it.")
-#pragma message("    Include <ql/termstructures/volatility/swaption/sabrswaptionvolatilitycube.hpp> instead.")
+class EquityTotalReturnSwapTest {
+  public:
+    static void testFairMargin();
+    static void testErrorWhenNegativeNominal();
+    static void testErrorWhenNoPaymentCalendar();
+    static void testEquityLegNPV();
+    static void testTRSNPV();
 
-#include <ql/termstructures/volatility/swaption/sabrswaptionvolatilitycube.hpp>
-
+    static boost::unit_test_framework::test_suite* suite();
+};
 
 #endif

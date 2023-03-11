@@ -507,6 +507,12 @@
     <ClCompile Include="hullwhitewithtwocurves.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="equityindex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="equitytotalreturnswap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="americanoption.hpp">
@@ -1010,7 +1016,14 @@
     <ClInclude Include="svivolatility.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="hullwhitewithtwocurves.hpp">
+=======
+    <ClInclude Include="equityindex.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="equitytotalreturnswap.hpp">
+>>>>>>> origin/master
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
