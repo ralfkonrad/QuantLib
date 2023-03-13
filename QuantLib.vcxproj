@@ -560,7 +560,6 @@
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\all.hpp" />
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2cdiscretizedswap.hpp" />
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2ctreeswapengine.hpp" />
-    <ClInclude Include="ql\pricingengines\asian\turnbullwakemanasianengine.hpp" />
     <ClInclude Include="ql\experimental\averageois\all.hpp" />
     <ClInclude Include="ql\experimental\averageois\arithmeticaverageois.hpp" />
     <ClInclude Include="ql\experimental\averageois\arithmeticoisratehelper.hpp" />
@@ -1952,7 +1951,6 @@
     <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2ctreeswaptionengine.cpp" />
     <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2cdiscretizedswap.cpp" />
     <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2ctreeswapengine.cpp" />
-    <ClCompile Include="ql\pricingengines\asian\turnbullwakemanasianengine.cpp" />
     <ClCompile Include="ql\experimental\averageois\arithmeticaverageois.cpp" />
     <ClCompile Include="ql\experimental\averageois\arithmeticoisratehelper.cpp" />
     <ClCompile Include="ql\experimental\averageois\averageoiscouponpricer.cpp" />

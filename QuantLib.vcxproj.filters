@@ -4442,6 +4442,42 @@
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2ctreeswapengine.hpp">
       <Filter>experimental\hullwhitewithtwocurves\pricingengines\swap</Filter>
     </ClInclude>
+    <ClInclude Include="ql\models\equity\hestonslvfdmmodel.hpp">
+      <Filter>models\equity</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\models\equity\hestonslvmcmodel.hpp">
+      <Filter>models\equity</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\pricingengines\barrier\fdhestondoublebarrierengine.hpp">
+      <Filter>pricingengines\barrier</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\pricingengines\barrier\analyticdoublebarrierbinaryengine.hpp">
+      <Filter>pricingengines\barrier</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\pricingengines\barrier\analyticdoublebarrierengine.hpp">
+      <Filter>pricingengines\barrier</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\instruments\doublebarrieroption.hpp">
+      <Filter>instruments</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\instruments\doublebarriertype.hpp">
+      <Filter>instruments</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\methods\finitedifferences\operators\fdmblackscholesfwdop.hpp">
+      <Filter>methods\finitedifferences\operators</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\methods\finitedifferences\operators\fdmhestonfwdop.hpp">
+      <Filter>methods\finitedifferences\operators</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\methods\finitedifferences\operators\fdmsquarerootfwdop.hpp">
+      <Filter>methods\finitedifferences\operators</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\methods\finitedifferences\utilities\fdmhestongreensfct.hpp">
+      <Filter>methods\finitedifferences\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\methods\finitedifferences\operators\modtriplebandlinearop.hpp">
+      <Filter>methods\finitedifferences\operators</Filter>
+    </ClInclude>
     <ClInclude Include="ql\indexes\inflation\ukhicp.hpp">
       <Filter>indexes\inflation</Filter>
     </ClInclude>
@@ -7141,7 +7177,6 @@
     <ClCompile Include="ql\pricingengines\vanilla\qdplusamericanengine.cpp">
       <Filter>pricingengines\vanilla</Filter>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="ql\experimental\hullwhitewithtwocurves\model\hw2cmodel.cpp">
       <Filter>experimental\hullwhitewithtwocurves\model</Filter>
     </ClCompile>
@@ -7156,7 +7191,7 @@
     </ClCompile>
     <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2ctreeswapengine.cpp">
       <Filter>experimental\hullwhitewithtwocurves\pricingengines\swap</Filter>
-=======
+    </ClCompile>
     <ClCompile Include="ql\models\equity\hestonslvfdmmodel.cpp">
       <Filter>models\equity</Filter>
     </ClCompile>
@@ -7189,7 +7224,6 @@
     </ClCompile>
     <ClCompile Include="ql\methods\finitedifferences\utilities\fdmhestongreensfct.cpp">
       <Filter>methods\finitedifferences\utilities</Filter>
->>>>>>> master
     </ClCompile>
     <ClCompile Include="ql\indexes\equityindex.cpp">
       <Filter>indexes</Filter>
