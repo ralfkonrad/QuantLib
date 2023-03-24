@@ -513,6 +513,9 @@
     <ClCompile Include="equitytotalreturnswap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="equitycashflow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="americanoption.hpp">
@@ -1024,6 +1027,9 @@
     </ClInclude>
     <ClInclude Include="equitytotalreturnswap.hpp">
 >>>>>>> origin/master
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="equitycashflow.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

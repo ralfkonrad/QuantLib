@@ -4487,6 +4487,9 @@
     <ClInclude Include="ql\instruments\equitytotalreturnswap.hpp">
       <Filter>instruments</Filter>
     </ClInclude>
+    <ClInclude Include="ql\cashflows\equitycashflow.hpp">
+      <Filter>cashflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ql\methods\montecarlo\brownianbridge.cpp">
@@ -7230,6 +7233,9 @@
     </ClCompile>
     <ClCompile Include="ql\instruments\equitytotalreturnswap.cpp">
       <Filter>instruments</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\cashflows\equitycashflow.cpp">
+      <Filter>cashflows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
