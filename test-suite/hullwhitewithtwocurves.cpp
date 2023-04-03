@@ -188,7 +188,7 @@ namespace hw2c_test {
         auto maturityDate = swaption->underlyingSwap()->maturityDate();
         auto timeToMaturiy =
             swaption->underlyingSwap()->fixedDayCount().yearFraction(vars.today, maturityDate);
-        return timeToMaturiy * minTimeStepsPerYear;
+        return std::lround(timeToMaturiy * minTimeStepsPerYear);
     }
 
     void calibrateModel(ext::shared_ptr<HW2CModel>& model,
