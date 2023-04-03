@@ -650,6 +650,7 @@ set(QL_SOURCES
     models/volatility/constantestimator.cpp
     models/volatility/garch.cpp
     money.cpp
+    optional.cpp
     patterns/observable.cpp
     position.cpp
     prices.cpp
@@ -931,6 +932,7 @@ set(QL_SOURCES
 )
 
 set(QL_HEADERS
+    any.hpp
     auto_link.hpp
     auto_ptr.hpp
     cashflow.hpp
@@ -1841,6 +1843,7 @@ set(QL_HEADERS
     money.hpp
     numericalmethod.hpp
     option.hpp
+    optional.hpp
     patterns/composite.hpp
     patterns/curiouslyrecurring.hpp
     patterns/lazyobject.hpp
