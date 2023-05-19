@@ -32,6 +32,7 @@ QL_TEST_SRCS = \
 	chooseroption.cpp \
 	cliquetoption.cpp \
 	cms.cpp \
+	cms_normal.cpp \
 	cmsspread.cpp \
 	commodityunitofmeasure.cpp \
 	compiledboostversion.cpp \
@@ -203,6 +204,7 @@ QL_TEST_HDRS = \
 	chooseroption.hpp \
 	cliquetoption.hpp \
 	cms.hpp \
+	cms_normal.hpp \
 	cmsspread.hpp \
 	commodityunitofmeasure.hpp \
 	compiledboostversion.hpp \

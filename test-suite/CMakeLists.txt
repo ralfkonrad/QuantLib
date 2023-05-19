@@ -30,6 +30,7 @@ set(QL_TEST_SOURCES
     chooseroption.cpp
     cliquetoption.cpp
     cms.cpp
+    cms_normal.cpp
     cmsspread.cpp
     commodityunitofmeasure.cpp
     compiledboostversion.cpp
@@ -202,6 +203,7 @@ set(QL_TEST_HEADERS
     chooseroption.hpp
     cliquetoption.hpp
     cms.hpp
+    cms_normal.hpp
     cmsspread.hpp
     commodityunitofmeasure.hpp
     compiledboostversion.hpp
