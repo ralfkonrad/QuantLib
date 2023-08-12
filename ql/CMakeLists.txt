@@ -323,6 +323,7 @@ set(QL_SOURCES
     instruments/quantobarrieroption.cpp
     instruments/quantoforwardvanillaoption.cpp
     instruments/quantovanillaoption.cpp
+    instruments/simplifynotificationgraph.cpp
     instruments/stickyratchet.cpp
     instruments/stock.cpp
     instruments/swap.cpp
@@ -1372,6 +1373,7 @@ set(QL_HEADERS
     instruments/quantobarrieroption.hpp
     instruments/quantoforwardvanillaoption.hpp
     instruments/quantovanillaoption.hpp
+    instruments/simplifynotificationgraph.hpp
     instruments/stickyratchet.hpp
     instruments/stock.hpp
     instruments/swap.hpp
