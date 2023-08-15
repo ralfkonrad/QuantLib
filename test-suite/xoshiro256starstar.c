@@ -55,9 +55,9 @@ void jump(void) {
 	uint64_t s1 = 0;
 	uint64_t s2 = 0;
 	uint64_t s3 = 0;
-	for(int i = 0; i < sizeof JUMP / sizeof *JUMP; i++)
+	for(unsigned long i : JUMP)
 		for(int b = 0; b < 64; b++) {
-			if (JUMP[i] & UINT64_C(1) << b) {
+			if ((i & UINT64_C(1) << b) != 0u) {
 				s0 ^= s[0];
 				s1 ^= s[1];
 				s2 ^= s[2];
@@ -86,9 +86,9 @@ void long_jump(void) {
 	uint64_t s1 = 0;
 	uint64_t s2 = 0;
 	uint64_t s3 = 0;
-	for(int i = 0; i < sizeof LONG_JUMP / sizeof *LONG_JUMP; i++)
+	for(unsigned long i : LONG_JUMP)
 		for(int b = 0; b < 64; b++) {
-			if (LONG_JUMP[i] & UINT64_C(1) << b) {
+			if ((i & UINT64_C(1) << b) != 0u) {
 				s0 ^= s[0];
 				s1 ^= s[1];
 				s2 ^= s[2];
