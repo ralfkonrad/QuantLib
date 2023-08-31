@@ -620,6 +620,7 @@ AC_CONFIG_FILES([
     ql/pricingengines/capfloor/Makefile
     ql/pricingengines/cliquet/Makefile
     ql/pricingengines/credit/Makefile
+    ql/pricingengines/exotic/Makefile
     ql/pricingengines/forward/Makefile
     ql/pricingengines/inflation/Makefile
     ql/pricingengines/lookback/Makefile
