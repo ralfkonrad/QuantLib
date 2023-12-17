@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(testIntervalPriceMakeSeries) {
 
     const TimeSeries<IntervalPrice> priceSeries = createSeries();
 
-    BOOST_TEST(3u == priceSeries.size());
+    BOOST_TEST(3U == priceSeries.size());
     testEquality(priceSeries[{(Day)1, (Month)1, (Year)2001}], {11, 21, 31, 41});
     testEquality(priceSeries[{(Day)2, (Month)2, (Year)2002}], {12, 22, 32, 42});
     testEquality(priceSeries[{(Day)3, (Month)3, (Year)2003}], {13, 23, 33, 43});
@@ -176,17 +176,17 @@ BOOST_AUTO_TEST_CASE(testIntervalPriceExtractComponent) {
         IntervalPrice::extractComponent(createSeries(), IntervalPrice::Low);
 
     for (const auto& series : {openSeries, closeSeries, highSeries, lowSeries})
-        BOOST_TEST(3u == series.size());
+        BOOST_TEST(3U == series.size());
 
     const std::array<Date, 3> expectedDates{Date{(Day)1, (Month)1, (Year)2001},
                                             Date{(Day)2, (Month)2, (Year)2002},
                                             Date{(Day)3, (Month)3, (Year)2003}};
-    auto expectedDate = expectedDates.begin();
+    const auto *expectedDate = expectedDates.begin();
 
     const std::array<IntervalPrice, 3> expectedPrices{IntervalPrice{11, 21, 31, 41},
                                                       IntervalPrice{12, 22, 32, 42},
                                                       IntervalPrice{13, 23, 33, 43}};
-    auto expectedPrice = expectedPrices.begin();
+    const auto *expectedPrice = expectedPrices.begin();
 
     for (auto openIt = openSeries.begin(), closeIt = closeSeries.begin(),
              highIt = highSeries.begin(), lowIt = lowSeries.begin();
