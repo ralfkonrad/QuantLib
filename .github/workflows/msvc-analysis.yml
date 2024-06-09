@@ -27,7 +27,7 @@ jobs:
       - name: Configure CMake
         env:
           BOOST_ROOT: C:\local\boost
-        run: cmake -B ${{ env.build }} -DQL_USE_STD_CLASSES=ON
+        run: cmake -B ${{ env.build }} -DQL_USE_STD_CLASSES=ON -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL -DCMAKE_BUILD_TYPE=Release
 
       - name: Run MSVC Code Analysis
         uses: microsoft/msvc-code-analysis-action@v0.1.1
