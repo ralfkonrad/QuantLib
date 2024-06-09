@@ -15,7 +15,7 @@ jobs:
             boost_version: 77
           - vsversion: 2022
             os: windows-2022
-            toolset: "14.3"
+            toolset: "14.4"
             boost_version: 85
     steps:
     - uses: actions/checkout@v4
@@ -40,12 +40,6 @@ jobs:
       shell: cmd
       run: |
         COPY .ci\Unity.props .\Directory.Build.props
-    - name: Setup MSVC++ environment
-      uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: x64
-        toolset: ${{ matrix.toolset }}
-        vsversion: ${{ matrix.vsversion }}
     - name: Build
       run: |
         msbuild ./QuantLib.sln /verbosity:normal /property:Configuration=Release /property:Platform=x64
