@@ -21,7 +21,6 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: x64
-        vsversion: ${{ matrix.vsversion }}
     - name: Setup Boost
       run: |
         $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.${{ matrix.boost_version }}.0/source/boost_1_${{ matrix.boost_version }}_0.zip"
