@@ -17,10 +17,10 @@ jobs:
             boost_version: 85
     steps:
     - uses: actions/checkout@v4
-    - name: Setup MSVC++ environment
-      uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: x64
+    # - name: Setup MSVC++ environment
+    #   uses: ilammy/msvc-dev-cmd@v1
+    #   with:
+    #     arch: x64
     - name: Setup Boost
       run: |
         $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.${{ matrix.boost_version }}.0/source/boost_1_${{ matrix.boost_version }}_0.zip"
@@ -37,7 +37,16 @@ jobs:
       run: |
         COPY .ci\Unity.props .\Directory.Build.props
     - name: Build
+      shell: pwsh
       run: |
+        $currentLocation = Get-Location
+        try {
+          & "C:\Program Files\Microsoft Visual Studio\${{ matrix.vsversion }}\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
+        }
+        finally {
+          Set-Location $currentLocation
+        }
+        
         msbuild ./QuantLib.sln /verbosity:normal /property:Configuration=Release /property:Platform=x64
     - name: Test
       run: |
