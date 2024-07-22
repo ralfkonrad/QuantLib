@@ -67,6 +67,8 @@ namespace QuantLib {
                     bool applyObservationShift = false);
         //! \name Inspectors
         //@{
+        //! the underlying index
+        const ext::shared_ptr<OvernightIndex>& overnightIndex() const { return overnightIndex_; }
         //! fixing dates for the rates to be compounded
         const std::vector<Date>& fixingDates() const { return fixingDates_; }
         //! accrual (compounding) periods
@@ -103,6 +105,7 @@ namespace QuantLib {
         const bool canApplyTelescopicFormula() const;
         //@}
       private:
+        ext::shared_ptr<OvernightIndex> overnightIndex_;
         std::vector<Date> valueDates_, interestDates_, fixingDates_;
         mutable std::vector<Rate> fixings_;
         Size n_;

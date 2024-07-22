@@ -77,7 +77,8 @@ namespace QuantLib {
                          overnightIndex,
                          gearing, spread,
                          refPeriodStart, refPeriodEnd,
-                         dayCounter, false), 
+                         dayCounter, false),
+        overnightIndex_(overnightIndex),
         averagingMethod_(averagingMethod), lockoutDays_(lockoutDays),
         applyObservationShift_(applyObservationShift) {
 
