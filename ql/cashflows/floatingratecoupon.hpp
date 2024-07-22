@@ -80,7 +80,7 @@ namespace QuantLib {
         //! floating index
         const ext::shared_ptr<InterestRateIndex>& index() const;
         //! fixing days
-        Natural fixingDays() const { return fixingDays_; }
+        virtual Natural fixingDays() const { return fixingDays_; }
         //! fixing date
         virtual Date fixingDate() const;
         //! index gearing, i.e. multiplicative coefficient for the index

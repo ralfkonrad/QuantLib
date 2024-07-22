@@ -65,10 +65,32 @@ namespace QuantLib {
                     Natural lookbackDays = Null<Natural>(),
                     Natural lockoutDays = 0,
                     bool applyObservationShift = false);
+
+        //! Overnight coupon enabling negative lookback periods
+        OvernightIndexedCoupon(const Date& paymentDate,
+                               Real nominal,
+                               const Date& startDate,
+                               const Date& endDate,
+                               const ext::shared_ptr<OvernightIndex>& overnightIndex,
+                               Real gearing = 1.0,
+                               Spread spread = 0.0,
+                               const Date& refPeriodStart = Date(),
+                               const Date& refPeriodEnd = Date(),
+                               const DayCounter& dayCounter = DayCounter(),
+                               bool telescopicValueDates = false,
+                               RateAveraging::Type averagingMethod = RateAveraging::Compound,
+                               const Period& lookback = 0 * Days,
+                               Natural lockoutDays = 0,
+                               bool applyObservationShift = false);
         //! \name Inspectors
         //@{
         //! the underlying index
         const ext::shared_ptr<OvernightIndex>& overnightIndex() const { return overnightIndex_; }
+        //! fixing days
+        Natural fixingDays() const override {
+            QL_FAIL("The lookback period can look back and forward. Therefore, only backward "
+                    "looking fixing days make no sense.");
+        }
         //! fixing dates for the rates to be compounded
         const std::vector<Date>& fixingDates() const { return fixingDates_; }
         //! accrual (compounding) periods
@@ -81,6 +103,8 @@ namespace QuantLib {
         const std::vector<Date>& interestDates() const { return interestDates_; }
         //! averaging method
         const RateAveraging::Type averagingMethod() const { return averagingMethod_; }
+        //! lookback period
+        const Period& lookback() const { return lookback_; }
         //! lockout days
         const Natural lockoutDays() const { return lockoutDays_; }
         //! apply observation shift
@@ -111,6 +135,7 @@ namespace QuantLib {
         Size n_;
         std::vector<Time> dt_;
         RateAveraging::Type averagingMethod_;
+        Period lookback_;
         Natural lockoutDays_;
         bool applyObservationShift_;
 
@@ -153,6 +178,7 @@ namespace QuantLib {
         OvernightLeg& withTelescopicValueDates(bool telescopicValueDates);
         OvernightLeg& withAveragingMethod(RateAveraging::Type averagingMethod);
         OvernightLeg& withLookbackDays(Natural lookbackDays);
+        OvernightLeg& withLookbackPeriod(const Period& lookbackPeriod);
         OvernightLeg& withLockoutDays(Natural lockoutDays);
         OvernightLeg& withObservationShift(bool applyObservationShift = true);
         OvernightLeg& withOvernightIndexedCouponPricer(
@@ -170,7 +196,7 @@ namespace QuantLib {
         std::vector<Spread> spreads_;
         bool telescopicValueDates_ = false;
         RateAveraging::Type averagingMethod_ = RateAveraging::Compound;
-        Natural lookbackDays_ = Null<Natural>();
+        Period lookbackPeriod_ = 0 * Days;
         Natural lockoutDays_ = 0;
         bool applyObservationShift_ = false;
         ext::shared_ptr<OvernightIndexedCouponPricer> couponPricer_ =
@@ -178,10 +204,9 @@ namespace QuantLib {
     };
 
     inline const bool OvernightIndexedCoupon::canApplyTelescopicFormula() const {
-        return fixingDays_ == index_->fixingDays() ||
+        return lookback_ == index_->fixingDays() * Days ||
                (applyObservationShift_ && index_->fixingDays() == 0);
     }
-
 }
 
 #endif

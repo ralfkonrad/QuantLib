@@ -50,37 +50,77 @@ namespace QuantLib {
 
         Date applyLookbackPeriod(const ext::shared_ptr<InterestRateIndex>& index,
                                  const Date& valueDate,
-                                 Natural lookbackDays) {
-            return index->fixingCalendar().advance(valueDate, -static_cast<Integer>(lookbackDays),
-                                                   Days);
+                                 const Period& lookback) {
+            return index->fixingCalendar().advance(valueDate, -1 * lookback);
         }
     }
 
     OvernightIndexedCoupon::OvernightIndexedCoupon(
-                    const Date& paymentDate,
-                    Real nominal,
-                    const Date& startDate,
-                    const Date& endDate,
-                    const ext::shared_ptr<OvernightIndex>& overnightIndex,
-                    Real gearing,
-                    Spread spread,
-                    const Date& refPeriodStart,
-                    const Date& refPeriodEnd,
-                    const DayCounter& dayCounter,
-                    bool telescopicValueDates,
-                    RateAveraging::Type averagingMethod,
-                    Natural lookbackDays,
-                    Natural lockoutDays,
-                    bool applyObservationShift)
-    : FloatingRateCoupon(paymentDate, nominal, startDate, endDate,
-                         lookbackDays,
+        const Date& paymentDate,
+        Real nominal,
+        const Date& startDate,
+        const Date& endDate,
+        const ext::shared_ptr<OvernightIndex>& overnightIndex,
+        Real gearing,
+        Spread spread,
+        const Date& refPeriodStart,
+        const Date& refPeriodEnd,
+        const DayCounter& dayCounter,
+        bool telescopicValueDates,
+        RateAveraging::Type averagingMethod,
+        Natural lookbackDays,
+        Natural lockoutDays,
+        bool applyObservationShift)
+    : OvernightIndexedCoupon(paymentDate,
+                             nominal,
+                             startDate,
+                             endDate,
+                             overnightIndex,
+                             gearing,
+                             spread,
+                             refPeriodStart,
+                             refPeriodEnd,
+                             dayCounter,
+                             telescopicValueDates,
+                             averagingMethod,
+                             (lookbackDays != Null<Natural>() ? lookbackDays : 0) * Days,
+                             lockoutDays,
+                             applyObservationShift) {}
+
+    OvernightIndexedCoupon::OvernightIndexedCoupon(
+        const Date& paymentDate,
+        Real nominal,
+        const Date& startDate,
+        const Date& endDate,
+        const ext::shared_ptr<OvernightIndex>& overnightIndex,
+        Real gearing,
+        Spread spread,
+        const Date& refPeriodStart,
+        const Date& refPeriodEnd,
+        const DayCounter& dayCounter,
+        bool telescopicValueDates,
+        RateAveraging::Type averagingMethod,
+        const Period& lookback,
+        Natural lockoutDays,
+        bool applyObservationShift)
+    : FloatingRateCoupon(paymentDate,
+                         nominal,
+                         startDate,
+                         endDate,
+                         Null<Natural>(),
                          overnightIndex,
-                         gearing, spread,
-                         refPeriodStart, refPeriodEnd,
-                         dayCounter, false),
-        overnightIndex_(overnightIndex),
-        averagingMethod_(averagingMethod), lockoutDays_(lockoutDays),
-        applyObservationShift_(applyObservationShift) {
+                         gearing,
+                         spread,
+                         refPeriodStart,
+                         refPeriodEnd,
+                         dayCounter,
+                         false),
+      overnightIndex_(overnightIndex), averagingMethod_(averagingMethod), lookback_(lookback),
+      lockoutDays_(lockoutDays), applyObservationShift_(applyObservationShift) {
+        // The use of fixingdays_ is not usefull here as the lookback period can also look forward.
+        fixingDays_ = Null<Natural>();
+
+        QL_ENSURE(lookback_.length() >= 0, "Forward looking lookback is currently not supported");
 
         // value dates
         Date tmpEndDate = endDate;
@@ -100,19 +140,18 @@ namespace QuantLib {
             // build optimised value dates schedule: front stub goes
             // from start date to max(evalDate,startDate) + 7bd
             Date evalDate = Settings::instance().evaluationDate();
-            tmpEndDate = overnightIndex->fixingCalendar().advance(
-                std::max(startDate, evalDate), 7, Days, Following);
+            tmpEndDate = overnightIndex->fixingCalendar().advance(std::max(startDate, evalDate), 7,
+                                                                  Days, Following);
             tmpEndDate = std::min(tmpEndDate, endDate);
         }
-        Schedule sch =
-            MakeSchedule()
-                .from(startDate)
-                // .to(endDate)
-                .to(tmpEndDate)
-                .withTenor(1 * Days)
-                .withCalendar(overnightIndex->fixingCalendar())
-                .withConvention(overnightIndex->businessDayConvention())
-                .backwards();
+        Schedule sch = MakeSchedule()
+                           .from(startDate)
+                           // .to(endDate)
+                           .to(tmpEndDate)
+                           .withTenor(1 * Days)
+                           .withCalendar(overnightIndex->fixingCalendar())
+                           .withConvention(overnightIndex->businessDayConvention())
+                           .backwards();
         valueDates_ = sch.dates();
 
         if (telescopicValueDates) {
@@ -122,8 +161,7 @@ namespace QuantLib {
                 endDate, overnightIndex->businessDayConvention());
             Date tmpLockoutDate = overnightIndex->fixingCalendar().advance(
                 endDate, -std::max<Integer>(lockoutDays_, 1), Days, Preceding);
-            while (tmpLockoutDate <= tmpEndDate)
-            {
+            while (tmpLockoutDate <= tmpEndDate) {
                 if (tmpLockoutDate > valueDates_.back())
                     valueDates_.push_back(tmpLockoutDate);
                 tmpLockoutDate =
@@ -131,13 +169,13 @@ namespace QuantLib {
             }
         }
 
-        QL_ENSURE(valueDates_.size()>=2, "degenerate schedule");
+        QL_ENSURE(valueDates_.size() >= 2, "degenerate schedule");
 
         n_ = valueDates_.size() - 1;
 
         interestDates_ = vector<Date>(valueDates_.begin(), valueDates_.end());
 
-        if (fixingDays_ == overnightIndex->fixingDays() && fixingDays_ == 0) {
+        if (lookback_ == overnightIndex->fixingDays() * Days && lookback_ == 0 * Days) {
             fixingDates_ = vector<Date>(valueDates_.begin(), valueDates_.end() - 1);
         } else {
             // Lookback (fixing days) without observation shift:
@@ -147,7 +185,7 @@ namespace QuantLib {
             // day following the interest date.
             fixingDates_.resize(n_);
             for (Size i = 0; i <= n_; ++i) {
-                Date tmp = applyLookbackPeriod(overnightIndex, valueDates_[i], fixingDays_);
+                Date tmp = applyLookbackPeriod(overnightIndex, valueDates_[i], lookback_);
                 if (i < n_)
                     fixingDates_[i] = tmp;
                 if (applyObservationShift_)
@@ -158,7 +196,7 @@ namespace QuantLib {
                     // days until the next business day following the observation date.
                     // This means that the fixing dates periods align with value dates.
                     interestDates_[i] = tmp;
-                if (fixingDays_ != overnightIndex->fixingDays())
+                if (lookback_ != overnightIndex->fixingDays() * Days)
                     // If fixing dates of the coupon deviate from fixing days in the index
                     // we need to correct the value dates such that they reflect dates
                     // corresponding to a deposit instrument linked to the index.
@@ -181,13 +219,13 @@ namespace QuantLib {
         // accrual (compounding) periods
         dt_.resize(n_);
         const DayCounter& dc = overnightIndex->dayCounter();
-        for (Size i=0; i<n_; ++i)
+        for (Size i = 0; i < n_; ++i)
             dt_[i] = dc.yearFraction(interestDates_[i], interestDates_[i + 1]);
 
         switch (averagingMethod) {
             case RateAveraging::Simple:
                 QL_REQUIRE(
-                    fixingDays_ == overnightIndex->fixingDays() && !applyObservationShift_ &&
+                    lookback_ == overnightIndex->fixingDays() * Days && !applyObservationShift_ &&
                         lockoutDays_ == 0,
                     "Cannot price an overnight coupon with simple averaging with lookback or "
                     "lockout.");
@@ -442,7 +480,11 @@ namespace QuantLib {
     }
 
     OvernightLeg& OvernightLeg::withLookbackDays(Natural lookbackDays) {
-        lookbackDays_ = lookbackDays;
+        lookbackPeriod_ = lookbackDays != Null<Natural>() ? lookbackDays * Days : 0 * Days;
+        return *this;
+    }
+    OvernightLeg& OvernightLeg::withLookbackPeriod(const Period& lookbackPeriod) {
+        lookbackPeriod_ = lookbackPeriod;
         return *this;
     }
     OvernightLeg& OvernightLeg::withLockoutDays(Natural lockoutDays) {
@@ -488,7 +530,7 @@ namespace QuantLib {
                 paymentDate, detail::get(notionals_, i, notionals_.back()), start, end,
                 overnightIndex_, detail::get(gearings_, i, 1.0), detail::get(spreads_, i, 0.0),
                 refStart, refEnd, paymentDayCounter_, telescopicValueDates_, averagingMethod_,
-                lookbackDays_, lockoutDays_, applyObservationShift_);
+                lookbackPeriod_, lockoutDays_, applyObservationShift_);
             overnightIndexedCoupon->setPricer(couponPricer_);
 
             cashflows.push_back(overnightIndexedCoupon);
