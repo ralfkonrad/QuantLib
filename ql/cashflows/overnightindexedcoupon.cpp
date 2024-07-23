@@ -51,7 +51,8 @@ namespace QuantLib {
         Date applyLookbackPeriod(const ext::shared_ptr<InterestRateIndex>& index,
                                  const Date& valueDate,
                                  const Period& lookback) {
-            return index->fixingCalendar().advance(valueDate, -1 * lookback);
+            const auto bdc = lookback.length() >= 0 ? Preceding : Following;
+            return index->fixingCalendar().advance(valueDate, -lookback, bdc);
         }
     }
 
@@ -119,8 +120,6 @@ namespace QuantLib {
       lockoutDays_(lockoutDays), applyObservationShift_(applyObservationShift) {
         // The use of fixingdays_ is not usefull here as the lookback period can also look forward.
         fixingDays_ = Null<Natural>();
-
-        QL_ENSURE(lookback_.length() >= 0, "Forward looking lookback is currently not supported");
 
         // value dates
         Date tmpEndDate = endDate;

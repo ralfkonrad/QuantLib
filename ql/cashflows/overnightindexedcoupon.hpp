@@ -86,11 +86,6 @@ namespace QuantLib {
         //@{
         //! the underlying index
         const ext::shared_ptr<OvernightIndex>& overnightIndex() const { return overnightIndex_; }
-        //! fixing days
-        Natural fixingDays() const override {
-            QL_FAIL("The lookback period can look back and forward. Therefore, only backward "
-                    "looking fixing days make no sense.");
-        }
         //! fixing dates for the rates to be compounded
         const std::vector<Date>& fixingDates() const { return fixingDates_; }
         //! accrual (compounding) periods
