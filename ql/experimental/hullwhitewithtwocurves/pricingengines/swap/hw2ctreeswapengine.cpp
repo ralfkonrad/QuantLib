@@ -37,6 +37,7 @@ namespace QuantLib {
 
         HW2CDiscretizedSwap swap(arguments_, referenceDate, dayCounter);
         auto times = swap.mandatoryTimes();
+        QL_REQUIRE(!times.empty(), "no mandatory times in swap");
         const Time maxTime = times.empty() ? 0.0 : *std::max_element(times.begin(), times.end());
 
         TimeGrid timeGrid(times.begin(), times.end(), timeSteps_);
