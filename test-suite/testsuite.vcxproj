@@ -724,6 +724,7 @@
     <ClCompile Include="hestonmodel.cpp" />
     <ClCompile Include="hestonslvmodel.cpp" />
     <ClCompile Include="himalayaoption.cpp" />
+    <ClCompile Include="hullwhitewithtwocurves.cpp" />
     <ClCompile Include="hybridhestonhullwhiteprocess.cpp" />
     <ClCompile Include="indexes.cpp" />
     <ClCompile Include="inflation.cpp" />

@@ -546,6 +546,9 @@
     <ClCompile Include="fxforward.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="hullwhitewithtwocurves.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="paralleltestrunner.hpp">

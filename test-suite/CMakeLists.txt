@@ -79,6 +79,7 @@ set(QL_TEST_SOURCES
     hestonmodel.cpp
     hestonslvmodel.cpp
     himalayaoption.cpp
+    hullwhitewithtwocurves.cpp
     hybridhestonhullwhiteprocess.cpp
     indexes.cpp
     inflation.cpp
@@ -219,4 +220,3 @@ if (QL_BUILD_TEST_SUITE)
         install(TARGETS ql_benchmark RUNTIME DESTINATION ${QL_INSTALL_BINDIR})
     endif()
 endif()
-
