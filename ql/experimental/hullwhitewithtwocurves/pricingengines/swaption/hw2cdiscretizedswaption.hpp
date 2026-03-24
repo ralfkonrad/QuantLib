@@ -20,11 +20,14 @@
 #ifndef quantlib_hw2c_discretized_swaption_hpp
 #define quantlib_hw2c_discretized_swaption_hpp
 
+#include <ql/discretizedasset.hpp>
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/hw2cdiscretizedasset.hpp>
-#include <ql/pricingengines/swaption/discretizedswaption.hpp>
+#include <ql/instruments/swaption.hpp>
 
 namespace QuantLib {
-    class HW2CDiscretizedSwaption : public DiscretizedSwaption, public HW2CDiscretizedAsset {
+    class HW2CDiscretizedSwap;
+
+    class HW2CDiscretizedSwaption : public DiscretizedOption, public HW2CDiscretizedAsset {
       public:
         HW2CDiscretizedSwaption(const Swaption::arguments& args,
                                 const Date& referenceDate,
@@ -40,6 +43,19 @@ namespace QuantLib {
                         Time t) override;
 
       private:
+        static void
+        prepareSwaptionWithSnappedDates(const Swaption::arguments& args,
+                                        const Date& referenceDate,
+                                        const DayCounter& dayCounter,
+                                        Swaption::arguments& snappedArgs,
+                                        std::vector<CouponAdjustment>& fixedCouponAdjustments,
+                                        std::vector<CouponAdjustment>& floatingCouponAdjustments);
+
+        Swaption::arguments arguments_;
+        Time lastPayment_;
+        ext::shared_ptr<HW2CDiscretizedSwap> hw2cUnderlying_;
+
+        ext::shared_ptr<Lattice> discountMethod_;
         ext::shared_ptr<Lattice> forwardMethod_;
     };
 }

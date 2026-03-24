@@ -46,12 +46,16 @@ namespace QuantLib {
         const ext::shared_ptr<Lattice> discountLattice = model_->discountTree(timeGrid);
         const ext::shared_ptr<Lattice> forwardLattice = model_->forwardTree(timeGrid);
 
-        const Time lastTime = mandatoryTimes.empty() ?
-                                  0.0 :
-                                  *std::max_element(mandatoryTimes.begin(), mandatoryTimes.end());
+        std::vector<Time> stoppingTimes(arguments_.exercise->dates().size());
+        for (Size i = 0; i < stoppingTimes.size(); ++i)
+            stoppingTimes[i] = dayCounter.yearFraction(referenceDate, arguments_.exercise->date(i));
+
+        const Time lastTime = stoppingTimes.empty() ? 0.0 : stoppingTimes.back();
 
         swaption.initialize(discountLattice, forwardLattice, lastTime);
-        swaption.rollback(0.0);
+        const Time nextExercise = *std::find_if(stoppingTimes.begin(), stoppingTimes.end(),
+                                                [](Time t) { return t >= 0.0; });
+        swaption.rollback(nextExercise);
 
         results_.value = swaption.presentValue();
     }
