@@ -1,7 +1,7 @@
 
 SUBDIRS = asian averageois barrieroption basismodels \
           callablebonds catbonds commodities coupons credit \
-          exoticoptions finitedifferences forward fx inflation lattices \
+          exoticoptions finitedifferences forward fx hullwhitewithtwocurves inflation lattices \
           math mcbasket models processes risk shortrate swaptions \
           termstructures variancegamma varianceoption volatility
 
@@ -26,6 +26,7 @@ libExperimental_la_LIBADD = \
     finitedifferences/libMultiDimFDM.la \
     forward/libForward.la \
     fx/libFx.la \
+    hullwhitewithtwocurves/libHullWhiteWithTwoCurves.la \
     inflation/libInflation.la \
     lattices/libLattices.la \
     math/libMath.la \
@@ -48,4 +49,3 @@ all.hpp: Makefile.am
 	subdirs='$(SUBDIRS)'; for i in $$subdirs; do \
 		echo "#include <${subdir}/$$i/all.hpp>" >> ${srcdir}/$@; \
 	done
-
