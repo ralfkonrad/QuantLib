@@ -46,15 +46,16 @@ namespace QuantLib {
         const ext::shared_ptr<Lattice> discountLattice = model_->discountTree(timeGrid);
         const ext::shared_ptr<Lattice> forwardLattice = model_->forwardTree(timeGrid);
 
-        std::vector<Time> stoppingTimes(arguments_.exercise->dates().size());
-        for (Size i = 0; i < stoppingTimes.size(); ++i)
-            stoppingTimes[i] = dayCounter.yearFraction(referenceDate, arguments_.exercise->date(i));
+        const std::vector<Time>& exerciseTimes = swaption.exerciseTimes();
+        QL_REQUIRE(!exerciseTimes.empty(), "no exercise times in swaption");
 
-        const Time lastTime = stoppingTimes.empty() ? 0.0 : stoppingTimes.back();
+        const Time lastTime = exerciseTimes.back();
 
         swaption.initialize(discountLattice, forwardLattice, lastTime);
-        const Time nextExercise = *std::find_if(stoppingTimes.begin(), stoppingTimes.end(),
-                                                [](Time t) { return t >= 0.0; });
+        const auto nextExerciseIt = std::find_if(exerciseTimes.begin(), exerciseTimes.end(),
+                                                 [](Time t) { return t >= 0.0; });
+        QL_REQUIRE(nextExerciseIt != exerciseTimes.end(), "all exercise times are in the past");
+        const Time nextExercise = *nextExerciseIt;
         swaption.rollback(nextExercise);
 
         results_.value = swaption.presentValue();

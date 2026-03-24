@@ -35,6 +35,8 @@ namespace QuantLib {
 
         void reset(Size size) override;
 
+        const std::vector<Time>& exerciseTimes() const { return exerciseTimes_; }
+
         const ext::shared_ptr<Lattice>& discountMethod() const override { return method(); }
         const ext::shared_ptr<Lattice>& forwardMethod() const override { return forwardMethod_; }
 
