@@ -45,8 +45,6 @@ namespace QuantLib {
       private:
         static void
         prepareSwaptionWithSnappedDates(const Swaption::arguments& args,
-                                        const Date& referenceDate,
-                                        const DayCounter& dayCounter,
                                         Swaption::arguments& snappedArgs,
                                         std::vector<CouponAdjustment>& fixedCouponAdjustments,
                                         std::vector<CouponAdjustment>& floatingCouponAdjustments);
@@ -55,7 +53,6 @@ namespace QuantLib {
         Time lastPayment_;
         ext::shared_ptr<HW2CDiscretizedSwap> hw2cUnderlying_;
 
-        ext::shared_ptr<Lattice> discountMethod_;
         ext::shared_ptr<Lattice> forwardMethod_;
     };
 }

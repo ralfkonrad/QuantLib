@@ -40,7 +40,7 @@ namespace QuantLib {
         void reset(Size size) override;
         std::vector<Time> mandatoryTimes() const override;
 
-        const ext::shared_ptr<Lattice>& discountMethod() const override { return discountMethod_; }
+        const ext::shared_ptr<Lattice>& discountMethod() const override { return method(); }
         const ext::shared_ptr<Lattice>& forwardMethod() const override { return forwardMethod_; }
 
         void initialize(const ext::shared_ptr<Lattice>& discountMethod,
@@ -68,7 +68,6 @@ namespace QuantLib {
         std::vector<Time> indexEndTimes_;
         std::vector<Time> fixingSpanningTimes_;
 
-        ext::shared_ptr<Lattice> discountMethod_;
         ext::shared_ptr<Lattice> forwardMethod_;
 
         void addFixedCoupon(Size i);
