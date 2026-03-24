@@ -433,6 +433,11 @@ AC_CONFIG_FILES([
     ql/experimental/finitedifferences/Makefile
     ql/experimental/forward/Makefile
     ql/experimental/fx/Makefile
+    ql/experimental/hullwhitewithtwocurves/Makefile
+    ql/experimental/hullwhitewithtwocurves/model/Makefile
+    ql/experimental/hullwhitewithtwocurves/pricingengines/Makefile
+    ql/experimental/hullwhitewithtwocurves/pricingengines/swap/Makefile
+    ql/experimental/hullwhitewithtwocurves/pricingengines/swaption/Makefile
     ql/experimental/inflation/Makefile
     ql/experimental/lattices/Makefile
     ql/experimental/math/Makefile
@@ -539,4 +544,3 @@ AC_CONFIG_FILES([quantlib-config],[chmod +x quantlib-config])
 AC_CONFIG_FILES([QuantLib.spec])
 AC_CONFIG_FILES([quantlib.pc])
 AC_OUTPUT
-
