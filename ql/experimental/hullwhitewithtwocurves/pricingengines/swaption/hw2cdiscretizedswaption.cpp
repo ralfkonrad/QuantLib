@@ -17,22 +17,113 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
+#include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.hpp>
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2cdiscretizedswaption.hpp>
 
 namespace QuantLib {
+
+    namespace {
+        bool withinPreviousWeek(const Date& d1, const Date& d2) {
+            return d2 >= d1 - 7 && d2 <= d1;
+        }
+
+        bool withinNextWeek(const Date& d1, const Date& d2) {
+            return d2 >= d1 && d2 <= d1 + 7;
+        }
+
+        bool withinOneWeek(const Date& d1, const Date& d2) {
+            return withinPreviousWeek(d1, d2) || withinNextWeek(d1, d2);
+        }
+    }
+
     HW2CDiscretizedSwaption::HW2CDiscretizedSwaption(const Swaption::arguments& args,
                                                      const Date& referenceDate,
                                                      const DayCounter& dayCounter)
-    : DiscretizedSwaption(args, referenceDate, dayCounter) {}
+    : DiscretizedOption(
+          ext::shared_ptr<DiscretizedAsset>(), args.exercise->type(), std::vector<Time>()),
+      arguments_(args), lastPayment_(0.0) {
+        Swaption::arguments snappedArgs;
+        std::vector<CouponAdjustment> fixedCouponAdjustments;
+        std::vector<CouponAdjustment> floatingCouponAdjustments;
+
+        prepareSwaptionWithSnappedDates(arguments_, referenceDate, dayCounter, snappedArgs,
+                                        fixedCouponAdjustments, floatingCouponAdjustments);
+
+        exerciseTimes_.resize(snappedArgs.exercise->dates().size());
+        for (Size i = 0; i < exerciseTimes_.size(); ++i) {
+            exerciseTimes_[i] =
+                dayCounter.yearFraction(referenceDate, snappedArgs.exercise->date(i));
+        }
+
+        const Time lastFixedPayment =
+            dayCounter.yearFraction(referenceDate, snappedArgs.fixedPayDates.back());
+        const Time lastFloatingPayment =
+            dayCounter.yearFraction(referenceDate, snappedArgs.floatingPayDates.back());
+        lastPayment_ = std::max(lastFixedPayment, lastFloatingPayment);
+
+        hw2cUnderlying_ = ext::make_shared<HW2CDiscretizedSwap>(
+            snappedArgs, referenceDate, dayCounter, std::move(fixedCouponAdjustments),
+            std::move(floatingCouponAdjustments));
+        underlying_ = hw2cUnderlying_;
+    }
 
     void HW2CDiscretizedSwaption::reset(Size size) {
-        DiscretizedSwaption::reset(size);
+        hw2cUnderlying_->initialize(discountMethod(), forwardMethod(), lastPayment_);
+        DiscretizedOption::reset(size);
     }
 
     void HW2CDiscretizedSwaption::initialize(const ext::shared_ptr<Lattice>& discountMethod,
                                              const ext::shared_ptr<Lattice>& forwardMethod,
                                              Time t) {
+        discountMethod_ = discountMethod;
         forwardMethod_ = forwardMethod;
-        DiscretizedSwaption::initialize(discountMethod, t);
+        DiscretizedAsset::initialize(discountMethod_, t);
+    }
+
+    void HW2CDiscretizedSwaption::prepareSwaptionWithSnappedDates(
+        const Swaption::arguments& args,
+        const Date& referenceDate,
+        const DayCounter& dayCounter,
+        Swaption::arguments& snappedArgs,
+        std::vector<CouponAdjustment>& fixedCouponAdjustments,
+        std::vector<CouponAdjustment>& floatingCouponAdjustments) {
+        std::vector<Date> fixedDates = args.swap->fixedSchedule().dates();
+        std::vector<Date> floatDates = args.swap->floatingSchedule().dates();
+
+        fixedCouponAdjustments.resize(args.swap->fixedLeg().size(), CouponAdjustment::pre);
+        floatingCouponAdjustments.resize(args.swap->floatingLeg().size(), CouponAdjustment::pre);
+
+        for (const auto& exerciseDate : args.exercise->dates()) {
+            for (Size j = 0; j < fixedDates.size() - 1; j++) {
+                const Date unadjustedDate = fixedDates[j];
+                if (exerciseDate != unadjustedDate && withinOneWeek(exerciseDate, unadjustedDate)) {
+                    fixedDates[j] = exerciseDate;
+                    if (withinPreviousWeek(exerciseDate, unadjustedDate))
+                        fixedCouponAdjustments[j] = CouponAdjustment::post;
+                }
+            }
+
+            for (Size j = 0; j < floatDates.size() - 1; j++) {
+                const Date unadjustedDate = floatDates[j];
+                if (exerciseDate != unadjustedDate && withinOneWeek(exerciseDate, unadjustedDate)) {
+                    floatDates[j] = exerciseDate;
+                    if (withinPreviousWeek(exerciseDate, unadjustedDate))
+                        floatingCouponAdjustments[j] = CouponAdjustment::post;
+                }
+            }
+        }
+
+        const Schedule snappedFixedSchedule(fixedDates);
+        const Schedule snappedFloatSchedule(floatDates);
+
+        const ext::shared_ptr<VanillaSwap> snappedSwap = ext::make_shared<VanillaSwap>(
+            args.swap->type(), args.swap->nominal(), snappedFixedSchedule, args.swap->fixedRate(),
+            args.swap->fixedDayCount(), snappedFloatSchedule, args.swap->iborIndex(),
+            args.swap->spread(), args.swap->floatingDayCount(), args.swap->paymentConvention());
+
+        const Swaption snappedSwaption(snappedSwap, args.exercise, args.settlementType,
+                                       args.settlementMethod);
+
+        snappedSwaption.setupArguments(&snappedArgs);
     }
 }
