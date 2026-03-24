@@ -46,8 +46,8 @@ namespace QuantLib {
         std::vector<CouponAdjustment> fixedCouponAdjustments;
         std::vector<CouponAdjustment> floatingCouponAdjustments;
 
-        prepareSwaptionWithSnappedDates(arguments_, referenceDate, dayCounter, snappedArgs,
-                                        fixedCouponAdjustments, floatingCouponAdjustments);
+        prepareSwaptionWithSnappedDates(arguments_, snappedArgs, fixedCouponAdjustments,
+                                        floatingCouponAdjustments);
 
         exerciseTimes_.resize(snappedArgs.exercise->dates().size());
         for (Size i = 0; i < exerciseTimes_.size(); ++i) {
@@ -75,15 +75,12 @@ namespace QuantLib {
     void HW2CDiscretizedSwaption::initialize(const ext::shared_ptr<Lattice>& discountMethod,
                                              const ext::shared_ptr<Lattice>& forwardMethod,
                                              Time t) {
-        discountMethod_ = discountMethod;
         forwardMethod_ = forwardMethod;
-        DiscretizedAsset::initialize(discountMethod_, t);
+        DiscretizedAsset::initialize(discountMethod, t);
     }
 
     void HW2CDiscretizedSwaption::prepareSwaptionWithSnappedDates(
         const Swaption::arguments& args,
-        const Date& referenceDate,
-        const DayCounter& dayCounter,
         Swaption::arguments& snappedArgs,
         std::vector<CouponAdjustment>& fixedCouponAdjustments,
         std::vector<CouponAdjustment>& floatingCouponAdjustments) {

@@ -144,9 +144,9 @@ namespace QuantLib {
     void HW2CDiscretizedSwap::initialize(const ext::shared_ptr<Lattice>& discountMethod,
                                          const ext::shared_ptr<Lattice>& forwardMethod,
                                          Time t) {
-        discountMethod_ = discountMethod;
+        DiscretizedAsset::initialize(discountMethod, t);
         forwardMethod_ = forwardMethod;
-        discountMethod_->initialize(*this, t);
+        QL_REQUIRE(forwardMethod_ != nullptr, "forward lattice not provided");
         forwardMethod_->initialize(*this, t);
     }
 
