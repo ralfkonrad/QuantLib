@@ -7382,4 +7382,58 @@
       <Filter>pricingengines\vanilla</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Filter Include="experimental\hullwhitewithtwocurves">
+      <UniqueIdentifier>{55A8613C-4DA0-443B-A801-653F26E31B1F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="experimental\hullwhitewithtwocurves\model">
+      <UniqueIdentifier>{CEEB02A5-EA42-4A0A-B0EF-37851605AF7A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="experimental\hullwhitewithtwocurves\pricingengines">
+      <UniqueIdentifier>{A7DBD687-5571-4EBA-8E4F-D49491EA8F8E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="experimental\hullwhitewithtwocurves\pricingengines\swap">
+      <UniqueIdentifier>{2CE20AB2-3422-434E-8A0D-E8A4DCD9380E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="experimental\hullwhitewithtwocurves\pricingengines\swaption">
+      <UniqueIdentifier>{B2778029-54A8-4E39-8EEB-E0D11A962EAB}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\model\hw2cmodel.hpp">
+      <Filter>experimental\hullwhitewithtwocurves\model</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\hw2cdiscretizedasset.hpp">
+      <Filter>experimental\hullwhitewithtwocurves\pricingengines</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2cdiscretizedswap.hpp">
+      <Filter>experimental\hullwhitewithtwocurves\pricingengines\swap</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2ctreeswapengine.hpp">
+      <Filter>experimental\hullwhitewithtwocurves\pricingengines\swap</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2cdiscretizedswaption.hpp">
+      <Filter>experimental\hullwhitewithtwocurves\pricingengines\swaption</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2ctreeswaptionengine.hpp">
+      <Filter>experimental\hullwhitewithtwocurves\pricingengines\swaption</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\model\hw2cmodel.cpp">
+      <Filter>experimental\hullwhitewithtwocurves\model</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2cdiscretizedswap.cpp">
+      <Filter>experimental\hullwhitewithtwocurves\pricingengines\swap</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2ctreeswapengine.cpp">
+      <Filter>experimental\hullwhitewithtwocurves\pricingengines\swap</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2cdiscretizedswaption.cpp">
+      <Filter>experimental\hullwhitewithtwocurves\pricingengines\swaption</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2ctreeswaptionengine.cpp">
+      <Filter>experimental\hullwhitewithtwocurves\pricingengines\swaption</Filter>
+    </ClCompile>
+  </ItemGroup>
 </Project>

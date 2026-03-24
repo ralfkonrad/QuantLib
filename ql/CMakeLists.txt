@@ -147,6 +147,11 @@ set(QL_SOURCES
     experimental/finitedifferences/glued1dmesher.cpp
     experimental/finitedifferences/vanillavppoption.cpp
     experimental/forward/analytichestonforwardeuropeanengine.cpp
+    experimental/hullwhitewithtwocurves/model/hw2cmodel.cpp
+    experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.cpp
+    experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.cpp
+    experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2cdiscretizedswaption.cpp
+    experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2ctreeswaptionengine.cpp
     experimental/inflation/cpicapfloorengines.cpp
     experimental/inflation/cpicapfloortermpricesurface.cpp
     experimental/inflation/yoycapfloortermpricesurface.cpp
@@ -1161,6 +1166,12 @@ set(QL_HEADERS
     experimental/finitedifferences/glued1dmesher.hpp
     experimental/finitedifferences/vanillavppoption.hpp
     experimental/forward/analytichestonforwardeuropeanengine.hpp
+    experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp
+    experimental/hullwhitewithtwocurves/pricingengines/hw2cdiscretizedasset.hpp
+    experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.hpp
+    experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.hpp
+    experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2cdiscretizedswaption.hpp
+    experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2ctreeswaptionengine.hpp
     experimental/fx/blackdeltacalculator.hpp
     experimental/fx/deltavolquote.hpp
     experimental/inflation/cpicapfloorengines.hpp
@@ -2299,6 +2310,11 @@ set(QL_GENERATED_HEADERS
     ${PROJECT_BINARY_DIR}/ql/experimental/finitedifferences/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/forward/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/fx/all.hpp
+    ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/all.hpp
+    ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/model/all.hpp
+    ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/pricingengines/all.hpp
+    ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/pricingengines/swap/all.hpp
+    ${PROJECT_BINARY_DIR}/ql/experimental/hullwhitewithtwocurves/pricingengines/swaption/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/inflation/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/lattices/all.hpp
     ${PROJECT_BINARY_DIR}/ql/experimental/math/all.hpp

@@ -2899,6 +2899,21 @@
     <ClCompile Include="ql\timegrid.cpp" />
     <ClCompile Include="ql\version.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\model\hw2cmodel.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\hw2cdiscretizedasset.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2cdiscretizedswap.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2ctreeswapengine.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2cdiscretizedswaption.hpp" />
+    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2ctreeswaptionengine.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\model\hw2cmodel.cpp" />
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2cdiscretizedswap.cpp" />
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2ctreeswapengine.cpp" />
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2cdiscretizedswaption.cpp" />
+    <ClCompile Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swaption\hw2ctreeswaptionengine.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project=".\Build.props" Condition="Exists('.\Build.props')" />
   <ImportGroup Label="ExtensionTargets">
