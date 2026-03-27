@@ -31,6 +31,8 @@
 #include <ql/pricingengines/swaption/g2swaptionengine.hpp>
 #include <ql/pricingengines/swaption/fdhullwhiteswaptionengine.hpp>
 #include <ql/pricingengines/swaption/fdg2swaptionengine.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
+#include <ql/experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2ctreeswaptionengine.hpp>
 #include <ql/models/shortrate/calibrationhelpers/swaptionhelper.hpp>
 #include <ql/models/shortrate/onefactormodels/blackkarasinski.hpp>
 #include <ql/math/optimization/levenbergmarquardt.hpp>
@@ -62,7 +64,7 @@ Volatility swaptionVols[] = {
   0.1000, 0.0950, 0.0900, 0.1230, 0.1160};
 
 void calibrateModel(
-          const ext::shared_ptr<ShortRateModel>& model,
+          const ext::shared_ptr<CalibratedModel>& model,
           const std::vector<ext::shared_ptr<BlackCalibrationHelper>>& swaptions) {
 
     std::vector<ext::shared_ptr<CalibrationHelper>> helpers(swaptions.begin(), swaptions.end());
@@ -195,6 +197,7 @@ int main(int, char* []) {
         auto modelHW = ext::make_shared<HullWhite>(rhTermStructure);
         auto modelHW2 = ext::make_shared<HullWhite>(rhTermStructure);
         auto modelBK = ext::make_shared<BlackKarasinski>(rhTermStructure);
+        auto modelHW2C = ext::make_shared<HW2CModel>(rhTermStructure);
 
 
         // model calibrations
@@ -244,6 +247,17 @@ int main(int, char* []) {
                   << "sigma = " << modelBK->params()[1]
                   << std::endl << std::endl;
 
+        std::cout << "Hull-White two-curve (numerical) calibration" << std::endl;
+        for (i=0; i<swaptions.size(); i++)
+            swaptions[i]->setPricingEngine(
+                ext::make_shared<HW2CTreeSwaptionEngine>(modelHW2C, 30));
+
+        calibrateModel(modelHW2C, swaptions);
+        std::cout << "calibrated to:\n"
+                  << "a = " << modelHW2C->params()[0] << ", "
+                  << "sigma = " << modelHW2C->params()[1]
+                  << std::endl << std::endl;
+
 
         // ATM Bermudan swaption pricing
 
@@ -284,6 +298,9 @@ int main(int, char* []) {
         bermudanSwaption.setPricingEngine(ext::make_shared<TreeSwaptionEngine>(modelBK, 50));
         std::cout << "BK:             " << bermudanSwaption.NPV() << std::endl;
 
+        bermudanSwaption.setPricingEngine(ext::make_shared<HW2CTreeSwaptionEngine>(modelHW2C, 50));
+        std::cout << "HW2C (tree):    " << bermudanSwaption.NPV() << std::endl;
+
 
         // OTM Bermudan swaption pricing
 
@@ -319,6 +336,10 @@ int main(int, char* []) {
         std::cout << "BK:              " << otmBermudanSwaption.NPV()
                   << std::endl;
 
+        otmBermudanSwaption.setPricingEngine(ext::make_shared<HW2CTreeSwaptionEngine>(modelHW2C, 50));
+        std::cout << "HW2C (tree):     " << otmBermudanSwaption.NPV()
+                  << std::endl;
+
 
         // ITM Bermudan swaption pricing
 
@@ -352,6 +373,10 @@ int main(int, char* []) {
 
         itmBermudanSwaption.setPricingEngine(ext::make_shared<TreeSwaptionEngine>(modelBK, 50));
         std::cout << "BK:              " << itmBermudanSwaption.NPV()
+                  << std::endl;
+
+        itmBermudanSwaption.setPricingEngine(ext::make_shared<HW2CTreeSwaptionEngine>(modelHW2C, 50));
+        std::cout << "HW2C (tree):     " << itmBermudanSwaption.NPV()
                   << std::endl;
 
         return 0;
