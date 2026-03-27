@@ -177,6 +177,120 @@ BOOST_AUTO_TEST_CASE(testBermudanSwaptionReactsToForwardCurveRelink) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testBermudanSwaptionSingleCurveLimitMatchesStandardHW) {
+    BOOST_TEST_MESSAGE("Testing HW2C Bermudan swaption single-curve limit matches "
+                       "standard HW tree pricing...");
+
+    // This test guards against the day-counter mismatch bug in HW2CDiscretizedSwap
+    // where indexEndTimes_ was computed as resetTime(Act365) + spanning(Act360)
+    // instead of dayCounter.yearFraction(referenceDate, payDate).
+    // Before the fix, HW2C overpriced Bermudans by ~18% (15.5 vs 13.1).
+
+    CommonVars vars;
+
+    // Actual365Fixed curve + Euribor(Actual360) = the exact day-counter
+    // mismatch scenario that triggered the bug.
+    vars.dayCounter = Actual360();
+    auto curveDayCounter = Actual365Fixed();
+    vars.discountCurve.linkTo(flatRate(vars.today, 0.04875825, curveDayCounter));
+    vars.forwardCurve.linkTo(vars.discountCurve.currentLink());
+
+    auto index = ext::make_shared<Euribor6M>(vars.forwardCurve);
+
+    ext::shared_ptr<VanillaSwap> swap = MakeVanillaSwap(5 * Years, index, vars.fixedRate)
+                                            .withNominal(vars.nominal)
+                                            .withType(Swap::Payer);
+
+    std::vector<Date> exerciseDates;
+    for (const auto& cf : swap->fixedLeg()) {
+        auto coupon = ext::dynamic_pointer_cast<Coupon>(cf);
+        exerciseDates.push_back(coupon->accrualStartDate());
+    }
+    auto exercise = ext::make_shared<BermudanExercise>(exerciseDates);
+    auto swaption = ext::make_shared<Swaption>(swap, exercise);
+
+    // Use identical (a, sigma) to avoid calibration noise.
+    Real a = 0.05, sigma = 0.006;
+    Size timeSteps = 80;
+
+    // Standard HW tree
+    auto hwModel = ext::make_shared<HullWhite>(vars.discountCurve, a, sigma);
+    swaption->setPricingEngine(ext::make_shared<TreeSwaptionEngine>(hwModel, timeSteps));
+    const Real hwNpv = swaption->NPV();
+
+    // HW2C tree (single-curve: same curve for discount and forward)
+    auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve, a, sigma);
+    swaption->setPricingEngine(ext::make_shared<HW2CTreeSwaptionEngine>(hw2cModel, timeSteps));
+    const Real hw2cNpv = swaption->NPV();
+
+    // Pre-fix difference was ~2.3; post-fix, engines agree within
+    // discretization noise of explicit bond rollback vs telescoping 1-P identity.
+    const Real tolerance = 0.15;
+    if (std::fabs(hw2cNpv - hwNpv) > tolerance) {
+        BOOST_ERROR("HW2C Bermudan swaption single-curve limit mismatch:\n"
+                    << std::fixed << std::setprecision(6) << "standard HW tree NPV: " << hwNpv
+                    << "\n"
+                    << "HW2C tree NPV:        " << hw2cNpv << "\n"
+                    << "diff:                 " << (hw2cNpv - hwNpv) << "\n"
+                    << "tolerance:            " << tolerance);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testBermudanSwaptionSingleCurveLimitMultipleStrikes) {
+    BOOST_TEST_MESSAGE("Testing HW2C Bermudan swaption single-curve parity across strikes...");
+
+    CommonVars vars;
+
+    auto curveDayCounter = Actual365Fixed();
+    vars.discountCurve.linkTo(flatRate(vars.today, 0.04875825, curveDayCounter));
+    vars.forwardCurve.linkTo(vars.discountCurve.currentLink());
+
+    auto index = ext::make_shared<Euribor6M>(vars.forwardCurve);
+
+    ext::shared_ptr<VanillaSwap> parSwap =
+        MakeVanillaSwap(5 * Years, index, 0.0).withNominal(vars.nominal);
+    parSwap->setPricingEngine(ext::make_shared<DiscountingSwapEngine>(vars.discountCurve));
+    Rate atmRate = parSwap->fairRate();
+
+    Real a = 0.05, sigma = 0.006;
+    Size timeSteps = 80;
+    auto hwModel = ext::make_shared<HullWhite>(vars.discountCurve, a, sigma);
+    auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve, a, sigma);
+
+    std::vector<Real> strikeMultipliers = {0.8, 1.0, 1.2};
+    const Real tolerance = 0.15;
+
+    for (Real mult : strikeMultipliers) {
+        Rate strike = mult * atmRate;
+        ext::shared_ptr<VanillaSwap> swap = MakeVanillaSwap(5 * Years, index, strike)
+                                                .withNominal(vars.nominal)
+                                                .withType(Swap::Payer);
+
+        std::vector<Date> exerciseDates;
+        for (const auto& cf : swap->fixedLeg()) {
+            auto coupon = ext::dynamic_pointer_cast<Coupon>(cf);
+            exerciseDates.push_back(coupon->accrualStartDate());
+        }
+        auto exercise = ext::make_shared<BermudanExercise>(exerciseDates);
+        auto swaption = ext::make_shared<Swaption>(swap, exercise);
+
+        swaption->setPricingEngine(ext::make_shared<TreeSwaptionEngine>(hwModel, timeSteps));
+        const Real hwNpv = swaption->NPV();
+
+        swaption->setPricingEngine(ext::make_shared<HW2CTreeSwaptionEngine>(hw2cModel, timeSteps));
+        const Real hw2cNpv = swaption->NPV();
+
+        if (std::fabs(hw2cNpv - hwNpv) > tolerance) {
+            BOOST_ERROR("HW2C single-curve mismatch at strike "
+                        << std::fixed << std::setprecision(4) << strike * 100 << "%:\n"
+                        << std::setprecision(6) << "standard HW tree NPV: " << hwNpv << "\n"
+                        << "HW2C tree NPV:        " << hw2cNpv << "\n"
+                        << "diff:                 " << (hw2cNpv - hwNpv) << "\n"
+                        << "tolerance:            " << tolerance);
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE_END()

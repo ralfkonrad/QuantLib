@@ -107,7 +107,7 @@ namespace QuantLib {
             fixingSpanningTimes_[i] = spanning;
 
             indexStartTimes_[i] = resetTime;
-            indexEndTimes_[i] = resetTime + spanning;
+            indexEndTimes_[i] = payTime;
         }
     }
 
