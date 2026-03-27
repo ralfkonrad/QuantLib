@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2022 Ralf Konrad Eckel
+ Copyright (C) 2022, 2026 Ralf Konrad Eckel
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -17,6 +17,10 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
+/*! \file hw2cdiscretizedswaption.hpp
+    \brief Discretized swaption for two-curve Hull-White lattice pricing
+*/
+
 #ifndef quantlib_hw2c_discretized_swaption_hpp
 #define quantlib_hw2c_discretized_swaption_hpp
 
@@ -27,6 +31,19 @@
 namespace QuantLib {
     class HW2CDiscretizedSwap;
 
+    //! Discretized swaption for two-curve Hull-White tree pricing.
+    /*! This class discretizes a swaption (European or Bermudan) for
+        backward induction on a dual-lattice Hull-White tree.  It
+        wraps an HW2CDiscretizedSwap as its underlying and delegates
+        dual-lattice initialization to it during reset.
+
+        Exercise dates that fall within one week of a coupon reset
+        date are snapped to the exercise date, with coupon adjustment
+        flags (pre/post) set accordingly to maintain correct
+        valuation.
+
+        \ingroup swaptionengines
+    */
     class HW2CDiscretizedSwaption : public DiscretizedOption, public HW2CDiscretizedAsset {
       public:
         HW2CDiscretizedSwaption(const Swaption::arguments& args,
@@ -35,9 +52,12 @@ namespace QuantLib {
 
         void reset(Size size) override;
 
+        //! Returns the exercise times (as year fractions from reference date).
         const std::vector<Time>& exerciseTimes() const { return exerciseTimes_; }
 
+        //! Returns the lattice used for discounting.
         const ext::shared_ptr<Lattice>& discountMethod() const override { return method(); }
+        //! Returns the lattice used for forward-rate projection.
         const ext::shared_ptr<Lattice>& forwardMethod() const override { return forwardMethod_; }
 
         void initialize(const ext::shared_ptr<Lattice>& discountMethod,
