@@ -67,6 +67,18 @@ namespace QuantLib {
                   Real a = 0.1,
                   Real sigma = 0.01);
 
+        /*! Constructs a single-curve Hull-White model.
+
+            This is a convenience constructor that uses the same term
+            structure for both discounting and forward-rate projection.
+
+            \param termStructure the term structure used for both
+                   discounting and projecting forward rates.
+            \param a      mean-reversion speed; defaults to 0.1.
+            \param sigma  volatility; defaults to 0.01.
+        */
+        HW2CModel(const Handle<YieldTermStructure>& termStructure, Real a = 0.1, Real sigma = 0.01);
+
         //! Returns the mean-reversion speed.
         Real a() const { return a_(0.0); }
         //! Returns the volatility.

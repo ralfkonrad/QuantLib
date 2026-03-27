@@ -48,6 +48,9 @@ namespace QuantLib {
         registerWith(forwardTermStructure_);
     }
 
+    HW2CModel::HW2CModel(const Handle<YieldTermStructure>& termStructure, Real a, Real sigma)
+    : HW2CModel(termStructure, termStructure, a, sigma) {}
+
     ext::shared_ptr<Lattice> HW2CModel::discountTree(const TimeGrid& timeGrid) const {
         return discountModel()->tree(timeGrid);
     }
