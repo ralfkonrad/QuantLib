@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2022 Ralf Konrad Eckel
+ Copyright (C) 2022, 2026 Ralf Konrad Eckel
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -17,6 +17,10 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
+/*! \file hw2cdiscretizedswap.hpp
+    \brief Discretized vanilla swap for two-curve Hull-White lattice pricing
+*/
+
 #ifndef quantlib_hw2c_discretized_swap_hpp
 #define quantlib_hw2c_discretized_swap_hpp
 
@@ -25,12 +29,31 @@
 #include <ql/instruments/vanillaswap.hpp>
 
 namespace QuantLib {
+
+    //! Discretized vanilla swap for two-curve Hull-White tree pricing.
+    /*! This class discretizes a vanilla interest-rate swap for
+        backward induction on a dual-lattice Hull-White tree.
+        Fixed-leg coupons are discounted using the discount lattice,
+        while floating-leg coupons are projected from the forward
+        lattice and then discounted through the discount lattice.
+
+        The class inherits from both DiscretizedAsset (lattice
+        mechanics) and HW2CDiscretizedAsset (dual-lattice
+        initialization contract).
+
+        \ingroup swapengines
+    */
     class HW2CDiscretizedSwap : public DiscretizedAsset, public HW2CDiscretizedAsset {
       public:
+        /*! Constructs from swap arguments with default (pre-adjustment)
+            coupon adjustment for all coupons. */
         HW2CDiscretizedSwap(const VanillaSwap::arguments& args,
                             const Date& referenceDate,
                             const DayCounter& dayCounter);
 
+        /*! Constructs from swap arguments with explicit coupon
+            adjustment vectors (pre or post) for swaption date-snapping
+            support. */
         HW2CDiscretizedSwap(const VanillaSwap::arguments& args,
                             const Date& referenceDate,
                             const DayCounter& dayCounter,
