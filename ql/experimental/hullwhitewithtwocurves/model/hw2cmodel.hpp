@@ -156,9 +156,10 @@ namespace QuantLib {
             This is identical for both curves since \f$ a \f$ is shared.
         */
         Real B(Time t, Time T) const override;
+        //@}
+
         //! Forward-curve affine factor \f$ A_{\text{fwd}}(t,T) \f$.
         Real A_fwd(Time t, Time T) const;
-        //@}
 
         void generateArguments() override;
 
@@ -166,11 +167,11 @@ namespace QuantLib {
         Parameter& a_;
         Parameter& sigma_;
 
-        Handle<YieldTermStructure> discountTermStructure_;
-        Handle<YieldTermStructure> forwardTermStructure_;
-
         Parameter phi_;
         Parameter phi_fwd_;
+
+        Handle<YieldTermStructure> discountTermStructure_;
+        Handle<YieldTermStructure> forwardTermStructure_;
 
         RelinkableHandle<HullWhite> discountModel_;
         RelinkableHandle<HullWhite> forwardModel_;
