@@ -107,7 +107,8 @@ namespace QuantLib {
             fixingSpanningTimes_[i] = spanning;
 
             indexStartTimes_[i] = resetTime;
-            indexEndTimes_[i] = payTime;
+            indexEndTimes_[i] =
+                dayCounter.yearFraction(referenceDate, args.floatingAccrualEndDates[i]);
         }
     }
 

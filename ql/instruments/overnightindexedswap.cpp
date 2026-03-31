@@ -167,9 +167,8 @@ namespace QuantLib {
                 .withTelescopicValueDates(telescopicValueDates)
                 .withPaymentLag(paymentLag)
                 .withPaymentAdjustment(paymentAdjustment)
-                .withPaymentCalendar(paymentCalendar.empty() ?
-                                     floatingSchedule().calendar() :
-                                     paymentCalendar)
+                .withPaymentCalendar(paymentCalendar.empty() ? floatingSchedule().calendar() :
+                                                               paymentCalendar)
                 .withAveragingMethod(averagingMethod_)
                 .withLookbackDays(lookbackDays_)
                 .withLockoutDays(lockoutDays_)
@@ -189,16 +188,19 @@ namespace QuantLib {
         const Leg& floatingCoupons = floatingLeg();
         Size n = floatingCoupons.size();
 
-        args->floatingResetDates = args->floatingPayDates = args->floatingFixingDates = std::vector<Date>(n);
+        args->floatingResetDates = args->floatingPayDates = args->floatingFixingDates =
+            std::vector<Date>(n);
         args->floatingAccrualTimes = std::vector<Time>(n);
+        args->floatingAccrualEndDates = std::vector<Date>(n);
         args->floatingSpreads = std::vector<Spread>(n);
         args->floatingCoupons = args->floatingNominals = std::vector<Real>(n);
 
-        for (Size i=0; i<n; ++i) {
+        for (Size i = 0; i < n; ++i) {
             auto coupon = ext::dynamic_pointer_cast<OvernightIndexedCoupon>(floatingCoupons[i]);
 
             args->floatingResetDates[i] = coupon->accrualStartDate();
             args->floatingPayDates[i] = coupon->date();
+            args->floatingAccrualEndDates[i] = coupon->accrualEndDate();
             args->floatingNominals[i] = coupon->nominal();
 
             args->floatingFixingDates[i] = coupon->fixingDate();

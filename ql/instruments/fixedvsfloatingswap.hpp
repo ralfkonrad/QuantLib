@@ -28,9 +28,9 @@
 #define quantlib_fixed_vs_floating_swap_hpp
 
 #include <ql/instruments/swap.hpp>
+#include <ql/optional.hpp>
 #include <ql/time/daycounter.hpp>
 #include <ql/time/schedule.hpp>
-#include <ql/optional.hpp>
 
 namespace QuantLib {
 
@@ -145,6 +145,7 @@ namespace QuantLib {
         std::vector<Date> fixedPayDates;
         std::vector<Real> floatingNominals;
         std::vector<Time> floatingAccrualTimes;
+        std::vector<Date> floatingAccrualEndDates;
         std::vector<Date> floatingResetDates;
         std::vector<Date> floatingFixingDates;
         std::vector<Date> floatingPayDates;
@@ -163,8 +164,8 @@ namespace QuantLib {
         void reset() override;
     };
 
-    class FixedVsFloatingSwap::engine : public GenericEngine<FixedVsFloatingSwap::arguments,
-                                                             FixedVsFloatingSwap::results> {};
+    class FixedVsFloatingSwap::engine
+    : public GenericEngine<FixedVsFloatingSwap::arguments, FixedVsFloatingSwap::results> {};
 
 
     // inline definitions

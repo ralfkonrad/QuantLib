@@ -61,27 +61,26 @@ namespace QuantLib {
             paymentConvention_ = floatingSchedule_.businessDayConvention();
 
         legs_[0] = FixedRateLeg(fixedSchedule_)
-            .withNotionals(fixedNominals_)
-            .withCouponRates(fixedRate_, fixedDayCount_)
-            .withPaymentAdjustment(paymentConvention_)
-            .withPaymentLag(paymentLag)
-            .withPaymentCalendar(paymentCalendar.empty() ?
-                                 fixedSchedule_.calendar() :
-                                 paymentCalendar);
+                       .withNotionals(fixedNominals_)
+                       .withCouponRates(fixedRate_, fixedDayCount_)
+                       .withPaymentAdjustment(paymentConvention_)
+                       .withPaymentLag(paymentLag)
+                       .withPaymentCalendar(paymentCalendar.empty() ? fixedSchedule_.calendar() :
+                                                                      paymentCalendar);
 
         // legs_[1] to be built by derived class constructor
 
         switch (type_) {
-          case Payer:
-            payer_[0] = -1.0;
-            payer_[1] = +1.0;
-            break;
-          case Receiver:
-            payer_[0] = +1.0;
-            payer_[1] = -1.0;
-            break;
-          default:
-            QL_FAIL("Unknown vanilla-swap type");
+            case Payer:
+                payer_[0] = -1.0;
+                payer_[1] = +1.0;
+                break;
+            case Receiver:
+                payer_[0] = +1.0;
+                payer_[1] = -1.0;
+                break;
+            default:
+                QL_FAIL("Unknown vanilla-swap type");
         }
 
 
@@ -127,7 +126,7 @@ namespace QuantLib {
         arguments->fixedResetDates = arguments->fixedPayDates = std::vector<Date>(n);
         arguments->fixedNominals = arguments->fixedCoupons = std::vector<Real>(n);
 
-        for (Size i=0; i<n; ++i) {
+        for (Size i = 0; i < n; ++i) {
             auto coupon = ext::dynamic_pointer_cast<FixedRateCoupon>(fixedCoupons[i]);
 
             arguments->fixedPayDates[i] = coupon->date();
@@ -230,6 +229,9 @@ namespace QuantLib {
                    "number of floating payment dates");
         QL_REQUIRE(floatingAccrualTimes.size() == floatingPayDates.size(),
                    "number of floating accrual Times different from "
+                   "number of floating payment dates");
+        QL_REQUIRE(floatingAccrualEndDates.size() == floatingPayDates.size(),
+                   "number of floating accrual end dates different from "
                    "number of floating payment dates");
         QL_REQUIRE(floatingSpreads.size() == floatingPayDates.size(),
                    "number of floating spreads different from "
