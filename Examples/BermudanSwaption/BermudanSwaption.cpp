@@ -64,7 +64,7 @@ Volatility swaptionVols[] = {
   0.1000, 0.0950, 0.0900, 0.1230, 0.1160};
 
 void calibrateModel(
-          const ext::shared_ptr<CalibratedModel>& model,
+          const ext::shared_ptr<ShortRateModel>& model,
           const std::vector<ext::shared_ptr<BlackCalibrationHelper>>& swaptions) {
 
     std::vector<ext::shared_ptr<CalibrationHelper>> helpers(swaptions.begin(), swaptions.end());

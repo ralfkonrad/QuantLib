@@ -24,7 +24,6 @@
 #ifndef quantlib_hw2c_model_hpp
 #define quantlib_hw2c_model_hpp
 
-#include <ql/models/model.hpp>
 #include <ql/models/shortrate/onefactormodels/hullwhite.hpp>
 
 namespace QuantLib {
@@ -35,7 +34,19 @@ namespace QuantLib {
         mean-reversion speed \f$ a \f$ and volatility \f$ \sigma \f$
         across both curves.
 
-        Internally, the model maintains two standard single-factor
+        Mathematically, this is a one-factor model with a single
+        stochastic driver \f$ x_t \f$ and two deterministic fitting
+        functions:
+        \f[
+            r_t^{\text{disc}} = x_t + \varphi_{\text{disc}}(t), \qquad
+            r_t^{\text{fwd}}  = x_t + \varphi_{\text{fwd}}(t)
+        \f]
+        where \f$ x_t \f$ follows an Ornstein-Uhlenbeck process.
+
+        The inherited OneFactorAffineModel interface (dynamics(),
+        tree(), A(), B()) is fitted to the discount curve.
+
+        Internally, the model also maintains two standard single-factor
         HullWhite model instances — one fitted to the discount curve
         and one fitted to the forward curve — which are rebuilt
         whenever the calibration parameters change.
@@ -47,7 +58,7 @@ namespace QuantLib {
 
         \ingroup shortrate
     */
-    class HW2CModel : public CalibratedModel {
+    class HW2CModel : public OneFactorAffineModel, public TermStructureConsistentModel {
       public:
         /*! Constructs a two-curve Hull-White model.
             \param discountTermStructure the term structure used for
@@ -84,6 +95,31 @@ namespace QuantLib {
         //! Returns the volatility.
         Real sigma() const { return sigma_(0.0); }
 
+        //! \name OneFactorModel interface
+        //@{
+        //! Returns the short-rate dynamics fitted to the discount curve.
+        ext::shared_ptr<ShortRateDynamics> dynamics() const override;
+        //@}
+
+        //! \name ShortRateModel interface
+        //@{
+        //! Builds a trinomial tree fitted to the discount curve.
+        ext::shared_ptr<Lattice> tree(const TimeGrid& grid) const override;
+        //@}
+
+        //! \name AffineModel interface
+        //@{
+        Real discountBondOption(Option::Type type,
+                                Real strike,
+                                Time maturity,
+                                Time bondMaturity) const override;
+        Real discountBondOption(Option::Type type,
+                                Real strike,
+                                Time maturity,
+                                Time bondStart,
+                                Time bondMaturity) const override;
+        //@}
+
         //! Returns the discount term structure handle.
         const Handle<YieldTermStructure>& discountTermStructure() const {
             return discountTermStructure_;
@@ -104,6 +140,18 @@ namespace QuantLib {
         ext::shared_ptr<Lattice> forwardTree(const TimeGrid& timeGrid) const;
 
       protected:
+        //! \name OneFactorAffineModel interface
+        //@{
+        /*! Discount-curve affine factor \f$ A(t,T) \f$ such that
+            \f$ P_{\text{disc}}(t,T,r) = A(t,T)\,e^{-B(t,T)\,r} \f$.
+        */
+        Real A(Time t, Time T) const override;
+        /*! Mean-reversion factor \f$ B(t,T) = \frac{1-e^{-a(T-t)}}{a} \f$.
+            This is identical for both curves since \f$ a \f$ is shared.
+        */
+        Real B(Time t, Time T) const override;
+        //@}
+
         void generateArguments() override;
 
       private:
@@ -113,9 +161,18 @@ namespace QuantLib {
         Handle<YieldTermStructure> discountTermStructure_;
         Handle<YieldTermStructure> forwardTermStructure_;
 
+        Parameter phi_;
+
         RelinkableHandle<HullWhite> discountModel_;
         RelinkableHandle<HullWhite> forwardModel_;
     };
+
+    // inline definitions
+
+    inline ext::shared_ptr<OneFactorModel::ShortRateDynamics> HW2CModel::dynamics() const {
+        return ext::make_shared<HullWhite::Dynamics>(phi_, a(), sigma());
+    }
+
 }
 
 #endif // quantlib_hw2c_model_hpp

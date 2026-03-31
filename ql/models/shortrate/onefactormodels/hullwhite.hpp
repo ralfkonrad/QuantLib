@@ -47,6 +47,9 @@ namespace QuantLib {
         \ingroup shortrate
     */
     class HullWhite : public Vasicek, public TermStructureConsistentModel {
+      private:
+        friend class HW2CModel;
+
       public:
         HullWhite(const Handle<YieldTermStructure>& termStructure,
                   Real a = 0.1, Real sigma = 0.01);

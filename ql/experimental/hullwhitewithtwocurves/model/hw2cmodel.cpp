@@ -23,13 +23,18 @@
 
 #include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
 
+using std::exp;
+using std::sqrt;
+
 namespace QuantLib {
+
     HW2CModel::HW2CModel(const Handle<YieldTermStructure>& discountTermStructure,
                          const Handle<YieldTermStructure>& forwardTermStructure,
                          Real a,
                          Real sigma)
-    : CalibratedModel(2), a_(arguments_[0]), sigma_(arguments_[1]),
-      discountTermStructure_(discountTermStructure), forwardTermStructure_(forwardTermStructure) {
+    : OneFactorAffineModel(2), TermStructureConsistentModel(discountTermStructure),
+      a_(arguments_[0]), sigma_(arguments_[1]), discountTermStructure_(discountTermStructure),
+      forwardTermStructure_(forwardTermStructure) {
         QL_REQUIRE(discountTermStructure_->referenceDate() ==
                        forwardTermStructure_->referenceDate(),
                    "The reference date of discount and forward curve do not match.");
@@ -44,12 +49,46 @@ namespace QuantLib {
         forwardModel_ = RelinkableHandle<HullWhite>(
             ext::make_shared<HullWhite>(forwardTermStructure, this->a(), this->sigma()));
 
+        HW2CModel::generateArguments();
+
         registerWith(discountTermStructure_);
         registerWith(forwardTermStructure_);
     }
 
     HW2CModel::HW2CModel(const Handle<YieldTermStructure>& termStructure, Real a, Real sigma)
     : HW2CModel(termStructure, termStructure, a, sigma) {}
+
+    ext::shared_ptr<Lattice> HW2CModel::tree(const TimeGrid& grid) const {
+        return discountModel()->tree(grid);
+    }
+
+    Real HW2CModel::A(Time t, Time T) const {
+        DiscountFactor discount1 = discountTermStructure()->discount(t);
+        DiscountFactor discount2 = discountTermStructure()->discount(T);
+        Rate forward = discountTermStructure()->forwardRate(t, t, Continuous, NoFrequency);
+        Real temp = sigma() * B(t, T);
+        Real value = B(t, T) * forward - 0.25 * temp * temp * B(0.0, 2.0 * t);
+        return exp(value) * discount2 / discount1;
+    }
+
+    Real HW2CModel::B(Time t, Time T) const {
+        Real _a = a();
+        if (_a < sqrt(QL_EPSILON))
+            return (T - t);
+        return (1.0 - exp(-_a * (T - t))) / _a;
+    }
+
+    Real HW2CModel::discountBondOption(Option::Type type,
+                                       Real strike,
+                                       Time maturity,
+                                       Time bondMaturity) const {
+        return discountModel()->discountBondOption(type, strike, maturity, bondMaturity);
+    }
+
+    Real HW2CModel::discountBondOption(
+        Option::Type type, Real strike, Time maturity, Time bondStart, Time bondMaturity) const {
+        return discountModel()->discountBondOption(type, strike, maturity, bondStart, bondMaturity);
+    }
 
     ext::shared_ptr<Lattice> HW2CModel::discountTree(const TimeGrid& timeGrid) const {
         return discountModel()->tree(timeGrid);
@@ -60,6 +99,8 @@ namespace QuantLib {
     }
 
     void HW2CModel::generateArguments() {
+        phi_ = HullWhite::FittingParameter(discountTermStructure(), a(), sigma());
+
         discountModel_.linkTo(
             ext::make_shared<HullWhite>(discountTermStructure_, this->a(), this->sigma()));
         forwardModel_.linkTo(
