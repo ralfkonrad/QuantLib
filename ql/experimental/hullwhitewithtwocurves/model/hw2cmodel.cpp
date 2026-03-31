@@ -27,7 +27,6 @@ using std::exp;
 using std::sqrt;
 
 namespace QuantLib {
-
     HW2CModel::HW2CModel(const Handle<YieldTermStructure>& discountTermStructure,
                          const Handle<YieldTermStructure>& forwardTermStructure,
                          Real a,
@@ -78,6 +77,15 @@ namespace QuantLib {
         return (1.0 - exp(-_a * (T - t))) / _a;
     }
 
+    Real HW2CModel::A_fwd(Time t, Time T) const {
+        DiscountFactor discount1 = forwardTermStructure()->discount(t);
+        DiscountFactor discount2 = forwardTermStructure()->discount(T);
+        Rate forward = forwardTermStructure()->forwardRate(t, t, Continuous, NoFrequency);
+        Real temp = sigma() * B(t, T);
+        Real value = B(t, T) * forward - 0.25 * temp * temp * B(0.0, 2.0 * t);
+        return exp(value) * discount2 / discount1;
+    }
+
     Real HW2CModel::discountBondOption(Option::Type type,
                                        Real strike,
                                        Time maturity,
@@ -88,15 +96,6 @@ namespace QuantLib {
     Real HW2CModel::discountBondOption(
         Option::Type type, Real strike, Time maturity, Time bondStart, Time bondMaturity) const {
         return discountModel()->discountBondOption(type, strike, maturity, bondStart, bondMaturity);
-    }
-
-    Real HW2CModel::A_fwd(Time t, Time T) const {
-        DiscountFactor discount1 = forwardTermStructure()->discount(t);
-        DiscountFactor discount2 = forwardTermStructure()->discount(T);
-        Rate forward = forwardTermStructure()->forwardRate(t, t, Continuous, NoFrequency);
-        Real temp = sigma() * B(t, T);
-        Real value = B(t, T) * forward - 0.25 * temp * temp * B(0.0, 2.0 * t);
-        return exp(value) * discount2 / discount1;
     }
 
     Real HW2CModel::forwardDiscountBond(Time t, Time T, Real x) const {
