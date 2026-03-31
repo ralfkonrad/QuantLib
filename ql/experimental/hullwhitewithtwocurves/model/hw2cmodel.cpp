@@ -90,10 +90,6 @@ namespace QuantLib {
         return discountModel()->discountBondOption(type, strike, maturity, bondStart, bondMaturity);
     }
 
-    ext::shared_ptr<Lattice> HW2CModel::discountTree(const TimeGrid& timeGrid) const {
-        return discountModel()->tree(timeGrid);
-    }
-
     ext::shared_ptr<Lattice> HW2CModel::forwardTree(const TimeGrid& timeGrid) const {
         return forwardModel()->tree(timeGrid);
     }
