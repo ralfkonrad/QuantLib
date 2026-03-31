@@ -36,8 +36,8 @@ namespace QuantLib {
     void HW2CTreeSwapEngine::calculate() const {
         QL_REQUIRE(!model_.empty(), "no model specified");
 
-        const Date referenceDate = model_->discountModel()->termStructure()->referenceDate();
-        const DayCounter dayCounter = model_->discountModel()->termStructure()->dayCounter();
+        const Date referenceDate = model_->termStructure()->referenceDate();
+        const DayCounter dayCounter = model_->termStructure()->dayCounter();
 
         HW2CDiscretizedSwap swap(arguments_, referenceDate, dayCounter);
         auto times = swap.mandatoryTimes();
@@ -45,7 +45,7 @@ namespace QuantLib {
         const Time maxTime = times.empty() ? 0.0 : *std::max_element(times.begin(), times.end());
 
         TimeGrid timeGrid(times.begin(), times.end(), timeSteps_);
-        const ext::shared_ptr<Lattice> discountLattice = model_->discountTree(timeGrid);
+        const ext::shared_ptr<Lattice> discountLattice = model_->tree(timeGrid);
         const ext::shared_ptr<Lattice> forwardLattice = model_->forwardTree(timeGrid);
 
         swap.initialize(discountLattice, forwardLattice, maxTime);
