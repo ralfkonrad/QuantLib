@@ -40,14 +40,14 @@ namespace QuantLib {
                    "HW2CTreeSwaptionEngine");
         QL_REQUIRE(!model_.empty(), "no model specified");
 
-        const Date referenceDate = model_->discountModel()->termStructure()->referenceDate();
-        const DayCounter dayCounter = model_->discountModel()->termStructure()->dayCounter();
+        const Date referenceDate = model_->termStructure()->referenceDate();
+        const DayCounter dayCounter = model_->termStructure()->dayCounter();
 
         HW2CDiscretizedSwaption swaption(arguments_, referenceDate, dayCounter);
 
         auto mandatoryTimes = swaption.mandatoryTimes();
         TimeGrid timeGrid(mandatoryTimes.begin(), mandatoryTimes.end(), timeSteps_);
-        const ext::shared_ptr<Lattice> discountLattice = model_->discountTree(timeGrid);
+        const ext::shared_ptr<Lattice> discountLattice = model_->tree(timeGrid);
         const ext::shared_ptr<Lattice> forwardLattice = model_->forwardTree(timeGrid);
 
         const std::vector<Time>& exerciseTimes = swaption.exerciseTimes();
