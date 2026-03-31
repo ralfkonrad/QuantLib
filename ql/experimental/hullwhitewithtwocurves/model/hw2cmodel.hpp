@@ -134,8 +134,6 @@ namespace QuantLib {
         //! Returns the internal Hull-White model fitted to the forward curve.
         const Handle<HullWhite>& forwardModel() const { return forwardModel_; }
 
-        //! Builds a trinomial tree from the discount model for the given time grid.
-        ext::shared_ptr<Lattice> discountTree(const TimeGrid& timeGrid) const;
         //! Builds a trinomial tree from the forward model for the given time grid.
         ext::shared_ptr<Lattice> forwardTree(const TimeGrid& timeGrid) const;
 
