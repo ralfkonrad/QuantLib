@@ -21,6 +21,7 @@
     \brief Discretized vanilla swap for two-curve Hull-White lattice pricing
 */
 
+#include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.hpp>
 #include <ql/settings.hpp>
 #include <utility>
@@ -38,11 +39,13 @@ namespace QuantLib {
 
     HW2CDiscretizedSwap::HW2CDiscretizedSwap(const VanillaSwap::arguments& args,
                                              const Date& referenceDate,
-                                             const DayCounter& dayCounter)
+                                             const DayCounter& dayCounter,
+                                             ext::shared_ptr<HW2CModel> model)
     : HW2CDiscretizedSwap(
           args,
           referenceDate,
           dayCounter,
+          std::move(model),
           std::vector<CouponAdjustment>(args.fixedPayDates.size(), CouponAdjustment::pre),
           std::vector<CouponAdjustment>(args.floatingPayDates.size(), CouponAdjustment::pre)) {}
 
@@ -50,9 +53,11 @@ namespace QuantLib {
         const VanillaSwap::arguments& args,
         const Date& referenceDate,
         const DayCounter& dayCounter,
+        ext::shared_ptr<HW2CModel> model,
         std::vector<CouponAdjustment> fixedCouponAdjustments,
         std::vector<CouponAdjustment> floatingCouponAdjustments)
-    : arguments_(args), fixedCouponAdjustments_(std::move(fixedCouponAdjustments)),
+    : model_(std::move(model)), arguments_(args),
+      fixedCouponAdjustments_(std::move(fixedCouponAdjustments)),
       floatingCouponAdjustments_(std::move(floatingCouponAdjustments)) {
         QL_REQUIRE(fixedCouponAdjustments_.size() == arguments_.fixedPayDates.size(),
                    "The fixed coupon adjustments must have the same size as the number of fixed "
@@ -85,9 +90,7 @@ namespace QuantLib {
         floatingResetTimes_.resize(numberOfFloatingCoupons);
         floatingPayTimes_.resize(numberOfFloatingCoupons);
         floatingResetTimeIsInPast_.resize(numberOfFloatingCoupons);
-        indexStartTimes_.resize(numberOfFloatingCoupons);
         indexEndTimes_.resize(numberOfFloatingCoupons);
-        fixingSpanningTimes_.resize(numberOfFloatingCoupons);
 
         for (Size i = 0; i < numberOfFloatingCoupons; ++i) {
             const Time resetTime =
@@ -104,15 +107,15 @@ namespace QuantLib {
 
             const Time spanning = args.floatingAccrualTimes[i];
             QL_REQUIRE(spanning > 0.0, "non-positive floating accrual time");
-            fixingSpanningTimes_[i] = spanning;
 
-            indexStartTimes_[i] = resetTime;
             indexEndTimes_[i] =
                 dayCounter.yearFraction(referenceDate, args.floatingAccrualEndDates[i]);
         }
     }
 
     void HW2CDiscretizedSwap::reset(Size size) {
+        shortRateTree_ = ext::dynamic_pointer_cast<OneFactorModel::ShortRateTree>(method());
+        QL_REQUIRE(shortRateTree_, "HW2CDiscretizedSwap requires a ShortRateTree lattice");
         values_ = Array(size, 0.0);
         adjustValues();
     }
@@ -135,24 +138,7 @@ namespace QuantLib {
             if (t >= 0.0)
                 times.push_back(t);
         }
-        for (Real t : indexStartTimes_) {
-            if (t >= 0.0)
-                times.push_back(t);
-        }
-        for (Real t : indexEndTimes_) {
-            if (t >= 0.0)
-                times.push_back(t);
-        }
         return times;
-    }
-
-    void HW2CDiscretizedSwap::initialize(const ext::shared_ptr<Lattice>& discountMethod,
-                                         const ext::shared_ptr<Lattice>& forwardMethod,
-                                         Time t) {
-        DiscretizedAsset::initialize(discountMethod, t);
-        forwardMethod_ = forwardMethod;
-        QL_REQUIRE(forwardMethod_ != nullptr, "forward lattice not provided");
-        forwardMethod_->initialize(*this, t);
     }
 
     void HW2CDiscretizedSwap::preAdjustValuesImpl() {
@@ -211,13 +197,17 @@ namespace QuantLib {
     }
 
     void HW2CDiscretizedSwap::addFixedCoupon(Size i) {
-        DiscretizedDiscountBond discountBond;
-        discountBond.initialize(discountMethod(), fixedPayTimes_[i]);
-        discountBond.rollback(time_);
-
+        const Size timeIdx = shortRateTree_->timeGrid().closestIndex(time_);
+        const Time t = time_;
+        const Time tPay = fixedPayTimes_[i];
         const Real fixedCoupon = arguments_.fixedCoupons[i];
+
         for (Size j = 0; j < values_.size(); j++) {
-            const Real coupon = fixedCoupon * discountBond.values()[j];
+            const Real x = shortRateTree_->underlying(timeIdx, j);
+            const Rate r = model_->dynamics()->shortRate(t, x);
+            const Real discount = model_->discountBond(t, tPay, r);
+            const Real coupon = fixedCoupon * discount;
+
             if (arguments_.type == Swap::Payer)
                 values_[j] -= coupon;
             else
@@ -226,27 +216,31 @@ namespace QuantLib {
     }
 
     void HW2CDiscretizedSwap::addFloatingCoupon(Size i) {
-        DiscretizedDiscountBond discountBond;
-        discountBond.initialize(discountMethod(), floatingPayTimes_[i]);
-        discountBond.rollback(time_);
+        const Size timeIdx = shortRateTree_->timeGrid().closestIndex(time_);
 
-        DiscretizedDiscountBond forwardBond;
-        forwardBond.initialize(forwardMethod(), indexEndTimes_[i]);
-        forwardBond.rollback(indexStartTimes_[i]);
+        const Time t = time_;
+        const Time tEnd = indexEndTimes_[i];
+        const Time tPay = floatingPayTimes_[i];
 
         QL_REQUIRE(arguments_.nominal != Null<Real>(),
                    "non-constant nominals are not supported yet");
 
         const Real nominal = arguments_.nominal;
         const Time accrualTime = arguments_.floatingAccrualTimes[i];
-        const Time spanningTime = fixingSpanningTimes_[i];
+        const Time spanningTime = arguments_.floatingAccrualTimes[i];
         const Spread spread = arguments_.floatingSpreads[i];
 
         for (Size j = 0; j < values_.size(); j++) {
-            const Real projectionDiscount = forwardBond.values()[j];
+            const Real x = shortRateTree_->underlying(timeIdx, j);
+
+            const Real projectionDiscount = model_->forwardDiscountBond(t, tEnd, x);
             const Real forwardRate = (1.0 / projectionDiscount - 1.0) / spanningTime;
+
+            const Rate r = model_->dynamics()->shortRate(t, x);
+            const Real paymentDiscount = model_->discountBond(t, tPay, r);
+
             const Real couponAmount = nominal * accrualTime * (forwardRate + spread);
-            const Real discountedCoupon = couponAmount * discountBond.values()[j];
+            const Real discountedCoupon = couponAmount * paymentDiscount;
 
             if (arguments_.type == Swap::Payer)
                 values_[j] += discountedCoupon;

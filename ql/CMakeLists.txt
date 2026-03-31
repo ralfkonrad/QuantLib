@@ -1167,7 +1167,6 @@ set(QL_HEADERS
     experimental/finitedifferences/vanillavppoption.hpp
     experimental/forward/analytichestonforwardeuropeanengine.hpp
     experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp
-    experimental/hullwhitewithtwocurves/pricingengines/hw2cdiscretizedasset.hpp
     experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.hpp
     experimental/hullwhitewithtwocurves/pricingengines/swap/hw2ctreeswapengine.hpp
     experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2cdiscretizedswaption.hpp

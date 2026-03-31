@@ -39,16 +39,15 @@ namespace QuantLib {
         const Date referenceDate = model_->termStructure()->referenceDate();
         const DayCounter dayCounter = model_->termStructure()->dayCounter();
 
-        HW2CDiscretizedSwap swap(arguments_, referenceDate, dayCounter);
+        HW2CDiscretizedSwap swap(arguments_, referenceDate, dayCounter, *model_);
         auto times = swap.mandatoryTimes();
         QL_REQUIRE(!times.empty(), "no mandatory times in swap");
         const Time maxTime = times.empty() ? 0.0 : *std::max_element(times.begin(), times.end());
 
         TimeGrid timeGrid(times.begin(), times.end(), timeSteps_);
-        const ext::shared_ptr<Lattice> discountLattice = model_->tree(timeGrid);
-        const ext::shared_ptr<Lattice> forwardLattice = model_->forwardTree(timeGrid);
+        const ext::shared_ptr<Lattice> lattice = model_->tree(timeGrid);
 
-        swap.initialize(discountLattice, forwardLattice, maxTime);
+        swap.initialize(lattice, maxTime);
         swap.rollback(0.0);
 
         results_.value = swap.presentValue();

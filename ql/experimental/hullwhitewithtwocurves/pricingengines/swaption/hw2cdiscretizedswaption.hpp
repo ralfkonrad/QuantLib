@@ -25,17 +25,17 @@
 #define quantlib_hw2c_discretized_swaption_hpp
 
 #include <ql/discretizedasset.hpp>
-#include <ql/experimental/hullwhitewithtwocurves/pricingengines/hw2cdiscretizedasset.hpp>
 #include <ql/instruments/swaption.hpp>
 
 namespace QuantLib {
     class HW2CDiscretizedSwap;
+    class HW2CModel;
 
     //! Discretized swaption for two-curve Hull-White tree pricing.
     /*! This class discretizes a swaption (European or Bermudan) for
-        backward induction on a dual-lattice Hull-White tree.  It
-        wraps an HW2CDiscretizedSwap as its underlying and delegates
-        dual-lattice initialization to it during reset.
+        backward induction on a Hull-White trinomial tree.  It wraps
+        an HW2CDiscretizedSwap as its underlying and delegates
+        analytical coupon computation to it during reset.
 
         Exercise dates that fall within one week of a coupon reset
         date are snapped to the exercise date, with coupon adjustment
@@ -44,25 +44,17 @@ namespace QuantLib {
 
         \ingroup swaptionengines
     */
-    class HW2CDiscretizedSwaption : public DiscretizedOption, public HW2CDiscretizedAsset {
+    class HW2CDiscretizedSwaption : public DiscretizedOption {
       public:
         HW2CDiscretizedSwaption(const Swaption::arguments& args,
                                 const Date& referenceDate,
-                                const DayCounter& dayCounter);
+                                const DayCounter& dayCounter,
+                                ext::shared_ptr<HW2CModel> model);
 
         void reset(Size size) override;
 
         //! Returns the exercise times (as year fractions from reference date).
         const std::vector<Time>& exerciseTimes() const { return exerciseTimes_; }
-
-        //! Returns the lattice used for discounting.
-        const ext::shared_ptr<Lattice>& discountMethod() const override { return method(); }
-        //! Returns the lattice used for forward-rate projection.
-        const ext::shared_ptr<Lattice>& forwardMethod() const override { return forwardMethod_; }
-
-        void initialize(const ext::shared_ptr<Lattice>& discountMethod,
-                        const ext::shared_ptr<Lattice>& forwardMethod,
-                        Time t) override;
 
       private:
         static void
@@ -74,8 +66,6 @@ namespace QuantLib {
         Swaption::arguments arguments_;
         Time lastPayment_;
         ext::shared_ptr<HW2CDiscretizedSwap> hw2cUnderlying_;
-
-        ext::shared_ptr<Lattice> forwardMethod_;
     };
 }
 

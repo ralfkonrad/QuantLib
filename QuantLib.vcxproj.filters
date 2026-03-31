@@ -7415,9 +7415,6 @@
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\all.hpp">
       <Filter>experimental\hullwhitewithtwocurves\pricingengines</Filter>
     </ClInclude>
-    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\hw2cdiscretizedasset.hpp">
-      <Filter>experimental\hullwhitewithtwocurves\pricingengines</Filter>
-    </ClInclude>
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\all.hpp">
       <Filter>experimental\hullwhitewithtwocurves\pricingengines\swap</Filter>
     </ClInclude>

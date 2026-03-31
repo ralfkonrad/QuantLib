@@ -43,19 +43,18 @@ namespace QuantLib {
         const Date referenceDate = model_->termStructure()->referenceDate();
         const DayCounter dayCounter = model_->termStructure()->dayCounter();
 
-        HW2CDiscretizedSwaption swaption(arguments_, referenceDate, dayCounter);
+        HW2CDiscretizedSwaption swaption(arguments_, referenceDate, dayCounter, *model_);
 
         auto mandatoryTimes = swaption.mandatoryTimes();
         TimeGrid timeGrid(mandatoryTimes.begin(), mandatoryTimes.end(), timeSteps_);
-        const ext::shared_ptr<Lattice> discountLattice = model_->tree(timeGrid);
-        const ext::shared_ptr<Lattice> forwardLattice = model_->forwardTree(timeGrid);
+        const ext::shared_ptr<Lattice> lattice = model_->tree(timeGrid);
 
         const std::vector<Time>& exerciseTimes = swaption.exerciseTimes();
         QL_REQUIRE(!exerciseTimes.empty(), "no exercise times in swaption");
 
         const Time lastTime = exerciseTimes.back();
 
-        swaption.initialize(discountLattice, forwardLattice, lastTime);
+        swaption.initialize(lattice, lastTime);
         const auto nextExerciseIt = std::find_if(exerciseTimes.begin(), exerciseTimes.end(),
                                                  [](Time t) { return t >= 0.0; });
         QL_REQUIRE(nextExerciseIt != exerciseTimes.end(), "all exercise times are in the past");

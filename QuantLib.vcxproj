@@ -2905,7 +2905,6 @@
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\model\all.hpp" />
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\model\hw2cmodel.hpp" />
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\all.hpp" />
-    <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\hw2cdiscretizedasset.hpp" />
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\all.hpp" />
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2cdiscretizedswap.hpp" />
     <ClInclude Include="ql\experimental\hullwhitewithtwocurves\pricingengines\swap\hw2ctreeswapengine.hpp" />

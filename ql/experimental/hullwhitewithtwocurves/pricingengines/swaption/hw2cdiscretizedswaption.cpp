@@ -21,6 +21,7 @@
     \brief Discretized swaption for two-curve Hull-White lattice pricing
 */
 
+#include <ql/experimental/hullwhitewithtwocurves/model/hw2cmodel.hpp>
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swap/hw2cdiscretizedswap.hpp>
 #include <ql/experimental/hullwhitewithtwocurves/pricingengines/swaption/hw2cdiscretizedswaption.hpp>
 
@@ -42,7 +43,8 @@ namespace QuantLib {
 
     HW2CDiscretizedSwaption::HW2CDiscretizedSwaption(const Swaption::arguments& args,
                                                      const Date& referenceDate,
-                                                     const DayCounter& dayCounter)
+                                                     const DayCounter& dayCounter,
+                                                     ext::shared_ptr<HW2CModel> model)
     : DiscretizedOption(
           ext::shared_ptr<DiscretizedAsset>(), args.exercise->type(), std::vector<Time>()),
       arguments_(args), lastPayment_(0.0) {
@@ -66,21 +68,14 @@ namespace QuantLib {
         lastPayment_ = std::max(lastFixedPayment, lastFloatingPayment);
 
         hw2cUnderlying_ = ext::make_shared<HW2CDiscretizedSwap>(
-            snappedArgs, referenceDate, dayCounter, std::move(fixedCouponAdjustments),
-            std::move(floatingCouponAdjustments));
+            snappedArgs, referenceDate, dayCounter, std::move(model),
+            std::move(fixedCouponAdjustments), std::move(floatingCouponAdjustments));
         underlying_ = hw2cUnderlying_;
     }
 
     void HW2CDiscretizedSwaption::reset(Size size) {
-        hw2cUnderlying_->initialize(discountMethod(), forwardMethod(), lastPayment_);
+        hw2cUnderlying_->initialize(method(), lastPayment_);
         DiscretizedOption::reset(size);
-    }
-
-    void HW2CDiscretizedSwaption::initialize(const ext::shared_ptr<Lattice>& discountMethod,
-                                             const ext::shared_ptr<Lattice>& forwardMethod,
-                                             Time t) {
-        forwardMethod_ = forwardMethod;
-        DiscretizedAsset::initialize(discountMethod, t);
     }
 
     void HW2CDiscretizedSwaption::prepareSwaptionWithSnappedDates(

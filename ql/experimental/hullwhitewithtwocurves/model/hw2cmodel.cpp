@@ -90,12 +90,23 @@ namespace QuantLib {
         return discountModel()->discountBondOption(type, strike, maturity, bondStart, bondMaturity);
     }
 
-    ext::shared_ptr<Lattice> HW2CModel::forwardTree(const TimeGrid& timeGrid) const {
-        return forwardModel()->tree(timeGrid);
+    Real HW2CModel::A_fwd(Time t, Time T) const {
+        DiscountFactor discount1 = forwardTermStructure()->discount(t);
+        DiscountFactor discount2 = forwardTermStructure()->discount(T);
+        Rate forward = forwardTermStructure()->forwardRate(t, t, Continuous, NoFrequency);
+        Real temp = sigma() * B(t, T);
+        Real value = B(t, T) * forward - 0.25 * temp * temp * B(0.0, 2.0 * t);
+        return exp(value) * discount2 / discount1;
+    }
+
+    Real HW2CModel::forwardDiscountBond(Time t, Time T, Real x) const {
+        Rate r_fwd = x + phi_fwd_(t);
+        return A_fwd(t, T) * exp(-B(t, T) * r_fwd);
     }
 
     void HW2CModel::generateArguments() {
         phi_ = HullWhite::FittingParameter(discountTermStructure(), a(), sigma());
+        phi_fwd_ = HullWhite::FittingParameter(forwardTermStructure(), a(), sigma());
 
         discountModel_.linkTo(
             ext::make_shared<HullWhite>(discountTermStructure_, this->a(), this->sigma()));
