@@ -35,38 +35,50 @@ namespace QuantLib {
 
     }
 
-    MultipleResetsSwap::MultipleResetsSwap(
-        Type type, Real nominal,
-        const Schedule& fixedSchedule, Rate fixedRate, DayCounter fixedDayCount,
-        Schedule fullResetSchedule,
-        const ext::shared_ptr<IborIndex>& iborIndex, Size resetsPerCoupon,
-        Spread spread, RateAveraging::Type averagingMethod,
-        ext::optional<BusinessDayConvention> paymentConvention,
-        Integer paymentLag, const Calendar& paymentCalendar)
-    : FixedVsFloatingSwap(type,
+    MultipleResetsSwap::MultipleResetsSwap(Type type,
+                                           Real nominal,
+                                           const Schedule& fixedSchedule,
+                                           Rate fixedRate,
+                                           DayCounter fixedDayCount,
+                                           Schedule fullResetSchedule,
+                                           const ext::shared_ptr<IborIndex>& iborIndex,
+                                           Size resetsPerCoupon,
+                                           Spread spread,
+                                           RateAveraging::Type averagingMethod,
+                                           ext::optional<BusinessDayConvention> paymentConvention,
+                                           Integer paymentLag,
+                                           const Calendar& paymentCalendar)
+    : FixedVsFloatingSwap(
+          type,
           std::vector<Real>(fixedSchedule.size() - 1, nominal),
-          fixedSchedule, fixedRate, std::move(fixedDayCount),
+          fixedSchedule,
+          fixedRate,
+          std::move(fixedDayCount),
           std::vector<Real>((fullResetSchedule.size() - 1) / resetsPerCoupon, nominal),
           buildCouponSchedule(fullResetSchedule, resetsPerCoupon),
-          iborIndex, spread, iborIndex->dayCounter(),
-          paymentConvention, paymentLag, paymentCalendar),
-      fullResetSchedule_(std::move(fullResetSchedule)),
-      resetsPerCoupon_(resetsPerCoupon),
+          iborIndex,
+          spread,
+          iborIndex->dayCounter(),
+          paymentConvention,
+          paymentLag,
+          paymentCalendar),
+      fullResetSchedule_(std::move(fullResetSchedule)), resetsPerCoupon_(resetsPerCoupon),
       averagingMethod_(averagingMethod) {
 
         QL_REQUIRE((fullResetSchedule_.size() - 1) % resetsPerCoupon_ == 0,
                    "number of reset periods (" << fullResetSchedule_.size() - 1
-                   << ") is not a multiple of resetsPerCoupon ("
-                   << resetsPerCoupon_ << ")");
+                                               << ") is not a multiple of resetsPerCoupon ("
+                                               << resetsPerCoupon_ << ")");
 
-        legs_[1] = MultipleResetsLeg(fullResetSchedule_, this->iborIndex(), resetsPerCoupon_)
-            .withNotionals(floatingNominals())
-            .withRateSpreads(spread)
-            .withAveragingMethod(averagingMethod_)
-            .withPaymentAdjustment(this->paymentConvention())
-            .withPaymentLag(paymentLag)
-            .withPaymentCalendar(paymentCalendar.empty() ?
-                                 fullResetSchedule_.calendar() : paymentCalendar);
+        legs_[1] =
+            MultipleResetsLeg(fullResetSchedule_, this->iborIndex(), resetsPerCoupon_)
+                .withNotionals(floatingNominals())
+                .withRateSpreads(spread)
+                .withAveragingMethod(averagingMethod_)
+                .withPaymentAdjustment(this->paymentConvention())
+                .withPaymentLag(paymentLag)
+                .withPaymentCalendar(paymentCalendar.empty() ? fullResetSchedule_.calendar() :
+                                                               paymentCalendar);
 
         for (auto& cf : legs_[1])
             registerWith(cf);
@@ -79,12 +91,14 @@ namespace QuantLib {
         args->floatingFixingDates = std::vector<Date>(n);
         args->floatingNominals = std::vector<Real>(n);
         args->floatingAccrualTimes = std::vector<Time>(n);
+        args->floatingAccrualEndDates = std::vector<Date>(n);
         args->floatingSpreads = std::vector<Spread>(n);
         args->floatingCoupons = std::vector<Real>(n);
         for (Size i = 0; i < n; ++i) {
             auto coupon = ext::dynamic_pointer_cast<MultipleResetsCoupon>(leg[i]);
             args->floatingResetDates[i] = coupon->accrualStartDate();
             args->floatingPayDates[i] = coupon->date();
+            args->floatingAccrualEndDates[i] = coupon->accrualEndDate();
             args->floatingFixingDates[i] = coupon->fixingDate();
             args->floatingNominals[i] = coupon->nominal();
             args->floatingAccrualTimes[i] = coupon->accrualPeriod();
