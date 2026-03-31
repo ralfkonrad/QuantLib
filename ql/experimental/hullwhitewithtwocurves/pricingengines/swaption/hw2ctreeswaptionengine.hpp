@@ -31,11 +31,11 @@
 namespace QuantLib {
 
     //! Two-curve Hull-White tree pricing engine for swaptions.
-    /*! Prices a Swaption (European or Bermudan) by building dual
-        trinomial trees from an HW2CModel and performing backward
-        induction through an HW2CDiscretizedSwaption.  The forward
-        tree drives rate projection while the discount tree drives
-        present-value discounting.
+    /*! Prices a Swaption (European or Bermudan) by building a single
+        trinomial tree from an HW2CModel and performing backward
+        induction through an HW2CDiscretizedSwaption.  Forward-rate
+        projection uses analytical forward discount bonds while the
+        tree drives present-value discounting.
 
         \warning Cash-settled swaptions using the par-yield curve
                  method are not supported.

@@ -134,8 +134,16 @@ namespace QuantLib {
         //! Returns the internal Hull-White model fitted to the forward curve.
         const Handle<HullWhite>& forwardModel() const { return forwardModel_; }
 
-        //! Builds a trinomial tree from the forward model for the given time grid.
-        ext::shared_ptr<Lattice> forwardTree(const TimeGrid& timeGrid) const;
+        //! Analytical forward-curve zero-coupon bond price.
+        /*! Given the state variable \f$ x \f$ at time \f$ t \f$,
+            returns \f$ P_{\text{fwd}}(t, T \,|\, x) =
+            A_{\text{fwd}}(t,T)\,e^{-B(t,T)\,(x + \varphi_{\text{fwd}}(t))} \f$.
+
+            \note The argument \p x is the **state variable** (not the
+                  short rate).  The forward fitting function
+                  \f$ \varphi_{\text{fwd}}(t) \f$ is applied internally.
+        */
+        Real forwardDiscountBond(Time t, Time T, Real x) const;
 
       protected:
         //! \name OneFactorAffineModel interface
@@ -148,6 +156,8 @@ namespace QuantLib {
             This is identical for both curves since \f$ a \f$ is shared.
         */
         Real B(Time t, Time T) const override;
+        //! Forward-curve affine factor \f$ A_{\text{fwd}}(t,T) \f$.
+        Real A_fwd(Time t, Time T) const;
         //@}
 
         void generateArguments() override;
@@ -160,6 +170,7 @@ namespace QuantLib {
         Handle<YieldTermStructure> forwardTermStructure_;
 
         Parameter phi_;
+        Parameter phi_fwd_;
 
         RelinkableHandle<HullWhite> discountModel_;
         RelinkableHandle<HullWhite> forwardModel_;
