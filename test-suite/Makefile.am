@@ -42,6 +42,10 @@ QL_TEST_SRCS = \
 	convertiblebonds.cpp \
 	covariance.cpp \
 	creditdefaultswap.cpp \
+	constnotionalcrosscurrencybasisswap.cpp \
+	constnotionalcrosscurrencyfixedvsfloatingswap.cpp \
+	mtmcrosscurrencybasisswap.cpp \
+	constnotionalcrosscurrencyswap.cpp \
 	crosscurrencyratehelpers.cpp \
 	currency.cpp \
 	curvestates.cpp \
@@ -74,6 +78,7 @@ QL_TEST_SRCS = \
 	forwardrateagreement.cpp \
 	functions.cpp \
 	fxforward.cpp \
+	g2process.cpp \
 	garch.cpp \
 	gaussianquadratures.cpp \
 	gjrgarchmodel.cpp \
@@ -146,6 +151,7 @@ QL_TEST_SRCS = \
 	riskneutraldensitycalculator.cpp \
 	riskstats.cpp \
 	rngtraits.cpp \
+	roughhestonmodel.cpp \
 	rounding.cpp \
 	schedule.cpp \
 	settings.cpp \
@@ -167,6 +173,7 @@ QL_TEST_SRCS = \
 	timeseries.cpp \
 	tqreigendecomposition.cpp \
 	tracing.cpp \
+	trinomialtree.cpp \
 	twoassetbarrieroption.cpp \
 	twoassetcorrelationoption.cpp \
 	ultimateforwardtermstructure.cpp \

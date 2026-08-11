@@ -19,7 +19,6 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include "preconditions.hpp"
 #include "toplevelfixture.hpp"
 #include "utilities.hpp"
 #include <ql/cashflows/coupon.hpp>
@@ -141,7 +140,7 @@ BOOST_AUTO_TEST_CASE(testCachedValues) {
     std::vector<Date> exerciseDates;
     const Leg& leg = atmSwap->fixedLeg();
     for (const auto& i : leg) {
-        ext::shared_ptr<Coupon> coupon = ext::dynamic_pointer_cast<Coupon>(i);
+        ext::shared_ptr<Coupon> coupon = coupon_cast(i);
         exerciseDates.push_back(coupon->accrualStartDate());
     }
     ext::shared_ptr<Exercise> exercise(new BermudanExercise(exerciseDates));
@@ -236,7 +235,7 @@ BOOST_AUTO_TEST_CASE(testCachedValues) {
                     << "expected:   " << otmValue);
 }
 
-BOOST_AUTO_TEST_CASE(testCachedG2Values, *precondition(if_speed(Fast))) {
+BOOST_AUTO_TEST_CASE(testCachedG2Values) {
     BOOST_TEST_MESSAGE(
         "Testing Bermudan swaption with G2 model against cached values...");
 
@@ -260,7 +259,7 @@ BOOST_AUTO_TEST_CASE(testCachedG2Values, *precondition(if_speed(Fast))) {
 
         std::vector<Date> exerciseDates;
         for (const auto& i : swap->fixedLeg()) {
-            exerciseDates.push_back(ext::dynamic_pointer_cast<Coupon>(i)->accrualStartDate());
+            exerciseDates.push_back(coupon_cast(i)->accrualStartDate());
         }
 
         swaptions.push_back(ext::make_shared<Swaption>(swap,
@@ -425,7 +424,7 @@ BOOST_AUTO_TEST_CASE(testBermudanOISSwaptionWithHW) {
     // Build Bermudan exercise from fixed leg
     std::vector<Date> exerciseDates;
     for (const auto& cf : atmOIS->fixedLeg()) {
-        auto coupon = ext::dynamic_pointer_cast<Coupon>(cf);
+        auto coupon = coupon_cast(cf);
         exerciseDates.push_back(coupon->accrualStartDate());
     }
     auto exercise = ext::make_shared<BermudanExercise>(exerciseDates);
@@ -551,7 +550,7 @@ BOOST_AUTO_TEST_CASE(testBermudanOISSwaptionWithG2) {
 
     std::vector<Date> exerciseDates;
     for (const auto& cf : atmOIS->fixedLeg()) {
-        auto coupon = ext::dynamic_pointer_cast<Coupon>(cf);
+        auto coupon = coupon_cast(cf);
         exerciseDates.push_back(coupon->accrualStartDate());
     }
     auto exercise = ext::make_shared<BermudanExercise>(exerciseDates);
@@ -638,7 +637,7 @@ BOOST_AUTO_TEST_CASE(testBermudanOISSwaptionPreservesFeatures) {
     auto refOIS = makeOIS(RateAveraging::Compound, 0);
     std::vector<Date> exerciseDates;
     for (const auto& cf : refOIS->fixedLeg()) {
-        auto coupon = ext::dynamic_pointer_cast<Coupon>(cf);
+        auto coupon = coupon_cast(cf);
         exerciseDates.push_back(coupon->accrualStartDate());
     }
     auto exercise = ext::make_shared<BermudanExercise>(exerciseDates);

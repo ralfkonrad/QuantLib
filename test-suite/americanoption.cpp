@@ -19,7 +19,6 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include "preconditions.hpp"
 #include "toplevelfixture.hpp"
 #include "utilities.hpp"
 #include <ql/any.hpp>
@@ -554,7 +553,7 @@ BOOST_AUTO_TEST_CASE(testFdAmericanGreeks) {
     testFdGreeks<FdBlackScholesVanillaEngine>();
 }
 
-BOOST_AUTO_TEST_CASE(testFdShoutGreeks, *precondition(if_speed(Fast))) {
+BOOST_AUTO_TEST_CASE(testFdShoutGreeks) {
     BOOST_TEST_MESSAGE("Testing finite-differences shout option greeks...");
     testFdGreeks<FdBlackScholesShoutEngine>();
 }
@@ -1979,7 +1978,7 @@ BOOST_AUTO_TEST_CASE(testBjerksundStenslandAmericanGreeks) {
                             const Real rho = option.rho();
                             const Real vega = option.vega();
                             const Real theta = option.theta();
-                            const auto exerciseType = ext::any_cast<std::string>(
+                            const auto exerciseType = std::any_cast<std::string>(
                                 option.additionalResults().find("exerciseType")->second);
 
                             OneAssetOption::results numericalResults;
@@ -2135,7 +2134,7 @@ BOOST_AUTO_TEST_CASE(testSingleBjerksundStenslandGreeks) {
     const Real vega = option.vega();
     const Real theta = option.theta();
     const Real thetaPerDay = option.thetaPerDay();
-    const auto exerciseType = ext::any_cast<std::string>(
+    const auto exerciseType = std::any_cast<std::string>(
         option.additionalResults().find("exerciseType")->second);
 
     const Real expectedNpv = 17.9251834488399169;

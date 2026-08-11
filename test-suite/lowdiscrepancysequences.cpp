@@ -18,7 +18,6 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include "preconditions.hpp"
 #include "toplevelfixture.hpp"
 #include "utilities.hpp"
 #include <ql/math/statistics/discrepancystatistics.hpp>
@@ -1112,7 +1111,7 @@ BOOST_AUTO_TEST_CASE(testSobolBurleySkipping) {
         }
 }
 
-BOOST_AUTO_TEST_CASE(testHighDimensionalIntegrals, *precondition(if_speed(Slow))) {
+BOOST_AUTO_TEST_CASE(testHighDimensionalIntegrals) {
     BOOST_TEST_MESSAGE("Testing high-dimensional integrals...");
 
     /* We are running "Integration test 1, results for high dimensions" (Figure 9) from:
@@ -1176,7 +1175,7 @@ BOOST_AUTO_TEST_CASE(testHighDimensionalIntegrals, *precondition(if_speed(Slow))
 
 BOOST_AUTO_TEST_CASE(testBurley2020SobolRsgOutputBounds) {
     BOOST_TEST_MESSAGE(
-        "Testing Burley2020SobolRsg output is strictly in (0,1)...");
+        "Testing that the output of Burley 2020 is strictly in (0,1)...");
 
     // With enough dimensions the scrambling occasionally maps to
     // zero.  Without the +0.5 offset this would give 0.0 in the

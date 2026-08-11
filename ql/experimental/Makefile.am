@@ -25,6 +25,7 @@ libExperimental_la_LIBADD = \
     exoticoptions/libExoticOptions.la \
     finitedifferences/libMultiDimFDM.la \
     forward/libForward.la \
+    fx/libFx.la \
     hullwhitewithtwocurves/libHullWhiteWithTwoCurves.la \
     inflation/libInflation.la \
     lattices/libLattices.la \

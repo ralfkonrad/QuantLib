@@ -41,6 +41,10 @@ set(QL_TEST_SOURCES
     convertiblebonds.cpp
     covariance.cpp
     creditdefaultswap.cpp
+    constnotionalcrosscurrencybasisswap.cpp
+    constnotionalcrosscurrencyfixedvsfloatingswap.cpp
+    mtmcrosscurrencybasisswap.cpp
+    constnotionalcrosscurrencyswap.cpp
     crosscurrencyratehelpers.cpp
     currency.cpp
     curvestates.cpp
@@ -73,6 +77,7 @@ set(QL_TEST_SOURCES
     forwardrateagreement.cpp
     functions.cpp
     fxforward.cpp
+    g2process.cpp
     garch.cpp
     gaussianquadratures.cpp
     gjrgarchmodel.cpp
@@ -145,6 +150,7 @@ set(QL_TEST_SOURCES
     riskneutraldensitycalculator.cpp
     riskstats.cpp
     rngtraits.cpp
+    roughhestonmodel.cpp
     rounding.cpp
     schedule.cpp
     settings.cpp
@@ -166,6 +172,7 @@ set(QL_TEST_SOURCES
     timeseries.cpp
     tqreigendecomposition.cpp
     tracing.cpp
+    trinomialtree.cpp
     twoassetbarrieroption.cpp
     twoassetcorrelationoption.cpp
     ultimateforwardtermstructure.cpp

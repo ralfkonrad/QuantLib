@@ -1,6 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /*
  Copyright (C) 2026 Zain Mughal
+ Copyright (C) 2026 Kyrylo Protsenko
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -20,6 +21,7 @@
 #include "utilities.hpp"
 #include <ql/indexes/ibor/euribor.hpp>
 #include <ql/instruments/makemultipleresetsswap.hpp>
+#include <ql/instruments/nonstandardswap.hpp>
 #include <ql/termstructures/yield/multipleresetsswaphelper.hpp>
 #include <ql/termstructures/yield/piecewiseyieldcurve.hpp>
 #include <ql/time/calendars/target.hpp>
@@ -62,7 +64,7 @@ struct CommonVars {
 
 
 BOOST_AUTO_TEST_CASE(testFairRate) {
-    BOOST_TEST_MESSAGE("Testing MultipleResetsSwap fair rate...");
+    BOOST_TEST_MESSAGE("Testing fair rate of multiple-resets swap...");
 
     CommonVars vars;
 
@@ -89,7 +91,7 @@ BOOST_AUTO_TEST_CASE(testFairRate) {
 
 
 BOOST_AUTO_TEST_CASE(testConsistencyWithLeg) {
-    BOOST_TEST_MESSAGE("Testing MultipleResetsSwap NPV consistency with legs...");
+    BOOST_TEST_MESSAGE("Testing that multiple-resets swap NPV is consistent with legs NPV...");
 
     CommonVars vars;
 
@@ -108,7 +110,7 @@ BOOST_AUTO_TEST_CASE(testConsistencyWithLeg) {
 
 
 BOOST_AUTO_TEST_CASE(testAveragingVsCompounding) {
-    BOOST_TEST_MESSAGE("Testing MultipleResetsSwap averaging vs compounding...");
+    BOOST_TEST_MESSAGE("Testing averaging vs compounding in multiple-resets swaps...");
 
     CommonVars vars;
 
@@ -120,8 +122,35 @@ BOOST_AUTO_TEST_CASE(testAveragingVsCompounding) {
 }
 
 
+BOOST_AUTO_TEST_CASE(testPaymentLagPreservedOnConversion) {
+    BOOST_TEST_MESSAGE("Testing payment lag preservation on conversion to a nonstandard swap...");
+
+    CommonVars vars;
+    auto baseSwap = vars.makeSwap(0.05);
+    Integer paymentLag = 3;
+    auto laggedSwap = ext::make_shared<MultipleResetsSwap>(
+        Swap::Payer, 1.0e6, baseSwap->fixedSchedule(), 0.05,
+        baseSwap->fixedDayCount(), baseSwap->fullResetSchedule(),
+        vars.euribor3m, baseSwap->resetsPerCoupon(), 0.0,
+        RateAveraging::Compound, std::nullopt, paymentLag, vars.calendar);
+
+    NonstandardSwap converted(*laggedSwap);
+    BOOST_CHECK_EQUAL(converted.paymentLag(), paymentLag);
+    BOOST_CHECK(converted.paymentCalendar() == vars.calendar);
+    BOOST_REQUIRE_EQUAL(converted.fixedLeg().size(), laggedSwap->fixedLeg().size());
+    BOOST_REQUIRE_EQUAL(converted.floatingLeg().size(),
+                        laggedSwap->floatingLeg().size());
+    for (Size i = 0; i < converted.fixedLeg().size(); ++i)
+        BOOST_CHECK_EQUAL(converted.fixedLeg()[i]->date(),
+                          laggedSwap->fixedLeg()[i]->date());
+    for (Size i = 0; i < converted.floatingLeg().size(); ++i)
+        BOOST_CHECK_EQUAL(converted.floatingLeg()[i]->date(),
+                          laggedSwap->floatingLeg()[i]->date());
+}
+
+
 BOOST_AUTO_TEST_CASE(testRateHelper) {
-    BOOST_TEST_MESSAGE("Testing MultipleResetsSwapRateHelper bootstrapping...");
+    BOOST_TEST_MESSAGE("Testing bootstrapping using multiple-resets swap helpers...");
 
     CommonVars vars;
 

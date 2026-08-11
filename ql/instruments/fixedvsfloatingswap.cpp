@@ -4,6 +4,7 @@
  Copyright (C) 2000, 2001, 2002, 2003 RiskMap srl
  Copyright (C) 2003, 2004, 2005, 2006, 2007 StatPro Italia srl
  Copyright (C) 2007 Ferdinando Ametrano
+ Copyright (C) 2026 Kyrylo Protsenko
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -40,14 +41,14 @@ namespace QuantLib {
                                              ext::shared_ptr<IborIndex> iborIndex,
                                              Spread spread,
                                              DayCounter floatingDayCount,
-                                             ext::optional<BusinessDayConvention> paymentConvention,
+                                             std::optional<BusinessDayConvention> paymentConvention,
                                              Integer paymentLag,
                                              const Calendar& paymentCalendar)
-    : Swap(2), type_(type), fixedNominals_(std::move(fixedNominals)),
-      fixedSchedule_(std::move(fixedSchedule)), fixedRate_(fixedRate),
-      fixedDayCount_(std::move(fixedDayCount)), floatingNominals_(std::move(floatingNominals)),
-      floatingSchedule_(std::move(floatingSchedule)), iborIndex_(std::move(iborIndex)),
-      spread_(spread), floatingDayCount_(std::move(floatingDayCount)) {
+    : Swap(2), type_(type), fixedNominals_(std::move(fixedNominals)), fixedSchedule_(std::move(fixedSchedule)),
+      fixedRate_(fixedRate), fixedDayCount_(std::move(fixedDayCount)),
+      floatingNominals_(std::move(floatingNominals)), floatingSchedule_(std::move(floatingSchedule)),
+      iborIndex_(std::move(iborIndex)), spread_(spread), floatingDayCount_(std::move(floatingDayCount)),
+      paymentLag_(paymentLag), paymentCalendar_(paymentCalendar) {
 
         QL_REQUIRE(iborIndex_, "null floating index provided");
 
@@ -60,26 +61,27 @@ namespace QuantLib {
             paymentConvention_ = floatingSchedule_.businessDayConvention();
 
         legs_[0] = FixedRateLeg(fixedSchedule_)
-                       .withNotionals(fixedNominals_)
-                       .withCouponRates(fixedRate_, fixedDayCount_)
-                       .withPaymentAdjustment(paymentConvention_)
-                       .withPaymentLag(paymentLag)
-                       .withPaymentCalendar(paymentCalendar.empty() ? fixedSchedule_.calendar() :
-                                                                      paymentCalendar);
+            .withNotionals(fixedNominals_)
+            .withCouponRates(fixedRate_, fixedDayCount_)
+            .withPaymentAdjustment(paymentConvention_)
+            .withPaymentLag(paymentLag)
+            .withPaymentCalendar(paymentCalendar.empty() ?
+                                 fixedSchedule_.calendar() :
+                                 paymentCalendar);
 
         // legs_[1] to be built by derived class constructor
 
         switch (type_) {
-            case Payer:
-                payer_[0] = -1.0;
-                payer_[1] = +1.0;
-                break;
-            case Receiver:
-                payer_[0] = +1.0;
-                payer_[1] = -1.0;
-                break;
-            default:
-                QL_FAIL("Unknown vanilla-swap type");
+          case Payer:
+            payer_[0] = -1.0;
+            payer_[1] = +1.0;
+            break;
+          case Receiver:
+            payer_[0] = +1.0;
+            payer_[1] = -1.0;
+            break;
+          default:
+            QL_FAIL("Unknown vanilla-swap type");
         }
 
 
@@ -125,7 +127,7 @@ namespace QuantLib {
         arguments->fixedResetDates = arguments->fixedPayDates = std::vector<Date>(n);
         arguments->fixedNominals = arguments->fixedCoupons = std::vector<Real>(n);
 
-        for (Size i = 0; i < n; ++i) {
+        for (Size i=0; i<n; ++i) {
             auto coupon = ext::dynamic_pointer_cast<FixedRateCoupon>(fixedCoupons[i]);
 
             arguments->fixedPayDates[i] = coupon->date();
@@ -196,13 +198,13 @@ namespace QuantLib {
 
         if (fairRate_ == Null<Rate>()) {
             // calculate it from other results
-            if (legBPS_[0] != Null<Real>())
-                fairRate_ = fixedRate_ - NPV_ / (legBPS_[0] / basisPoint);
+            if (legBPS_[0] != Null<Real>() && legBPS_[0] != 0.0)
+                fairRate_ = fixedRate_ - NPV_/(legBPS_[0]/basisPoint);
         }
         if (fairSpread_ == Null<Spread>()) {
             // ditto
-            if (legBPS_[1] != Null<Real>())
-                fairSpread_ = spread_ - NPV_ / (legBPS_[1] / basisPoint);
+            if (legBPS_[1] != Null<Real>() && legBPS_[1] != 0.0)
+                fairSpread_ = spread_ - NPV_/(legBPS_[1]/basisPoint);
         }
     }
 
@@ -228,9 +230,6 @@ namespace QuantLib {
                    "number of floating payment dates");
         QL_REQUIRE(floatingAccrualTimes.size() == floatingPayDates.size(),
                    "number of floating accrual Times different from "
-                   "number of floating payment dates");
-        QL_REQUIRE(floatingAccrualEndDates.size() == floatingPayDates.size(),
-                   "number of floating accrual end dates different from "
                    "number of floating payment dates");
         QL_REQUIRE(floatingSpreads.size() == floatingPayDates.size(),
                    "number of floating spreads different from "

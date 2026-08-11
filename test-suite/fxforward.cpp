@@ -68,7 +68,7 @@ struct CommonVars {
 
 
 BOOST_AUTO_TEST_CASE(testFxForwardConstruction) {
-    BOOST_TEST_MESSAGE("Testing FX forward construction...");
+    BOOST_TEST_MESSAGE("Testing FX-forward construction...");
 
     CommonVars vars;
 
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(testFxForwardConstruction) {
 
 
 BOOST_AUTO_TEST_CASE(testFxForwardConstructionWithRate) {
-    BOOST_TEST_MESSAGE("Testing FX forward construction with rate...");
+    BOOST_TEST_MESSAGE("Testing FX-forward construction with rate...");
 
     CommonVars vars;
 
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(testFxForwardConstructionWithRate) {
 
 
 BOOST_AUTO_TEST_CASE(testContractedForwardRate) {
-    BOOST_TEST_MESSAGE("Testing FX forward contracted rate...");
+    BOOST_TEST_MESSAGE("Testing FX-forward contracted rate...");
 
     CommonVars vars;
 
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(testContractedForwardRate) {
 
 
 BOOST_AUTO_TEST_CASE(testFxForwardExpiry) {
-    BOOST_TEST_MESSAGE("Testing FX forward expiry...");
+    BOOST_TEST_MESSAGE("Testing FX-forward expiry...");
 
     CommonVars vars;
 
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(testFxForwardExpiry) {
 
 
 BOOST_AUTO_TEST_CASE(testDiscountingFxForwardEngine) {
-    BOOST_TEST_MESSAGE("Testing discounting FX forward engine...");
+    BOOST_TEST_MESSAGE("Testing discounting FX-forward engine...");
 
     CommonVars vars;
 
@@ -195,26 +195,32 @@ BOOST_AUTO_TEST_CASE(testFairForwardRate) {
 
     fwd.setPricingEngine(engine);
 
-    // Fair forward rate = Spot * (DFforeign / DFdomestic)
+    // Fair forward rate = Spot * (DFsource / DFtarget)
     // The engine calculates discount factors from settlement date to maturity
     // With USD as source currency (domestic) and SGD as target currency (foreign):
-    // F = S * (DF_SGD / DF_USD)
+    // F = S * (DF_USD / DF_SGD)
     Date settlementDate = fwd.settlementDate();
     Real spotFx = vars.spotFxHandle->value();
     Real dfUsd = vars.usdCurveHandle->discount(vars.maturityDate) /
                  vars.usdCurveHandle->discount(settlementDate);
     Real dfSgd = vars.sgdCurveHandle->discount(vars.maturityDate) /
                  vars.sgdCurveHandle->discount(settlementDate);
-    Real expectedFairRate = spotFx * dfSgd / dfUsd;
+    Real expectedFairRate = spotFx * dfUsd / dfSgd;
 
     Real calculatedFairRate = fwd.fairForwardRate();
 
     QL_CHECK_CLOSE(calculatedFairRate, expectedFairRate, 1.0e-4); // 0.0001% tolerance
+
+    FxForward atmFwd(usdNominal, vars.usd, vars.sgd, calculatedFairRate,
+                     vars.maturityDate, true);
+    atmFwd.setPricingEngine(engine);
+
+    QL_CHECK_SMALL(atmFwd.NPV(), 1.0e-4);
 }
 
 
 BOOST_AUTO_TEST_CASE(testAtTheMoney) {
-    BOOST_TEST_MESSAGE("Testing FX forward at-the-money has zero NPV...");
+    BOOST_TEST_MESSAGE("Testing that an FX forward at-the-money has zero NPV...");
 
     CommonVars vars;
 
@@ -259,7 +265,7 @@ BOOST_AUTO_TEST_CASE(testAtTheMoney) {
 
 
 BOOST_AUTO_TEST_CASE(testPositionDirection) {
-    BOOST_TEST_MESSAGE("Testing FX forward position direction...");
+    BOOST_TEST_MESSAGE("Testing FX-forward position direction...");
 
     CommonVars vars;
 
@@ -287,7 +293,7 @@ BOOST_AUTO_TEST_CASE(testPositionDirection) {
 
 
 BOOST_AUTO_TEST_CASE(testIRCurveSensitivity) {
-    BOOST_TEST_MESSAGE("Testing FX forward sensitivity to IR curves...");
+    BOOST_TEST_MESSAGE("Testing FX-forward sensitivity to IR curves...");
 
     CommonVars vars;
 
@@ -323,7 +329,7 @@ BOOST_AUTO_TEST_CASE(testIRCurveSensitivity) {
 
 
 BOOST_AUTO_TEST_CASE(testSpotFxSensitivity) {
-    BOOST_TEST_MESSAGE("Testing FX forward sensitivity to spot FX...");
+    BOOST_TEST_MESSAGE("Testing FX-forward sensitivity to spot FX...");
 
     CommonVars vars;
 
@@ -359,7 +365,7 @@ BOOST_AUTO_TEST_CASE(testSpotFxSensitivity) {
 
 
 BOOST_AUTO_TEST_CASE(testAdditionalResults) {
-    BOOST_TEST_MESSAGE("Testing FX forward additional results...");
+    BOOST_TEST_MESSAGE("Testing FX-forward additional results...");
 
     CommonVars vars;
 
@@ -383,9 +389,9 @@ BOOST_AUTO_TEST_CASE(testAdditionalResults) {
     BOOST_CHECK(additionalResults.find("sourceCurrencyDiscountFactor") != additionalResults.end());
     BOOST_CHECK(additionalResults.find("targetCurrencyDiscountFactor") != additionalResults.end());
 
-    Real spotFx = ext::any_cast<Real>(additionalResults.at("spotFx"));
-    Real dfSource = ext::any_cast<Real>(additionalResults.at("sourceCurrencyDiscountFactor"));
-    Real dfTarget = ext::any_cast<Real>(additionalResults.at("targetCurrencyDiscountFactor"));
+    Real spotFx = std::any_cast<Real>(additionalResults.at("spotFx"));
+    Real dfSource = std::any_cast<Real>(additionalResults.at("sourceCurrencyDiscountFactor"));
+    Real dfTarget = std::any_cast<Real>(additionalResults.at("targetCurrencyDiscountFactor"));
 
     QL_CHECK_CLOSE(spotFx, 1.35, 1.0e-4); // 0.0001% tolerance
     BOOST_CHECK(dfSource > 0.0 && dfSource < 1.0);
@@ -394,7 +400,7 @@ BOOST_AUTO_TEST_CASE(testAdditionalResults) {
 
 
 BOOST_AUTO_TEST_CASE(testSettlementDays) {
-    BOOST_TEST_MESSAGE("Testing FX forward settlement days...");
+    BOOST_TEST_MESSAGE("Testing FX-forward settlement days...");
 
     CommonVars vars;
 
@@ -423,7 +429,7 @@ BOOST_AUTO_TEST_CASE(testSettlementDays) {
 
 
 BOOST_AUTO_TEST_CASE(testSettlementDaysWithCalendar) {
-    BOOST_TEST_MESSAGE("Testing FX forward settlement days with calendar...");
+    BOOST_TEST_MESSAGE("Testing FX-forward settlement days with calendar...");
 
     CommonVars vars;
 
