@@ -66,7 +66,9 @@ namespace {
     ext::shared_ptr<VanillaSwap> makeSwap(const CommonVars& vars,
                                           const Handle<YieldTermStructure>& forwarding) {
         auto index = ext::make_shared<Euribor6M>(forwarding);
-        return MakeVanillaSwap(5 * Years, index, vars.fixedRate).withNominal(vars.nominal);
+        return MakeVanillaSwap(5 * Years, index)
+            .withFixedRate(vars.fixedRate)
+            .withNominal(vars.nominal);
     }
 
     ext::shared_ptr<Swaption> makeEuropeanSwaption(const CommonVars& vars,
@@ -172,10 +174,12 @@ BOOST_AUTO_TEST_CASE(testSwapPayerReceiverParity) {
     auto hw2cModel = ext::make_shared<HW2CModel>(vars.discountCurve, vars.forwardCurve);
     auto index = ext::make_shared<Euribor6M>(vars.forwardCurve);
 
-    ext::shared_ptr<VanillaSwap> payer = MakeVanillaSwap(5 * Years, index, vars.fixedRate)
+    ext::shared_ptr<VanillaSwap> payer = MakeVanillaSwap(5 * Years, index)
+                                             .withFixedRate(vars.fixedRate)
                                              .withNominal(vars.nominal)
                                              .withType(Swap::Payer);
-    ext::shared_ptr<VanillaSwap> receiver = MakeVanillaSwap(5 * Years, index, vars.fixedRate)
+    ext::shared_ptr<VanillaSwap> receiver = MakeVanillaSwap(5 * Years, index)
+                                                .withFixedRate(vars.fixedRate)
                                                 .withNominal(vars.nominal)
                                                 .withType(Swap::Receiver);
 
