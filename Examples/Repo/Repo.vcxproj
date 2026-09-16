@@ -37,7 +37,6 @@
   <PropertyGroup Label="Globals">
     <ProjectName>Repo</ProjectName>
     <ProjectGuid>{1B660588-A923-4D84-9092-16DA67869773}</ProjectGuid>
-    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="..\..\QuantLib.props" />

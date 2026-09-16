@@ -37,7 +37,6 @@
   <PropertyGroup Label="Globals">
     <ProjectName>Gaussian1dModels</ProjectName>
     <ProjectGuid>{B62FC7BE-C1BC-4AB0-BB11-BBF627CC3BA6}</ProjectGuid>
-    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="..\..\QuantLib.props" />

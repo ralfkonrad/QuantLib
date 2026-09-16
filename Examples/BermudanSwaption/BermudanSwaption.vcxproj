@@ -37,7 +37,6 @@
   <PropertyGroup Label="Globals">
     <ProjectName>BermudanSwaption</ProjectName>
     <ProjectGuid>{940A0AFC-9F9F-4797-A0FF-99543F67C1D9}</ProjectGuid>
-    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="..\..\QuantLib.props" />

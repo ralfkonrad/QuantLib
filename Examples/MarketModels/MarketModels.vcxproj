@@ -37,7 +37,6 @@
   <PropertyGroup Label="Globals">
     <ProjectName>MarketModels</ProjectName>
     <ProjectGuid>{47CE2A41-091A-42A3-B40D-F6F0DD689349}</ProjectGuid>
-    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="..\..\QuantLib.props" />

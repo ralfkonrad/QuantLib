@@ -38,7 +38,6 @@
     <ProjectName>testsuite</ProjectName>
     <ProjectGuid>{A613045C-34AF-4706-AA3C-730C92524F74}</ProjectGuid>
     <RootNamespace>testsuite</RootNamespace>
-    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="..\QuantLib.props" />

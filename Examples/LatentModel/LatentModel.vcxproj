@@ -37,7 +37,6 @@
   <PropertyGroup Label="Globals">
     <ProjectName>LatentModel</ProjectName>
     <ProjectGuid>{E4098DFF-FD34-48A6-955F-C1E3F97FBA26}</ProjectGuid>
-    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="..\..\QuantLib.props" />

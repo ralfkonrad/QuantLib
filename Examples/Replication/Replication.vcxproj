@@ -37,7 +37,6 @@
   <PropertyGroup Label="Globals">
     <ProjectName>Replication</ProjectName>
     <ProjectGuid>{7FF22935-8C7D-4903-908C-B77A9CDBA840}</ProjectGuid>
-    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="..\..\QuantLib.props" />
