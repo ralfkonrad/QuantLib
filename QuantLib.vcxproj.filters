@@ -58,7 +58,7 @@
     <Filter Include="math\randomnumbers">
       <UniqueIdentifier>{6853f0b6-f5cb-475a-bb31-b7d03ffa0685}</UniqueIdentifier>
     </Filter>
-    <Filter Include="math\solvers1D">
+    <Filter Include="math\solvers1d">
       <UniqueIdentifier>{627e33e9-8709-415d-b7a8-b6c3f680c241}</UniqueIdentifier>
     </Filter>
     <Filter Include="math\optimization">
@@ -127,7 +127,7 @@
     <Filter Include="models\shortrate\onefactormodels">
       <UniqueIdentifier>{8b4b44b7-fa7b-4b04-8186-b74a4b4553ff}</UniqueIdentifier>
     </Filter>
-    <Filter Include="models\shortrate\twofactorsmodels">
+    <Filter Include="models\shortrate\twofactormodels">
       <UniqueIdentifier>{146d248f-eca5-4d6e-a41c-56f68851c964}</UniqueIdentifier>
     </Filter>
     <Filter Include="models\volatility">
@@ -1357,31 +1357,31 @@
       <Filter>math\randomnumbers</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\solvers1d\all.hpp">
-      <Filter>math\solvers1D</Filter>
+      <Filter>math\solvers1d</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\solvers1d\bisection.hpp">
-      <Filter>math\solvers1D</Filter>
+      <Filter>math\solvers1d</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\solvers1d\brent.hpp">
-      <Filter>math\solvers1D</Filter>
+      <Filter>math\solvers1d</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\solvers1d\falseposition.hpp">
-      <Filter>math\solvers1D</Filter>
+      <Filter>math\solvers1d</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\solvers1d\finitedifferencenewtonsafe.hpp">
-      <Filter>math\solvers1D</Filter>
+      <Filter>math\solvers1d</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\solvers1d\newton.hpp">
-      <Filter>math\solvers1D</Filter>
+      <Filter>math\solvers1d</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\solvers1d\newtonsafe.hpp">
-      <Filter>math\solvers1D</Filter>
+      <Filter>math\solvers1d</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\solvers1d\ridder.hpp">
-      <Filter>math\solvers1D</Filter>
+      <Filter>math\solvers1d</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\solvers1d\secant.hpp">
-      <Filter>math\solvers1D</Filter>
+      <Filter>math\solvers1d</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\optimization\all.hpp">
       <Filter>math\optimization</Filter>
@@ -1936,10 +1936,10 @@
       <Filter>models\shortrate\onefactormodels</Filter>
     </ClInclude>
     <ClInclude Include="ql\models\shortrate\twofactormodels\all.hpp">
-      <Filter>models\shortrate\twofactorsmodels</Filter>
+      <Filter>models\shortrate\twofactormodels</Filter>
     </ClInclude>
     <ClInclude Include="ql\models\shortrate\twofactormodels\g2.hpp">
-      <Filter>models\shortrate\twofactorsmodels</Filter>
+      <Filter>models\shortrate\twofactormodels</Filter>
     </ClInclude>
     <ClInclude Include="ql\models\volatility\all.hpp">
       <Filter>models\volatility</Filter>
@@ -4579,7 +4579,7 @@
       <Filter>math\matrixutilities</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\solvers1d\halley.hpp">
-      <Filter>math\solvers1D</Filter>
+      <Filter>math\solvers1d</Filter>
     </ClInclude>
     <ClInclude Include="ql\methods\finitedifferences\operators\fdmwienerop.hpp">
       <Filter>methods\finitedifferences\operators</Filter>
@@ -5637,7 +5637,7 @@
       <Filter>models\shortrate\onefactormodels</Filter>
     </ClCompile>
     <ClCompile Include="ql\models\shortrate\twofactormodels\g2.cpp">
-      <Filter>models\shortrate\twofactorsmodels</Filter>
+      <Filter>models\shortrate\twofactormodels</Filter>
     </ClCompile>
     <ClCompile Include="ql\models\volatility\constantestimator.cpp">
       <Filter>models\volatility</Filter>
