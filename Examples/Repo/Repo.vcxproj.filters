@@ -5,14 +5,6 @@
       <UniqueIdentifier>{bf42d8f4-4ad9-4de5-9ed5-43b500a30207}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{4a8fbbaa-955c-4433-8435-0eec9d9c8c79}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{f7eb1321-6516-4ea2-918d-44ed8c0b08d9}</UniqueIdentifier>
-      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Repo.cpp">
