@@ -257,6 +257,8 @@ benchmark: quantlib-benchmark$(EXEEXT)
 	BOOST_TEST_LOG_LEVEL=message ./quantlib-benchmark$(EXEEXT)
 
 EXTRA_DIST += \
+	benchmark.vcxproj \
+	benchmark.vcxproj.filters \
 	CMakeLists.txt \
 	paralleltestrunner.hpp \
 	README.txt \
@@ -267,6 +269,8 @@ else
 
 EXTRA_DIST = \
 	${QL_TESTS} \
+	benchmark.vcxproj \
+	benchmark.vcxproj.filters \
 	CMakeLists.txt \
 	paralleltestrunner.hpp \
 	quantlibbenchmark.cpp \
