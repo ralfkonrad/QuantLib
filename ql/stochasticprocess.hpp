@@ -4,6 +4,7 @@
  Copyright (C) 2003 Ferdinando Ametrano
  Copyright (C) 2001, 2002, 2003 Sadruddin Rejeb
  Copyright (C) 2004, 2005 StatPro Italia srl
+ Copyright (C) 2026 Ralf Konrad Eckel
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -31,6 +32,8 @@
 #include <ql/math/matrix.hpp>
 
 namespace QuantLib {
+
+    class TimeGrid;
 
     //! multi-dimensional stochastic process class.
     /*! This class describes a stochastic process governed by
@@ -221,6 +224,38 @@ namespace QuantLib {
             returns \f$ x + \Delta x \f$.
         */
         virtual Real apply(Real x0, Real dx) const;
+        //@}
+
+        //! the steps of a process along a fixed time grid
+        /*! A step table is a snapshot of its process between two
+            notifications: a path generator builds one on its first
+            path and drops it when the process notifies.
+        */
+        class StepTable1D {
+          public:
+            virtual ~StepTable1D() = default;
+            /*! returns the value that evolve(grid[i], x0, grid.dt(i), dw)
+                returns for the process and grid the table was built from.
+            */
+            virtual Real evolve(Size i, Real x0, Real dw) const = 0;
+            /*! writes x0 into path[0] and evolve(i, path[i], dw[i]) into
+                path[i+1] for each grid step i, with -dw[i] in place of
+                dw[i] if antithetic is set; dw holds one increment per
+                grid step. The default calls evolve() per step; an
+                override saves that call.
+            */
+            virtual void
+            evolvePath(Real x0, const std::vector<Real>& dw, bool antithetic, Real* path) const;
+        };
+        //! \name Step tables
+        //@{
+        /*! returns a step table along the given grid. The default
+            table forwards every step to evolve() and refers to this
+            process, which must outlive it. An override may compute
+            the terms that depend on the grid alone once, as long as
+            each step returns the value evolve() would.
+        */
+        virtual ext::shared_ptr<const StepTable1D> stepTable1D(const TimeGrid& grid) const;
         //@}
       protected:
         StochasticProcess1D() = default;
