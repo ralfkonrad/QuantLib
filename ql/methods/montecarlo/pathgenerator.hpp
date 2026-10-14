@@ -4,6 +4,7 @@
  Copyright (C) 2002, 2003 Ferdinando Ametrano
  Copyright (C) 2000, 2001, 2002, 2003 RiskMap srl
  Copyright (C) 2003, 2004, 2005, 2006 StatPro Italia srl
+ Copyright (C) 2026 Ralf Konrad Eckel
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -37,12 +38,17 @@ namespace QuantLib {
     /*! Generates random paths with drift(S,t) and variance(S,t)
         using a gaussian sequence generator
 
+        The paths follow the process as of its last notification,
+        through the step table it returns. After notifications were
+        dropped by ObservableSettings::disableUpdates(false), call
+        update() on the generator to see the current market.
+
         \ingroup mcarlo
 
         \test the generated paths are checked against cached results
     */
     template <class GSG>
-    class PathGenerator {
+    class PathGenerator : public Observer {
       public:
         typedef Sample<Path> sample_type;
         // constructors
@@ -62,6 +68,10 @@ namespace QuantLib {
         Size size() const { return dimension_; }
         const TimeGrid& timeGrid() const { return timeGrid_; }
         //@}
+        //! \name Observer interface
+        //@{
+        void update() override { table_.reset(); }
+        //@}
       private:
         const sample_type& next(bool antithetic) const;
         bool brownianBridge_;
@@ -69,6 +79,7 @@ namespace QuantLib {
         Size dimension_;
         TimeGrid timeGrid_;
         ext::shared_ptr<StochasticProcess1D> process_;
+        mutable ext::shared_ptr<const StochasticProcess1D::StepTable1D> table_;
         mutable sample_type next_;
         mutable std::vector<Real> temp_;
         BrownianBridge bb_;
@@ -90,6 +101,7 @@ namespace QuantLib {
         QL_REQUIRE(dimension_==timeSteps,
                    "sequence generator dimensionality (" << dimension_
                    << ") != timeSteps (" << timeSteps << ")");
+        registerWith(process_);
     }
 
     template <class GSG>
@@ -104,6 +116,7 @@ namespace QuantLib {
         QL_REQUIRE(dimension_==timeGrid_.size()-1,
                    "sequence generator dimensionality (" << dimension_
                    << ") != timeSteps (" << timeGrid_.size()-1 << ")");
+        registerWith(process_);
     }
 
     template <class GSG>
@@ -136,16 +149,15 @@ namespace QuantLib {
 
         next_.weight = sequence_.weight;
 
-        Path& path = next_.value;
-        path.front() = process_->x0();
+        // built on the first path rather than in the constructor, so
+        // that a handle linked after construction is seen
+        if (!table_)
+            table_ = process_->stepTable1D(timeGrid_);
+        // a notification during the path drops only the member
+        const auto table = table_;
 
-        for (auto i=1U; i<path.length(); i++) {
-            auto t = timeGrid_[i-1];
-            auto dt = timeGrid_.dt(i-1);
-            path[i] = process_->evolve(t, path[i-1], dt,
-                                       antithetic ? -increments[i-1] :
-                                                     increments[i-1]);
-        }
+        Path& path = next_.value;
+        table->evolvePath(process_->x0(), increments, antithetic, &path.front());
 
         return next_;
     }
