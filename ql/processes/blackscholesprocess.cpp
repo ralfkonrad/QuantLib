@@ -5,6 +5,7 @@
  Copyright (C) 2001, 2002, 2003 Sadruddin Rejeb
  Copyright (C) 2004, 2005, 2006, 2007 StatPro Italia srl
  Copyright (C) 2015 Peter Caspers
+ Copyright (C) 2026 Ralf Konrad Eckel
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -27,10 +28,64 @@
 #include <ql/termstructures/yield/flatforward.hpp>
 #include <ql/time/calendars/nullcalendar.hpp>
 #include <ql/time/daycounters/actual365fixed.hpp>
+#include <ql/timegrid.hpp>
+#include <typeinfo>
 #include <utility>
 
 
 namespace QuantLib {
+
+    namespace {
+
+        // The classes declared in blackscholesprocess.hpp, whose step is the one in this
+        // file; any other subclass might override part of it.
+        bool isDeclaredHere(const GeneralizedBlackScholesProcess& process) {
+            const std::type_info& type = typeid(process);
+            return type == typeid(GeneralizedBlackScholesProcess) ||
+                   type == typeid(BlackScholesProcess) ||
+                   type == typeid(BlackScholesMertonProcess) || type == typeid(BlackProcess) ||
+                   type == typeid(GarmanKohlagenProcess);
+        }
+
+        // The exact lognormal step, written once for evolve() and the step table so that a
+        // compiler contracting to FMAs compiles both the same way.
+        inline Real lognormalDrift(Rate r, Rate q, Time dt, Real variance) {
+            return (r - q) * dt - 0.5 * variance;
+        }
+
+        inline Real lognormalIncrement(Real stdDeviation, Real dw, Real drift) {
+            return stdDeviation * dw + drift;
+        }
+
+        class ExactStepTable : public StochasticProcess1D::StepTable1D {
+          public:
+            struct Step {
+                Real stdDeviation, drift;
+            };
+            explicit ExactStepTable(std::vector<Step> steps) : steps_(std::move(steps)) {}
+            Real evolve(Size i, Real x0, Real dw) const override { return step(steps_[i], x0, dw); }
+            void evolvePath(Real x0,
+                            const std::vector<Real>& dw,
+                            bool antithetic,
+                            Real* path) const override {
+#if defined(QL_EXTRA_SAFETY_CHECKS)
+                QL_REQUIRE(dw.size() == steps_.size(),
+                           dw.size() << " increments given for " << steps_.size() << " steps");
+#endif
+                path[0] = x0;
+                for (Size i = 0; i < steps_.size(); ++i)
+                    path[i + 1] = step(steps_[i], path[i], antithetic ? -dw[i] : dw[i]);
+            }
+
+          private:
+            // apply() of GeneralizedBlackScholesProcess
+            static Real step(const Step& s, Real x0, Real dw) {
+                return x0 * std::exp(lognormalIncrement(s.stdDeviation, dw, s.drift));
+            }
+            std::vector<Step> steps_;
+        };
+
+    }
 
     GeneralizedBlackScholesProcess::GeneralizedBlackScholesProcess(
         Handle<Quote> x0,
@@ -134,16 +189,41 @@ namespace QuantLib {
         if (isStrikeIndependent_ && !forceDiscretization_) {
             // exact value for curves
             Real var = variance(t0, x0, dt);
-            Real drift = (riskFreeRate_->forwardRate(t0, t0 + dt, Continuous,
-                                                     NoFrequency, true).rate() -
-                          dividendYield_->forwardRate(t0, t0 + dt, Continuous,
-                                                      NoFrequency, true).rate()) *
-                             dt -
-                         0.5 * var;
-            return apply(x0, std::sqrt(var) * dw + drift);
+            Rate r = riskFreeRate_->forwardRate(t0, t0 + dt, Continuous, NoFrequency, true).rate();
+            Rate q = dividendYield_->forwardRate(t0, t0 + dt, Continuous, NoFrequency, true).rate();
+            Real drift = lognormalDrift(r, q, dt, var);
+            return apply(x0, lognormalIncrement(std::sqrt(var), dw, drift));
         } else
             return apply(x0, discretization_->drift(*this, t0, x0, dt) +
                                  stdDeviation(t0, x0, dt) * dw);
+    }
+
+    ext::shared_ptr<const StochasticProcess1D::StepTable1D>
+    GeneralizedBlackScholesProcess::stepTable1D(const TimeGrid& grid) const {
+        if (!isDeclaredHere(*this))
+            return StochasticProcess1D::stepTable1D(grid);
+        return exactStepTable(grid);
+    }
+
+    ext::shared_ptr<const StochasticProcess1D::StepTable1D>
+    GeneralizedBlackScholesProcess::exactStepTable(const TimeGrid& grid) const {
+        localVolatility(); // trigger update
+        if (!isStrikeIndependent_ || forceDiscretization_)
+            return StochasticProcess1D::stepTable1D(grid);
+
+        const Real x = x0(); // not used on this branch
+        std::vector<ExactStepTable::Step> steps(grid.size() - 1);
+        for (Size i = 0; i < steps.size(); ++i) {
+            // the strike-independent branch of evolve(), call for call; t0 + dt stays
+            // the sum evolve() computes, since grid[i+1] need not be the same double
+            const Time t0 = grid[i], dt = grid.dt(i);
+            const Real var = variance(t0, x, dt);
+            Rate r = riskFreeRate_->forwardRate(t0, t0 + dt, Continuous, NoFrequency, true).rate();
+            Rate q = dividendYield_->forwardRate(t0, t0 + dt, Continuous, NoFrequency, true).rate();
+            steps[i].stdDeviation = std::sqrt(var);
+            steps[i].drift = lognormalDrift(r, q, dt, var);
+        }
+        return ext::make_shared<ExactStepTable>(std::move(steps));
     }
 
     Time GeneralizedBlackScholesProcess::time(const Date& d) const {

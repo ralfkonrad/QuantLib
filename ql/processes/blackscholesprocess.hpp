@@ -5,6 +5,7 @@
  Copyright (C) 2003 Ferdinando Ametrano
  Copyright (C) 2004, 2005, 2006, 2007, 2009 StatPro Italia srl
  Copyright (C) 2015 Peter Caspers
+ Copyright (C) 2026 Ralf Konrad Eckel
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -84,6 +85,13 @@ namespace QuantLib {
         Real variance(Time t0, Real x0, Time dt) const override;
         Real evolve(Time t0, Real x0, Time dt, Real dw) const override;
         //@}
+        /*! returns a table of exact lognormal steps on the strike-independent
+            branch of evolve(), and the forwarding default table otherwise.
+            A subclass not declared in this file might override part of the
+            step, so it gets the forwarding table unless it overrides this
+            method itself.
+        */
+        ext::shared_ptr<const StepTable1D> stepTable1D(const TimeGrid& grid) const override;
         Time time(const Date&) const override;
         //! \name Observer interface
         //@{
@@ -97,6 +105,20 @@ namespace QuantLib {
         const Handle<BlackVolTermStructure>& blackVolatility() const;
         const Handle<LocalVolTermStructure>& localVolatility() const;
         //@}
+      protected:
+        /*! returns the table of exact lognormal steps on the
+            strike-independent branch of evolve(), and the forwarding
+            default table otherwise; for a subclass whose overrides leave
+            the step unchanged, to return from its own stepTable1D().
+
+            \warning that override is inherited by further subclasses,
+                     which might override part of the step. It should
+                     return exactStepTable() only when typeid(*this) is
+                     its own class, and StochasticProcess1D::stepTable1D()
+                     otherwise.
+        */
+        ext::shared_ptr<const StepTable1D> exactStepTable(const TimeGrid& grid) const;
+
       private:
         Handle<Quote> x0_;
         Handle<YieldTermStructure> riskFreeRate_, dividendYield_;
