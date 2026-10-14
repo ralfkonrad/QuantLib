@@ -2,6 +2,7 @@
 
 /*
  Copyright (C) 2005 StatPro Italia srl
+ Copyright (C) 2026 Ralf Konrad Eckel
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -25,9 +26,15 @@
 #include <ql/processes/ornsteinuhlenbeckprocess.hpp>
 #include <ql/processes/squarerootprocess.hpp>
 #include <ql/processes/stochasticprocessarray.hpp>
+#include <ql/termstructures/volatility/equityfx/blackvariancecurve.hpp>
+#include <ql/termstructures/volatility/equityfx/blackvariancesurface.hpp>
+#include <ql/termstructures/volatility/equityfx/localvolsurface.hpp>
+#include <ql/termstructures/yield/zerocurve.hpp>
+#include <ql/time/calendars/nullcalendar.hpp>
 #include <ql/time/daycounters/actual360.hpp>
 #include <ql/quotes/simplequote.hpp>
 #include <ql/utilities/dataformatters.hpp>
+#include <typeinfo>
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
@@ -282,6 +289,192 @@ BOOST_AUTO_TEST_CASE(testMultiPathGenerator) {
         2.226487196647,
         3.503859264341 };
     testMultiple(process, "square-root", result4, result4a);
+}
+
+// overrides apply(), which evolve() calls and the exact step table inlines
+class LinearApplyProcess : public BlackScholesMertonProcess {
+  public:
+    using BlackScholesMertonProcess::BlackScholesMertonProcess;
+    Real apply(Real x0, Real dx) const override { return x0 * (1.0 + dx); }
+};
+
+// leaves the step unchanged and says so, for itself but not for its own subclasses
+class OptedInProcess : public BlackScholesMertonProcess {
+  public:
+    using BlackScholesMertonProcess::BlackScholesMertonProcess;
+    ext::shared_ptr<const StepTable1D> stepTable1D(const TimeGrid& grid) const override {
+        if (typeid(*this) != typeid(OptedInProcess))
+            return StochasticProcess1D::stepTable1D(grid);
+        return exactStepTable(grid);
+    }
+};
+
+// implements evolve() only, so that it runs the default evolvePath()
+class EvolveOnlyStepTable : public StochasticProcess1D::StepTable1D {
+  public:
+    EvolveOnlyStepTable(const StochasticProcess1D& process, TimeGrid grid)
+    : process_(process), grid_(std::move(grid)) {}
+    Real evolve(Size i, Real x0, Real dw) const override {
+        return process_.evolve(grid_[i], x0, grid_.dt(i), dw);
+    }
+
+  private:
+    const StochasticProcess1D& process_;
+    TimeGrid grid_;
+};
+
+class EvolveOnlyTableProcess : public BlackScholesMertonProcess {
+  public:
+    using BlackScholesMertonProcess::BlackScholesMertonProcess;
+    ext::shared_ptr<const StepTable1D> stepTable1D(const TimeGrid& grid) const override {
+        return ext::make_shared<EvolveOnlyStepTable>(*this, grid);
+    }
+};
+
+void testStepTableAgainstEvolve(const StochasticProcess1D& process,
+                                const TimeGrid& grid,
+                                const std::string& tag) {
+    ext::shared_ptr<const StochasticProcess1D::StepTable1D> table = process.stepTable1D(grid);
+    for (Size i = 0; i < grid.size() - 1; ++i) {
+        for (Real x0 : {50.0, 100.0, 175.0}) {
+            for (Real dw : {-2.1, -0.3, 0.0, 0.8, 1.7}) {
+                Real expected = process.evolve(grid[i], x0, grid.dt(i), dw);
+                Real calculated = table->evolve(i, x0, dw);
+                if (calculated != expected)
+                    BOOST_ERROR("step table differs from evolve() for the "
+                                << tag << " process:\n"
+                                << std::setprecision(17) << "    step:       " << i << "\n"
+                                << "    x0:         " << x0 << "\n"
+                                << "    dw:         " << dw << "\n"
+                                << "    calculated: " << calculated << "\n"
+                                << "    expected:   " << expected);
+            }
+        }
+    }
+
+    std::vector<Real> dw(grid.size() - 1);
+    for (Size i = 0; i < dw.size(); ++i)
+        dw[i] = 0.9 * std::sin(1.0 + 2.3 * i);
+    std::vector<Real> path(grid.size());
+    for (bool antithetic : {false, true}) {
+        table->evolvePath(100.0, dw, antithetic, path.data());
+        if (path[0] != 100.0)
+            BOOST_ERROR("step-table path for the " << tag << " process does not start at x0");
+        Real expected = 100.0;
+        for (Size i = 0; i < dw.size(); ++i) {
+            expected = process.evolve(grid[i], expected, grid.dt(i), antithetic ? -dw[i] : dw[i]);
+            if (path[i + 1] != expected)
+                BOOST_ERROR("step-table path differs from evolve() for the "
+                            << tag << " process" << (antithetic ? " (antithetic)" : "") << ":\n"
+                            << std::setprecision(17) << "    step:       " << i << "\n"
+                            << "    calculated: " << path[i + 1] << "\n"
+                            << "    expected:   " << expected);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testStepTable) {
+
+    BOOST_TEST_MESSAGE("Testing that step tables reproduce evolve() exactly...");
+
+    Date today(26, April, 2005);
+    Settings::instance().evaluationDate() = today;
+    DayCounter dc = Actual360();
+
+    Handle<Quote> x0(ext::make_shared<SimpleQuote>(100.0));
+    std::vector<Date> dates = {today, today + 6 * Months, today + 1 * Years, today + 2 * Years};
+    Handle<YieldTermStructure> r(
+        ext::make_shared<ZeroCurve>(dates, std::vector<Rate>{0.010, 0.012, 0.015, 0.018}, dc));
+    Handle<YieldTermStructure> q(
+        ext::make_shared<ZeroCurve>(dates, std::vector<Rate>{0.030, 0.029, 0.027, 0.025}, dc));
+    Handle<BlackVolTermStructure> flat(flatVol(today, 0.20, dc));
+    Handle<BlackVolTermStructure> curve(ext::make_shared<BlackVarianceCurve>(
+        today, std::vector<Date>(dates.begin() + 1, dates.end()),
+        std::vector<Volatility>{0.25, 0.22, 0.20}, dc));
+
+    // a smile, sigma(K) = 0.20 - 0.08 ln(K/100) on every expiry
+    std::vector<Real> strikes = {40.0, 60.0, 80.0, 100.0, 120.0, 150.0, 200.0, 250.0};
+    Matrix smileVols(strikes.size(), dates.size() - 1);
+    for (Size i = 0; i < strikes.size(); ++i)
+        for (Size j = 0; j < smileVols.columns(); ++j)
+            smileVols[i][j] = 0.20 - 0.08 * std::log(strikes[i] / 100.0);
+    Handle<BlackVolTermStructure> smile(ext::make_shared<BlackVarianceSurface>(
+        today, NullCalendar(), std::vector<Date>(dates.begin() + 1, dates.end()), strikes,
+        smileVols, dc, BlackVarianceSurface::ConstantExtrapolation,
+        BlackVarianceSurface::ConstantExtrapolation));
+    Handle<LocalVolTermStructure> localSmile(ext::make_shared<LocalVolSurface>(smile, r, q, x0));
+
+    // uneven steps, all within the variance curve's last date
+    std::vector<Time> mandatory = {0.1, 0.35, 1.0, 1.5};
+    TimeGrid grid(mandatory.begin(), mandatory.end(), 12);
+
+    testStepTableAgainstEvolve(BlackScholesMertonProcess(x0, q, r, flat), grid,
+                               "constant-volatility");
+    testStepTableAgainstEvolve(BlackScholesMertonProcess(x0, q, r, curve), grid, "variance-curve");
+    testStepTableAgainstEvolve(BlackScholesProcess(x0, r, curve), grid,
+                               "Black-Scholes variance-curve");
+    testStepTableAgainstEvolve(GeneralizedBlackScholesProcess(x0, q, r, curve), grid,
+                               "generalized Black-Scholes variance-curve");
+    testStepTableAgainstEvolve(BlackProcess(x0, r, curve), grid, "Black variance-curve");
+    testStepTableAgainstEvolve(GarmanKohlagenProcess(x0, q, r, curve), grid,
+                               "Garman-Kohlhagen variance-curve");
+    testStepTableAgainstEvolve(
+        BlackScholesMertonProcess(x0, q, r, flat, ext::make_shared<EulerDiscretization>(), true),
+        grid, "Euler-discretized");
+    // two of the x0 values are off spot, so a table that froze the local volatility at spot fails
+    testStepTableAgainstEvolve(BlackScholesMertonProcess(x0, q, r, smile), grid, "smile");
+    testStepTableAgainstEvolve(GeneralizedBlackScholesProcess(x0, q, r, smile, localSmile), grid,
+                               "external local-volatility");
+    testStepTableAgainstEvolve(OptedInProcess(x0, q, r, curve), grid, "opted-in subclass");
+    testStepTableAgainstEvolve(EvolveOnlyTableProcess(x0, q, r, curve), grid, "default-evolvePath");
+
+    LinearApplyProcess linear(x0, q, r, curve);
+    testStepTableAgainstEvolve(linear, grid, "linear-apply subclass");
+    // the subclass would fail the check above if its table ignored the override
+    BlackScholesMertonProcess plain(x0, q, r, curve);
+    if (linear.evolve(grid[0], 100.0, grid.dt(0), 0.8) ==
+        plain.evolve(grid[0], 100.0, grid.dt(0), 0.8))
+        BOOST_ERROR("the linear-apply subclass does not change the step");
+}
+
+BOOST_AUTO_TEST_CASE(testPathGeneratorObservesProcess) {
+
+    BOOST_TEST_MESSAGE("Testing that a path generator follows changes to its process...");
+
+    typedef PseudoRandom::rsg_type rsg_type;
+
+    Date today(26, April, 2005);
+    Settings::instance().evaluationDate() = today;
+    DayCounter dc = Actual360();
+
+    auto volatility = ext::make_shared<SimpleQuote>(0.20);
+    auto process = ext::make_shared<BlackScholesMertonProcess>(
+        Handle<Quote>(ext::make_shared<SimpleQuote>(100.0)),
+        Handle<YieldTermStructure>(flatRate(today, 0.02, dc)),
+        Handle<YieldTermStructure>(flatRate(today, 0.05, dc)),
+        Handle<BlackVolTermStructure>(flatVol(today, volatility, dc)));
+
+    TimeGrid grid(1.0, 12);
+    BigNatural seed = 42;
+    PathGenerator<rsg_type> generator(
+        process, grid, PseudoRandom::make_sequence_generator(grid.size() - 1, seed), false);
+    rsg_type replica = PseudoRandom::make_sequence_generator(grid.size() - 1, seed);
+
+    for (Volatility sigma : {0.20, 0.35}) {
+        volatility->setValue(sigma);
+        const Path& path = generator.next().value;
+        const std::vector<Real>& dw = replica.nextSequence().value;
+        Real expected = process->x0();
+        for (Size i = 0; i < grid.size() - 1; ++i) {
+            expected = process->evolve(grid[i], expected, grid.dt(i), dw[i]);
+            if (path[i + 1] != expected)
+                BOOST_ERROR("path differs from evolve() at volatility "
+                            << sigma << ":\n"
+                            << std::setprecision(17) << "    step:       " << i << "\n"
+                            << "    calculated: " << path[i + 1] << "\n"
+                            << "    expected:   " << expected);
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
